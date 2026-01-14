@@ -1,5 +1,11 @@
 # Personal Finance App - Tasks
 
+## Phase 0: Frontend Setup ✅
+
+- [x] Install Tailwind CSS v4 + Vite plugin
+- [x] Configure path aliases in tsconfig.json and vite.config.ts
+- [x] Initialize shadcn/ui with neutral theme
+
 ## Phase 1: Foundation & Core Data Layer
 
 - [ ] Add sqlx + SQLite dependencies to Cargo.toml

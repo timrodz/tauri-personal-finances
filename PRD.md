@@ -230,13 +230,14 @@ erDiagram
 
 ## Technology Stack
 
-| Layer    | Technology                 |
-| -------- | -------------------------- |
-| Frontend | React 19, TypeScript, Vite |
-| Charts   | Chart.js (react-chartjs-2) |
-| Backend  | Rust (Tauri 2)             |
-| Database | SQLite via sqlx            |
-| Styling  | CSS (modern, responsive)   |
+| Layer      | Technology                   |
+| ---------- | ---------------------------- |
+| Frontend   | React 19, TypeScript, Vite   |
+| Components | shadcn/ui (Radix + Tailwind) |
+| Charts     | Chart.js (react-chartjs-2)   |
+| Styling    | Tailwind CSS v4              |
+| Backend    | Rust (Tauri 2)               |
+| Database   | SQLite via sqlx              |
 
 ---
 
