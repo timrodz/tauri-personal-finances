@@ -12,8 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "Personal Finances",
-        "width": 800,
+        "titleBarStyle": "Overlay",
+        "title": "",
+        "width": 900,
         "height": 600
       }
     ],

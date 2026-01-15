@@ -28,12 +28,13 @@
 - [x] Auto-redirect to setup on first launch
 - [x] Implement a theme provider for light, dark, system options
 
-## Phase 3: Account Management
+## Phase 3: Account Management ✅
 
-- [ ] Create AccountForm component (name, type, currency)
-- [ ] Build AccountsList component with edit/delete
-- [ ] Implement account CRUD commands
-- [ ] Validate unique account names
+- [x] Create AccountForm component (name, type, currency)
+- [x] Build AccountsList component with edit/delete
+- [x] Implement account CRUD commands
+- [x] Validate unique account names
+- [x] Add unit tests to verify logic
 
 ## Phase 4: Balance Sheet Core
 

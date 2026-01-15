@@ -22,6 +22,14 @@ impl AccountService {
             .map_err(|e| e.to_string())
     }
 
+    pub async fn get_by_name(pool: &SqlitePool, name: String) -> Result<Option<Account>, String> {
+        sqlx::query_as::<_, Account>("SELECT * FROM accounts WHERE name = ?")
+            .bind(name)
+            .fetch_optional(pool)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
     // UPSERT
     pub async fn upsert(
         pool: &SqlitePool,
@@ -31,6 +39,13 @@ impl AccountService {
         currency: String,
     ) -> Result<Account, String> {
         let now = chrono::Utc::now();
+
+        // Check for unique name
+        if let Some(existing) = Self::get_by_name(pool, name.clone()).await? {
+            if id.as_ref().map_or(true, |uid| uid != &existing.id) {
+                return Err(format!("Account with name '{}' already exists", name));
+            }
+        }
 
         if let Some(uid) = id {
             let exists: Option<Account> = Self::get_by_id(pool, uid.clone()).await?;
@@ -116,7 +131,23 @@ mod tests {
         assert_eq!(updated.account_type, "Liability");
         assert_eq!(updated.currency, "AUD");
 
-        // 4. Delete
+        // 4. Test Unique Name
+        let duplicate_result = AccountService::upsert(
+            &pool,
+            None,
+            "Test Bank Updated".into(),
+            "Asset".into(),
+            "NZD".into(),
+        )
+        .await;
+
+        assert!(duplicate_result.is_err());
+        assert_eq!(
+            duplicate_result.unwrap_err(),
+            "Account with name 'Test Bank Updated' already exists"
+        );
+
+        // 5. Delete
         AccountService::delete(&pool, account.id.clone())
             .await
             .expect("Failed to delete");
