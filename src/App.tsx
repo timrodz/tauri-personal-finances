@@ -42,37 +42,32 @@ function App() {
     checkSettings();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-muted-foreground animate-pulse">Loading...</div>
-      </div>
-    );
-  }
-
-  // Not onboarded yet
-  if (!settings) {
-    return <UserSettingsForm onComplete={() => checkSettings()} />;
-  }
-
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Dashboard
-                settings={settings}
-                onSettingsUpdated={checkSettings}
-              />
-            }
-          />
-          <Route path="/balance-sheets" element={<BalanceSheets />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+      {loading ? (
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <div className="text-muted-foreground animate-pulse">Loading...</div>
+        </div>
+      ) : !settings ? (
+        <UserSettingsForm onComplete={() => checkSettings()} />
+      ) : (
+        <Router>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Dashboard
+                  settings={settings}
+                  onSettingsUpdated={checkSettings}
+                />
+              }
+            />
+            <Route path="/balance-sheets" element={<BalanceSheets />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      )}
     </ThemeProvider>
   );
 }

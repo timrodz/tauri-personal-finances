@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { api } from "@/lib/api";
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CurrencySelect } from "../../components/currency-select";
+import { CurrencySelect } from "@/components/currency-select";
 import { useTheme } from "@/providers/theme-provider";
 import {
   Select,
@@ -34,16 +34,11 @@ export function UserSettingsForm({
   onComplete,
   initialValues,
 }: SetupFormProps) {
+  const { theme, setTheme } = useTheme();
+
   const [name, setName] = useState(initialValues?.name || "");
   const [currency, setCurrency] = useState(initialValues?.currency || "USD");
   const [loading, setLoading] = useState(false);
-  const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    if (initialValues?.theme) {
-      setTheme(initialValues.theme);
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +82,7 @@ export function UserSettingsForm({
 
         <div className="space-y-2">
           <Label>Theme</Label>
-          <Select value={theme} onValueChange={(val: any) => setTheme(val)}>
+          <Select value={theme} onValueChange={(val: Theme) => setTheme(val)}>
             <SelectTrigger>
               <SelectValue placeholder="Theme" />
             </SelectTrigger>
@@ -132,8 +127,8 @@ export function UserSettingsForm({
             Welcome
           </CardTitle>
           <CardDescription>
-            Let's get setup first. How should we address you and what's your
-            primary currency?
+            {`Let's get setup first. How should we address you and what's your
+            primary currency?`}
           </CardDescription>
         </CardHeader>
         <CardContent>{FormContent}</CardContent>
