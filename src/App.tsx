@@ -1,22 +1,18 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { UserSettings } from "@/lib/types";
-import { UserSettingsForm } from "./features/user-settings-form/user-settings-form";
+import { BalanceSheetPage } from "@/pages/BalanceSheetPage";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Dashboard } from "@/features/dashboard/dashboard";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import { UserSettingsFormFeature } from "./features/user-settings-form/user-settings-form-feature";
+import { HomePage } from "./pages/HomePage";
 
 // Placeholder components
-const BalanceSheets = () => (
-  <div className="p-8">
-    <h1>Balance Sheets</h1>
-  </div>
-);
 const Settings = () => (
   <div className="p-8">
     <h1>Settings</h1>
@@ -27,7 +23,7 @@ function App() {
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const checkSettings = async () => {
+  const checkSettings = useCallback(async () => {
     try {
       const userSettings = await api.getUserSettings();
       setSettings(userSettings);
@@ -36,7 +32,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkSettings();
@@ -49,20 +45,20 @@ function App() {
           <div className="text-muted-foreground animate-pulse">Loading...</div>
         </div>
       ) : !settings ? (
-        <UserSettingsForm onComplete={() => checkSettings()} />
+        <UserSettingsFormFeature onComplete={() => checkSettings()} />
       ) : (
         <Router>
           <Routes>
             <Route
               path="/"
               element={
-                <Dashboard
-                  settings={settings}
-                  onSettingsUpdated={checkSettings}
-                />
+                <HomePage settings={settings} checkSettings={checkSettings} />
               }
             />
-            <Route path="/balance-sheets" element={<BalanceSheets />} />
+            <Route
+              path="/balance-sheets/:year"
+              element={<BalanceSheetPage />}
+            />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

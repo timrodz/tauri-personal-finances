@@ -1,0 +1,123 @@
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
+import { useMemo } from "react";
+import { Line } from "react-chartjs-2";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MONTHS } from "@/constants/months";
+import { MonthlyTotal } from "../lib/calculations";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+interface BalanceSheetChartProps {
+  monthlyTotals: MonthlyTotal[];
+  homeCurrency: string;
+}
+
+export function BalanceSheetChart({
+  monthlyTotals,
+  homeCurrency,
+}: BalanceSheetChartProps) {
+  const data = useMemo(() => {
+    const labels = [...MONTHS];
+    const netWorthData = monthlyTotals.map((t) => t.netWorth);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Net Worth",
+          data: netWorthData,
+          fill: true,
+          borderColor: "hsl(var(--primary))",
+          backgroundColor: "hsla(var(--primary), 0.1)",
+          tension: 0.4,
+        },
+      ],
+    };
+  }, [monthlyTotals]);
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: false,
+        text: "Net Worth Trend",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: homeCurrency,
+              }).format(context.parsed.y);
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        grid: {
+          color: "hsl(var(--muted))",
+        },
+        ticks: {
+          callback: function (value: any) {
+            return new Intl.NumberFormat("en-US", {
+              notation: "compact",
+              compactDisplay: "short",
+              style: "currency",
+              currency: homeCurrency,
+            }).format(value);
+          },
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Net Worth Trend</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[300px] w-full">
+          <Line options={options} data={data} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
