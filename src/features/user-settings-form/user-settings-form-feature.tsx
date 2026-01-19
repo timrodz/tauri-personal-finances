@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { api } from "@/lib/api";
+import { CurrencySelect } from "@/components/currency-select";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CurrencySelect } from "@/components/currency-select";
-import { useTheme } from "@/providers/theme-provider";
 import {
   Select,
   SelectContent,
@@ -19,9 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/lib/api";
 import { Theme } from "@/lib/types";
+import { useTheme } from "@/providers/theme-provider";
+import { useState } from "react";
 
-interface SetupFormProps {
+interface UserSettingsFormProps {
   onComplete: () => void;
   initialValues?: {
     name: string;
@@ -30,10 +30,10 @@ interface SetupFormProps {
   };
 }
 
-export function UserSettingsForm({
+export function UserSettingsFormFeature({
   onComplete,
   initialValues,
-}: SetupFormProps) {
+}: UserSettingsFormProps) {
   const { theme, setTheme } = useTheme();
 
   const [name, setName] = useState(initialValues?.name || "");

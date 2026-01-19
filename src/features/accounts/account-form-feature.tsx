@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { api, Account } from "@/lib/api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { CurrencySelect } from "@/components/currency-select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -11,7 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Account, api } from "@/lib/api";
 import { RefreshCw } from "lucide-react";
+import { useState } from "react";
 
 interface AccountFormProps {
   onComplete: () => void;
@@ -19,7 +19,7 @@ interface AccountFormProps {
   defaultCurrency?: string;
 }
 
-export function AccountForm({
+export function AccountFormFeature({
   onComplete,
   initialValues,
   defaultCurrency = "USD",
