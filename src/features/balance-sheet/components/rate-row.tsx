@@ -27,6 +27,7 @@ export function RateRow({
           <TableCell key={month} className="text-right p-0">
             <EditableCell
               value={rate}
+              currency={currency}
               onChange={(value) => onRateChange(month, value)}
               isRate
             />

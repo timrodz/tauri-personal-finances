@@ -109,8 +109,8 @@ export function UserSettingsFormFeature({
             ? "Saving..."
             : "Save Changes"
           : loading
-          ? "Saving..."
-          : "Get Started"}
+            ? "Saving..."
+            : "Get Started"}
       </Button>
     </form>
   );

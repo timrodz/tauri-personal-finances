@@ -26,10 +26,10 @@ export function AccountFormFeature({
 }: AccountFormProps) {
   const [name, setName] = useState(initialValues?.name || "");
   const [accountType, setAccountType] = useState<"Asset" | "Liability">(
-    initialValues?.accountType || "Asset"
+    initialValues?.accountType || "Asset",
   );
   const [currency, setCurrency] = useState(
-    initialValues?.currency || defaultCurrency
+    initialValues?.currency || defaultCurrency,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +73,7 @@ export function AccountFormFeature({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          autoFocus
         />
       </div>
 

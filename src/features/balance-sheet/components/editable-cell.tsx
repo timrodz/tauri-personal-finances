@@ -26,25 +26,22 @@ export function EditableCell({
   const [isValid, setIsValid] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync internal state with prop value when not focused
   useEffect(() => {
-    if (!isFocused) {
-      setInputValue(
-        !isRate && value
-          ? formatDecimal2Digits(value)
-          : formatCurrencyRate(value),
-      );
-      setIsValid(true);
+    if (isFocused) return;
+    if (!value) return;
+    if (isRate) {
+      setInputValue(formatCurrencyRate(value));
+      return;
     }
+    setInputValue(formatDecimal2Digits(value));
+    setIsValid(true);
   }, [value, isFocused, isRate]);
 
   const handleFocus = () => {
-    if (disabled) return;
+    if (disabled || !value) return;
     setIsFocused(true);
     // When focused, show raw number for editing
-    setInputValue(value?.toString() || "");
-    // Select all on focus for quick overwrite
-    setTimeout(() => inputRef.current?.select(), 0);
+    setInputValue(value.toString());
   };
 
   const handleBlur = async () => {
