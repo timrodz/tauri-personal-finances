@@ -21,7 +21,7 @@ export const api = {
   updateUserSettings: async (
     name: string,
     homeCurrency: string,
-    theme: string
+    theme: string,
   ): Promise<UserSettings> => {
     return await invoke(COMMANDS.UPDATE_USER_SETTINGS, {
       name,
@@ -38,7 +38,7 @@ export const api = {
   createAccount: async (
     name: string,
     accountType: string,
-    currency: string
+    currency: string,
   ): Promise<Account> => {
     return await invoke(COMMANDS.CREATE_ACCOUNT, {
       name,
@@ -51,7 +51,7 @@ export const api = {
     id: string,
     name: string,
     accountType: string,
-    currency: string
+    currency: string,
   ): Promise<Account> => {
     return await invoke(COMMANDS.UPDATE_ACCOUNT, {
       id,
@@ -59,6 +59,10 @@ export const api = {
       accountType,
       currency,
     });
+  },
+
+  updateAccountOrder: async (ids: string[]): Promise<void> => {
+    await invoke(COMMANDS.UPDATE_ACCOUNT_ORDER, { ids });
   },
 
   deleteAccount: async (id: string): Promise<void> => {
@@ -84,7 +88,7 @@ export const api = {
     balanceSheetId: string,
     accountId: string,
     month: number,
-    amount: number
+    amount: number,
   ): Promise<Entry> => {
     return await invoke(COMMANDS.UPSERT_ENTRY, {
       balanceSheetId,
@@ -105,7 +109,7 @@ export const api = {
     toCurrency: string,
     rate: number,
     month: number,
-    year: number
+    year: number,
   ): Promise<CurrencyRate> => {
     return await invoke(COMMANDS.UPSERT_CURRENCY_RATE, {
       id,

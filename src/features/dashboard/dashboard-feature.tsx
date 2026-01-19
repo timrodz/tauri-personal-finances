@@ -133,14 +133,16 @@ export function DashboardFeature({
                   <DialogTrigger asChild>
                     <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center min-h-[140px] cursor-pointer hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground">
                       <Plus className="h-8 w-8 mb-2" />
-                      <span className="font-medium">New Year</span>
+                      <span className="font-medium">New Balance Sheet</span>
                     </div>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Create New Balance Sheet</DialogTitle>
                       <DialogDescription>
-                        Select a year to begin tracking.
+                        Select a year to begin tracking. Note: if the year is
+                        missing, that means you already have a balance sheet for
+                        it.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 pt-4">

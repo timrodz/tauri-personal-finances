@@ -16,6 +16,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Account, api } from "@/lib/api";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountFormFeature } from "../accounts/account-form-feature";
@@ -31,11 +46,18 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
   const fetchAccounts = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getAllAccounts();
-      setAccounts(data.sort((a) => (a.accountType === "Asset" ? -1 : 1)));
+      setAccounts(data);
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
     } finally {
@@ -49,6 +71,27 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
       fetchAccounts();
     } catch (error) {
       console.error("Failed to delete account:", error);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setAccounts((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+
+        // Update order in background
+        api.updateAccountOrder(newOrder.map((a) => a.id)).catch((error) => {
+          console.error("Failed to update account order:", error);
+          // Rollback if needed or notify user
+          fetchAccounts();
+        });
+
+        return newOrder;
+      });
     }
   };
 
@@ -97,6 +140,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Currency</TableHead>
@@ -107,24 +151,35 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
             {accounts.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   className="text-center h-24 text-muted-foreground"
                 >
                   No accounts found. Add one to get started.
                 </TableCell>
               </TableRow>
             ) : (
-              accounts.map((account) => (
-                <AccountRow
-                  key={account.id}
-                  account={account}
-                  isEditing={editingAccount?.id === account.id}
-                  onEditStart={() => setEditingAccount(account)}
-                  onEditEnd={() => setEditingAccount(null)}
-                  onDelete={handleDelete}
-                  onRefresh={fetchAccounts}
-                />
-              ))
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={accounts.map((a) => a.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {accounts.map((account) => (
+                    <AccountRow
+                      key={account.id}
+                      account={account}
+                      isEditing={editingAccount?.id === account.id}
+                      onEditStart={() => setEditingAccount(account)}
+                      onEditEnd={() => setEditingAccount(null)}
+                      onDelete={handleDelete}
+                      onRefresh={fetchAccounts}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
           </TableBody>
         </Table>

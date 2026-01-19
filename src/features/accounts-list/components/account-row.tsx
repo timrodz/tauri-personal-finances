@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Account } from "@/lib/api";
-import { Edit2, Trash2 } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Edit2, GripVertical, Trash2 } from "lucide-react";
 import { AccountFormFeature } from "../../accounts/account-form-feature";
 
 interface AccountRowProps {
@@ -40,8 +42,40 @@ export function AccountRow({
   onDelete,
   onRefresh,
 }: AccountRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: account.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <TableRow key={account.id}>
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "bg-muted" : ""}
+    >
+      <TableCell className="w-[40px]">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+          <span className="sr-only">Drag handle</span>
+        </Button>
+      </TableCell>
       <TableCell className="font-medium">{account.name}</TableCell>
       <TableCell>
         <span

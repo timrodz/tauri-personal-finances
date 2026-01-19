@@ -22,7 +22,7 @@ export function YearSelector({
 }: YearSelectorProps) {
   const currentYear = new Date().getFullYear();
   // Range: 5 years back, up to current year
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
   const availableYears = years.filter((y) => !existingYears.includes(y));
 

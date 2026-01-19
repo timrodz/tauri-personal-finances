@@ -14,6 +14,7 @@ export interface Account {
   name: string;
   accountType: "Asset" | "Liability";
   currency: string;
+  sortOrder: number;
   createdAt: string;
 }
 

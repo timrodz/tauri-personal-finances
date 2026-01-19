@@ -10,6 +10,7 @@ export const COMMANDS = {
   GET_ALL_ACCOUNTS: "get_all_accounts",
   CREATE_ACCOUNT: "create_account",
   UPDATE_ACCOUNT: "update_account",
+  UPDATE_ACCOUNT_ORDER: "update_account_order",
   DELETE_ACCOUNT: "delete_account",
 
   // Balance Sheets
