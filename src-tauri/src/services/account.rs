@@ -7,7 +7,7 @@ pub struct AccountService;
 impl AccountService {
     // LIST
     pub async fn get_all(pool: &SqlitePool) -> Result<Vec<Account>, String> {
-        sqlx::query_as::<_, Account>("SELECT * FROM accounts ORDER BY created_at ASC")
+        sqlx::query_as::<_, Account>("SELECT * FROM accounts ORDER BY sort_order ASC")
             .fetch_all(pool)
             .await
             .map_err(|e| e.to_string())
@@ -64,17 +64,42 @@ impl AccountService {
         }
 
         let new_id = Uuid::new_v4().to_string();
+
+        // Get current max sort_order
+        let max_order: (i32,) = sqlx::query_as("SELECT COALESCE(MAX(sort_order), 0) FROM accounts")
+            .fetch_one(pool)
+            .await
+            .map_err(|e| e.to_string())?;
+        let next_order = max_order.0 + 1;
+
         sqlx::query_as::<_, Account>(
-            "INSERT INTO accounts (id, name, account_type, currency, created_at) VALUES (?, ?, ?, ?, ?) RETURNING *"
+            "INSERT INTO accounts (id, name, account_type, currency, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING *"
         )
         .bind(new_id)
         .bind(name)
         .bind(account_type)
         .bind(currency)
+        .bind(next_order)
         .bind(now)
         .fetch_one(pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    pub async fn update_order(pool: &SqlitePool, ids: Vec<String>) -> Result<(), String> {
+        let mut tx = pool.begin().await.map_err(|e| e.to_string())?;
+
+        for (index, id) in ids.into_iter().enumerate() {
+            let order = (index + 1) as i32;
+            sqlx::query("UPDATE accounts SET sort_order = ? WHERE id = ?")
+                .bind(order)
+                .bind(id)
+                .execute(&mut *tx)
+                .await
+                .map_err(|e| e.to_string())?;
+        }
+
+        tx.commit().await.map_err(|e| e.to_string())
     }
 
     // DELETE

@@ -74,6 +74,7 @@ pub fn run() {
             commands::get_all_accounts,
             commands::create_account,
             commands::update_account,
+            commands::update_account_order,
             commands::delete_account,
             commands::get_balance_sheets,
             commands::create_balance_sheet,

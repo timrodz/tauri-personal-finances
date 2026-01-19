@@ -20,6 +20,7 @@ pub struct Account {
     pub name: String,
     pub account_type: String, // 'Asset' or 'Liability'
     pub currency: String,
+    pub sort_order: i32,
     pub created_at: DateTime<Utc>,
 }
 

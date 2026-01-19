@@ -58,6 +58,14 @@ pub async fn update_account(
 }
 
 #[tauri::command]
+pub async fn update_account_order(
+    state: State<'_, AppState>,
+    ids: Vec<String>,
+) -> Result<(), String> {
+    AccountService::update_order(&state.db, ids).await
+}
+
+#[tauri::command]
 pub async fn delete_account(state: State<'_, AppState>, id: String) -> Result<(), String> {
     AccountService::delete(&state.db, id).await
 }
