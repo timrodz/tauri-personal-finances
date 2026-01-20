@@ -1,5 +1,6 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { getBreakdownChartData } from "@/lib/charts/net-worth-utils";
+import { cn } from "@/lib/utils";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import { useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
@@ -8,10 +9,12 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface NetWorthBreakdownChartProps {
   latestPoint: NetWorthDataPoint | undefined;
+  className?: string;
 }
 
 export function NetWorthBreakdownChart({
   latestPoint,
+  className,
 }: NetWorthBreakdownChartProps) {
   const chartData = useMemo(
     () => getBreakdownChartData(latestPoint),
@@ -37,7 +40,7 @@ export function NetWorthBreakdownChart({
   };
 
   return (
-    <div className="h-[300px] w-full">
+    <div className={cn("h-[300px] w-full", className)}>
       <Doughnut data={chartData} options={options} />
     </div>
   );

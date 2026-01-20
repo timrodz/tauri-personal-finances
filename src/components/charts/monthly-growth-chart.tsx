@@ -3,6 +3,7 @@ import {
   getMonthlyGrowthChartData,
   getNetWorthChartOptions,
 } from "@/lib/charts/net-worth-utils";
+import { cn } from "@/lib/utils";
 import {
   BarElement,
   CategoryScale,
@@ -27,11 +28,13 @@ ChartJS.register(
 interface MonthlyGrowthChartProps {
   filteredHistory: NetWorthDataPoint[] | undefined;
   homeCurrency: string;
+  className?: string;
 }
 
 export function MonthlyGrowthChart({
   filteredHistory,
   homeCurrency,
+  className,
 }: MonthlyGrowthChartProps) {
   const chartData = useMemo(
     () => getMonthlyGrowthChartData(filteredHistory),
@@ -52,7 +55,7 @@ export function MonthlyGrowthChart({
   }
 
   return (
-    <div className="h-[300px] w-full">
+    <div className={cn("h-[300px] w-full", className)}>
       <Bar data={chartData} options={chartOptions} />
     </div>
   );

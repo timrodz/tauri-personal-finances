@@ -1,4 +1,5 @@
 import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -212,10 +213,17 @@ export function BalanceSheetFeature({
   return (
     <div className="space-y-8 pb-12">
       {/* CHART */}
-      <BalanceSheetChart
-        monthlyTotals={monthlyTotals}
-        homeCurrency={homeCurrency}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle>Balance Sheet</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BalanceSheetChart
+            monthlyTotals={monthlyTotals}
+            homeCurrency={homeCurrency}
+          />
+        </CardContent>
+      </Card>
 
       {/* ACCOUNTS GRID */}
       <div

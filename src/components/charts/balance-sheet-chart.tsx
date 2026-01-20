@@ -1,10 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MONTHS } from "@/lib/constants";
 import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
 import { MonthlyTotal } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -34,11 +34,13 @@ ChartJS.register(
 interface BalanceSheetChartProps {
   monthlyTotals: MonthlyTotal[];
   homeCurrency: string;
+  className?: string;
 }
 
 export function BalanceSheetChart({
   monthlyTotals,
   homeCurrency,
+  className,
 }: BalanceSheetChartProps) {
   const data = useMemo(() => {
     const labels = [...MONTHS];
@@ -106,15 +108,8 @@ export function BalanceSheetChart({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Net Worth Trend</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px] w-full">
-          <Line options={options} data={data} />
-        </div>
-      </CardContent>
-    </Card>
+    <div className={cn("h-[300px] w-full", className)}>
+      <Line options={options} data={data} />
+    </div>
   );
 }

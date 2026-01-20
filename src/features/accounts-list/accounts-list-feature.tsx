@@ -136,33 +136,33 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
         </Dialog>
       </div>
 
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[40px]"></TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Currency</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {accounts.length === 0 ? (
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center h-24 text-muted-foreground"
-                >
-                  No accounts found. Add one to get started.
-                </TableCell>
+                <TableHead className="w-[40px]"></TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Currency</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
+            </TableHeader>
+            <TableBody>
+              {accounts.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center h-24 text-muted-foreground"
+                  >
+                    No accounts found. Add one to get started.
+                  </TableCell>
+                </TableRow>
+              ) : (
                 <SortableContext
                   items={accounts.map((a) => a.id)}
                   strategy={verticalListSortingStrategy}
@@ -179,11 +179,11 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
                     />
                   ))}
                 </SortableContext>
-              </DndContext>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </DndContext>
     </div>
   );
 }
