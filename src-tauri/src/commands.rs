@@ -2,6 +2,7 @@ use crate::models::{Account, BalanceSheet, CurrencyRate, Entry, UserSettings};
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::entry::EntryService;
+use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
 use tauri::State;
@@ -14,6 +15,13 @@ pub async fn get_user_settings(state: State<'_, AppState>) -> Result<Option<User
     // Or keep get_all logic. Since UserSettings is a singleton concept, let's just get all and take first.
     let settings = UserSettingsService::get_all(&state.db).await?;
     Ok(settings.into_iter().next())
+}
+
+#[tauri::command]
+pub async fn get_net_worth_history(
+    state: State<'_, AppState>,
+) -> Result<Vec<NetWorthDataPoint>, String> {
+    NetWorthService::get_history(&state.db).await
 }
 
 #[tauri::command]
