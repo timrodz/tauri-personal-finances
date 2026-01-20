@@ -59,14 +59,20 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   const fetchAccounts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.getAllAccounts(showArchived);
+      // Always fetch all accounts to know if we have archived ones
+      const data = await api.getAllAccounts(true);
       setAccounts(data);
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
     } finally {
       setLoading(false);
     }
-  }, [showArchived]);
+  }, []);
+
+  const visibleAccounts = accounts.filter(
+    (a) => showArchived || !a.isArchived,
+  );
+  const hasArchivedAccounts = accounts.some((a) => a.isArchived);
 
   const handleDelete = async (id: string) => {
     try {
@@ -124,16 +130,18 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h3 className="text-lg font-semibold">Your Accounts</h3>
-          <div className="flex items-center space-x-2 border px-3 py-1.5 rounded-md">
-            <Switch
-              id="show-archived"
-              checked={showArchived}
-              onCheckedChange={setShowArchived}
-            />
-            <Label htmlFor="show-archived" className="text-sm cursor-pointer">
-              Show archived
-            </Label>
-          </div>
+          {hasArchivedAccounts && (
+            <div className="flex items-center space-x-2 border px-3 py-1.5 rounded-md">
+              <Switch
+                id="show-archived"
+                checked={showArchived}
+                onCheckedChange={setShowArchived}
+              />
+              <Label htmlFor="show-archived" className="text-sm cursor-pointer">
+                Show archived
+              </Label>
+            </div>
+          )}
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
@@ -177,7 +185,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {accounts.length === 0 ? (
+              {visibleAccounts.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={5}
@@ -188,10 +196,10 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
                 </TableRow>
               ) : (
                 <SortableContext
-                  items={accounts.map((a) => a.id)}
+                  items={visibleAccounts.map((a) => a.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {accounts.map((account) => (
+                  {visibleAccounts.map((account) => (
                     <AccountRow
                       key={account.id}
                       account={account}
