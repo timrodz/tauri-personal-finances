@@ -1,3 +1,4 @@
+import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
 import {
   Table,
   TableBody,
@@ -18,7 +19,6 @@ import { BalanceSheet } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMemo, useRef } from "react";
 import { AccountSection } from "./components/account-section";
-import { BalanceSheetChart } from "./components/balance-sheet-chart";
 import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
 import { TotalsSection } from "./components/totals-section";
 import { calculateMonthlyTotals } from "./lib/calculations";

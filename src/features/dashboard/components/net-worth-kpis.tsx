@@ -6,7 +6,9 @@ interface NetWorthKPIsProps {
   currentNetWorth: number;
   momGrowth: number;
   totalAssets: number;
+  assetGrowth?: number;
   totalLiabilities: number;
+  liabilityGrowth?: number;
   homeCurrency: string;
   periodLabel?: string;
 }
@@ -15,7 +17,9 @@ export function NetWorthKPIs({
   currentNetWorth,
   momGrowth,
   totalAssets,
+  assetGrowth,
   totalLiabilities,
+  liabilityGrowth,
   homeCurrency,
   periodLabel = "from last month",
 }: NetWorthKPIsProps) {
@@ -31,22 +35,24 @@ export function NetWorthKPIs({
             {formatCurrency(currentNetWorth, homeCurrency)}
           </div>
           <p className="text-xs text-muted-foreground flex items-center mt-1">
-            {momGrowth !== 0 && (
-              <span
-                className={
-                  momGrowth >= 0
-                    ? "text-green-600 flex items-center"
-                    : "text-red-600 flex items-center"
-                }
-              >
-                {momGrowth >= 0 ? (
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
-                ) : (
-                  <ArrowDownRight className="h-3 w-3 mr-1" />
-                )}
-                {Math.abs(momGrowth).toFixed(1)}%
-              </span>
-            )}
+            <span
+              className={
+                momGrowth > 0
+                  ? "text-chart-2 flex items-center"
+                  : momGrowth < 0
+                    ? "text-destructive flex items-center"
+                    : "text-muted-foreground flex items-center"
+              }
+            >
+              {momGrowth > 0 ? (
+                <ArrowUpRight className="h-3 w-3 mr-1" />
+              ) : momGrowth < 0 ? (
+                <ArrowDownRight className="h-3 w-3 mr-1" />
+              ) : (
+                <span className="mr-1">-</span>
+              )}
+              {Math.abs(momGrowth).toFixed(1)}%
+            </span>
             <span className="ml-1">{periodLabel}</span>
           </p>
         </CardContent>
@@ -60,8 +66,31 @@ export function NetWorthKPIs({
           <div className="text-2xl font-bold">
             {formatCurrency(totalAssets, homeCurrency)}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            across all accounts
+          <p className="text-xs text-muted-foreground flex items-center mt-1">
+            {assetGrowth !== undefined && (
+              <span
+                className={
+                  assetGrowth > 0
+                    ? "text-chart-2 flex items-center"
+                    : assetGrowth < 0
+                      ? "text-destructive flex items-center"
+                      : "text-muted-foreground flex items-center"
+                }
+              >
+                {assetGrowth > 0 ? (
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                ) : assetGrowth < 0 ? (
+                  <ArrowDownRight className="h-3 w-3 mr-1" />
+                ) : (
+                  <span className="mr-1">-</span>
+                )}
+                {Math.abs(assetGrowth).toFixed(1)}%
+              </span>
+            )}
+            <span className="ml-1">
+              {periodLabel} (vs {formatCurrency(totalLiabilities, homeCurrency)}{" "}
+              liabilities)
+            </span>
           </p>
         </CardContent>
       </Card>
@@ -76,8 +105,28 @@ export function NetWorthKPIs({
           <div className="text-2xl font-bold">
             {formatCurrency(totalLiabilities, homeCurrency)}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            outstanding debts
+          <p className="text-xs text-muted-foreground flex items-center mt-1">
+            {liabilityGrowth !== undefined && (
+              <span
+                className={
+                  liabilityGrowth > 0 // Growth in liabilities is usually bad (red)
+                    ? "text-destructive flex items-center"
+                    : liabilityGrowth < 0
+                      ? "text-chart-2 flex items-center"
+                      : "text-muted-foreground flex items-center"
+                }
+              >
+                {liabilityGrowth > 0 ? (
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                ) : liabilityGrowth < 0 ? (
+                  <ArrowDownRight className="h-3 w-3 mr-1" />
+                ) : (
+                  <span className="mr-1">-</span>
+                )}
+                {Math.abs(liabilityGrowth).toFixed(1)}%
+              </span>
+            )}
+            <span className="ml-1">{periodLabel}</span>
           </p>
         </CardContent>
       </Card>

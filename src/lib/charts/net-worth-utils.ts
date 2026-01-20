@@ -2,8 +2,6 @@ import { NetWorthDataPoint } from "@/lib/api";
 import { formatCurrencyCompact } from "@/lib/currency-formatting";
 import { ChartData, ChartType, ScriptableContext, TooltipItem } from "chart.js";
 
-// ... (existing code) ...
-
 export function getFilteredHistory(
   history: NetWorthDataPoint[] | undefined,
   timeRange: string,
@@ -20,6 +18,11 @@ export function getFilteredHistory(
       return history.slice(-12);
     case "6M":
       return history.slice(-6);
+    case "3M":
+      return history.slice(-3);
+    case "1M":
+      // Return last 2 points to show change from previous month to current
+      return history.slice(-2);
     case "YTD":
       return history.filter((p) => p.year === currentYear);
     case "ALL":
