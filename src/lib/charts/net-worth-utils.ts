@@ -1,5 +1,6 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { formatCurrencyCompact } from "@/lib/currency-formatting";
+import { toPrivateValue } from "@/lib/private-value";
 import { ChartData, ChartType, ScriptableContext, TooltipItem } from "chart.js";
 
 export function getFilteredHistory(
@@ -82,9 +83,10 @@ export function getNetWorthChartOptions(
             let label = context.dataset.label || "";
             if (label) label += ": ";
             if (context.parsed.y !== null) {
-              label += isPrivacyMode
-                ? "***"
-                : formatCurrencyCompact(context.parsed.y, homeCurrency);
+              label += toPrivateValue(
+                formatCurrencyCompact(context.parsed.y, homeCurrency),
+                isPrivacyMode,
+              );
             }
             return label;
           },
@@ -97,7 +99,10 @@ export function getNetWorthChartOptions(
         grid: { color: "rgba(0, 0, 0, 0.05)" },
         ticks: {
           callback: (value: string | number) =>
-            isPrivacyMode ? "***" : formatCurrencyCompact(+value, homeCurrency),
+            toPrivateValue(
+              formatCurrencyCompact(+value, homeCurrency),
+              isPrivacyMode,
+            ),
         },
       },
     },

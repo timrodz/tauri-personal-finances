@@ -3,6 +3,7 @@ import {
   formatCurrencyRate,
   formatDecimal2Digits,
 } from "@/lib/currency-formatting";
+import { toPrivateValue } from "@/lib/private-value";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
@@ -204,7 +205,7 @@ export function EditableCell({
     <div className="relative w-full h-full p-1">
       <Input
         ref={inputRef}
-        value={!isFocused && isPrivacyMode && value ? "***" : inputValue}
+        value={toPrivateValue(inputValue, isPrivacyMode)}
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}

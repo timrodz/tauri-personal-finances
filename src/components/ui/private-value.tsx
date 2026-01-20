@@ -1,3 +1,4 @@
+import { PRIVACY_MODE_VALUE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 
@@ -7,12 +8,10 @@ interface PrivateValueProps {
   mask?: string;
 }
 
-const DEFAULT_MASK = "***";
-
 export function PrivateValue({
   value,
   className,
-  mask = DEFAULT_MASK,
+  mask = PRIVACY_MODE_VALUE,
 }: PrivateValueProps) {
   const { isPrivacyMode } = usePrivacy();
 

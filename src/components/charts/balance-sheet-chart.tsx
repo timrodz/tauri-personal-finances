@@ -3,6 +3,7 @@ import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
+import { toPrivateValue } from "@/lib/private-value";
 import { MonthlyTotal } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
@@ -82,9 +83,10 @@ export function BalanceSheetChart({
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              label += isPrivacyMode
-                ? "***"
-                : formatCurrency(context.parsed.y, homeCurrency);
+              label += toPrivateValue(
+                formatCurrency(context.parsed.y, homeCurrency),
+                isPrivacyMode,
+              );
             }
             return label;
           },
@@ -99,9 +101,10 @@ export function BalanceSheetChart({
         },
         ticks: {
           callback: function (value) {
-            return isPrivacyMode
-              ? "***"
-              : formatCurrencyCompact(+value, homeCurrency);
+            return toPrivateValue(
+              formatCurrencyCompact(+value, homeCurrency),
+              isPrivacyMode,
+            );
           },
         },
       },

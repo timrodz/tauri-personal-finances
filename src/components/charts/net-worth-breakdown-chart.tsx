@@ -1,5 +1,6 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { getBreakdownChartData } from "@/lib/charts/net-worth-utils";
+import { toPrivateValue } from "@/lib/private-value";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {
@@ -49,7 +50,7 @@ export function NetWorthBreakdownChart({
           label: (context: TooltipItem<"doughnut">) => {
             let label = context.label || "";
             if (label) label += ": ";
-            label += isPrivacyMode ? "***" : context.formattedValue;
+            label += toPrivateValue(context.formattedValue, isPrivacyMode);
             return label;
           },
         },
