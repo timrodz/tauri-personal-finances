@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrivateValue } from "@/components/ui/private-value";
 import { formatCurrency } from "@/lib/currency-formatting";
-import { ArrowDownRight, ArrowUpRight, TrendingUp } from "lucide-react";
+import {
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+  TrendingUpIcon,
+} from "lucide-react";
 
 interface NetWorthKPIsProps {
   currentNetWorth: number;
@@ -29,7 +33,7 @@ export function NetWorthKPIs({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Net Worth</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <TrendingUpIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
@@ -48,9 +52,9 @@ export function NetWorthKPIs({
               }
             >
               {momGrowth > 0 ? (
-                <ArrowUpRight className="h-3 w-3 mr-1" />
+                <ArrowUpRightIcon className="h-3 w-3 mr-1" />
               ) : momGrowth < 0 ? (
-                <ArrowDownRight className="h-3 w-3 mr-1" />
+                <ArrowDownRightIcon className="h-3 w-3 mr-1" />
               ) : (
                 <span className="mr-1">-</span>
               )}
@@ -81,9 +85,9 @@ export function NetWorthKPIs({
                 }
               >
                 {assetGrowth > 0 ? (
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                  <ArrowUpRightIcon className="h-3 w-3 mr-1" />
                 ) : assetGrowth < 0 ? (
-                  <ArrowDownRight className="h-3 w-3 mr-1" />
+                  <ArrowDownRightIcon className="h-3 w-3 mr-1" />
                 ) : (
                   <span className="mr-1">-</span>
                 )}
@@ -125,9 +129,9 @@ export function NetWorthKPIs({
                 }
               >
                 {liabilityGrowth > 0 ? (
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                  <ArrowUpRightIcon className="h-3 w-3 mr-1" />
                 ) : liabilityGrowth < 0 ? (
-                  <ArrowDownRight className="h-3 w-3 mr-1" />
+                  <ArrowDownRightIcon className="h-3 w-3 mr-1" />
                 ) : (
                   <span className="mr-1">-</span>
                 )}

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Account, api } from "@/lib/api";
-import { RefreshCw } from "lucide-react";
+import { RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
 interface AccountFormProps {
@@ -106,7 +106,7 @@ export function AccountFormFeature({
         className="w-full"
         disabled={loading || !name.trim()}
       >
-        {loading && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />}
         {isEditing ? "Update Account" : "Create Account"}
       </Button>
     </form>

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { YearSelector } from "@/components/year-selector";
 import { useBalanceSheets, useCreateBalanceSheet } from "@/lib/queries";
-import { Plus, RefreshCw } from "lucide-react";
+import { PlusIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -76,7 +76,7 @@ export function SectionBalanceSheets() {
             >
               <DialogTrigger asChild>
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center min-h-[140px] cursor-pointer hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground">
-                  <Plus className="h-8 w-8 mb-2" />
+                  <PlusIcon className="h-8 w-8 mb-2" />
                   <span className="font-medium">New Balance Sheet</span>
                 </div>
               </DialogTrigger>
@@ -110,7 +110,7 @@ export function SectionBalanceSheets() {
                     disabled={!selectedYear || createLoading}
                   >
                     {createLoading && (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     {createLoading ? "Creating..." : "Create Balance Sheet"}
                   </Button>

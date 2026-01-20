@@ -34,7 +34,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountRow } from "./components/account-row";
 
@@ -138,7 +138,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
+              <PlusIcon className="mr-2 h-4 w-4" />
               Add Account
             </Button>
           </DialogTrigger>

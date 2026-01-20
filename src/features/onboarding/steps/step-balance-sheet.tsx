@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { YearSelector } from "@/components/year-selector";
 import { api } from "@/lib/api";
-import { RefreshCw } from "lucide-react";
+import { RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
 interface StepBalanceSheetProps {
@@ -34,7 +34,7 @@ export function StepBalanceSheet({ onComplete }: StepBalanceSheetProps) {
       </p>
 
       <Button className="w-full" onClick={handleCreate} disabled={loading}>
-        {loading && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />}
         Create Balance Sheet & Finish
       </Button>
     </div>

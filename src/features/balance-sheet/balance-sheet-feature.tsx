@@ -1,5 +1,5 @@
 import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getBalanceSheetChartData } from "@/lib/charts";
 import { MONTHS } from "@/lib/constants";
 import {
   useAccounts,
@@ -177,6 +178,11 @@ export function BalanceSheetFeature({
     [entries, accounts, rates, balanceSheet.year, homeCurrency],
   );
 
+  const chartData = useMemo(
+    () => getBalanceSheetChartData(monthlyTotals),
+    [monthlyTotals],
+  );
+
   const isLoading =
     accountsLoading || (entriesLoading && entries.length === 0) || ratesLoading;
 
@@ -198,14 +204,11 @@ export function BalanceSheetFeature({
 
   return (
     <div className="space-y-8 pb-12">
-      {/* CHART */}
       <Card>
-        <CardHeader>
-          <CardTitle>Balance Sheet</CardTitle>
-        </CardHeader>
         <CardContent>
           <BalanceSheetChart
-            monthlyTotals={monthlyTotals}
+            isLoading={isLoading}
+            chartData={chartData}
             homeCurrency={homeCurrency}
           />
         </CardContent>

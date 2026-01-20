@@ -5,10 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import {
-  calculateGrowth,
-  getFilteredHistory,
-  getNetWorthChartData,
-} from "@/lib/charts/net-worth-utils";
+  getMonthlyGrowthChartData,
+  getNetWorthBreakdownChartData,
+  getNetWorthTrendChartData,
+} from "@/lib/charts";
+import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
+import { ChartColumnBigIcon, ChartLineIcon, ChartPieIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { NetWorthKPIs } from "./net-worth-kpis";
 
@@ -20,21 +22,10 @@ export function SectionNetWorth() {
   // State
   const [timeRange, setTimeRange] = useState("ALL");
 
-  if (!settings) return null;
-  if (!historyLoading && !netWorthHistory) return null;
-
-  // Logic: Net Worth Calc
-  const homeCurrency = settings.homeCurrency;
-
   // Logic: Chart Data & KPIs
   const filteredHistory = useMemo(
     () => getFilteredHistory(netWorthHistory, timeRange),
     [netWorthHistory, timeRange],
-  );
-
-  const chartData = useMemo(
-    () => getNetWorthChartData(filteredHistory),
-    [filteredHistory],
   );
 
   // Time-aware KPI Logic
@@ -44,6 +35,27 @@ export function SectionNetWorth() {
       : undefined;
   const startPoint =
     filteredHistory.length > 0 ? filteredHistory[0] : undefined;
+
+  const trendChartData = useMemo(
+    () => getNetWorthTrendChartData(filteredHistory),
+    [filteredHistory],
+  );
+
+  const monthlyGrowthChartData = useMemo(
+    () => getMonthlyGrowthChartData(filteredHistory),
+    [filteredHistory],
+  );
+
+  const breakdownChartData = useMemo(
+    () => getNetWorthBreakdownChartData(latestPoint),
+    [filteredHistory],
+  );
+
+  if (!settings) return null;
+  if (!historyLoading && !netWorthHistory) return null;
+
+  // Logic: Net Worth Calc
+  const homeCurrency = settings.homeCurrency;
 
   const currentNetWorth = latestPoint?.netWorth || 0;
   const startNetWorth = startPoint?.netWorth || 0;
@@ -91,9 +103,16 @@ export function SectionNetWorth() {
       <Tabs defaultValue="trend" className="w-full">
         <div className="flex items-center justify-between mb-4">
           <TabsList>
-            <TabsTrigger value="trend">Trend</TabsTrigger>
-            <TabsTrigger value="growth">Monthly Growth</TabsTrigger>
-            <TabsTrigger value="breakdown">Breakdown</TabsTrigger>
+            <TabsTrigger value="trend">
+              <ChartLineIcon /> Trend
+            </TabsTrigger>
+            <TabsTrigger value="growth">
+              <ChartColumnBigIcon /> Monthly Growth
+            </TabsTrigger>
+            <TabsTrigger value="breakdown">
+              <ChartPieIcon />
+              Breakdown
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -101,18 +120,22 @@ export function SectionNetWorth() {
           <TabsContent value="trend" className="mt-0">
             <NetWorthTrendChart
               isLoading={historyLoading}
-              chartData={chartData}
+              chartData={trendChartData}
               homeCurrency={homeCurrency}
             />
           </TabsContent>
           <TabsContent value="growth" className="mt-0">
             <MonthlyGrowthChart
-              filteredHistory={filteredHistory}
+              isLoading={historyLoading}
+              chartData={monthlyGrowthChartData}
               homeCurrency={homeCurrency}
             />
           </TabsContent>
           <TabsContent value="breakdown" className="mt-0">
-            <NetWorthBreakdownChart latestPoint={latestPoint} />
+            <NetWorthBreakdownChart
+              isLoading={historyLoading}
+              chartData={breakdownChartData}
+            />
           </TabsContent>
         </div>
       </Tabs>

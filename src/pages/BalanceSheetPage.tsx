@@ -1,14 +1,13 @@
+import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { useBalanceSheets } from "@/lib/queries";
-import { usePrivacy } from "@/providers/privacy-provider";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function BalanceSheetPage() {
   const { year } = useParams<{ year: string }>();
-  const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
   const navigate = useNavigate();
   const {
     data: sheets,
@@ -41,7 +40,7 @@ export function BalanceSheetPage() {
       <div className="flex items-center justify-center min-h-screen flex-col gap-4">
         <h2 className="text-2xl font-bold">Balance Sheet Not Found</h2>
         <Button onClick={() => navigate("/")} variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
+          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Go Back
         </Button>
       </div>
     );
@@ -49,31 +48,10 @@ export function BalanceSheetPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans flex flex-col">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-3 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-bold flex-1">
-            {balanceSheet.year} Balance Sheet
-          </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={togglePrivacyMode}
-            title={isPrivacyMode ? "Show numbers" : "Hide numbers"}
-          >
-            {isPrivacyMode ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-            <span className="sr-only">
-              {isPrivacyMode ? "Show numbers" : "Hide numbers"}
-            </span>
-          </Button>
-        </div>
-      </header>
+      <Header
+        title={`${balanceSheet.year} Balance Sheet`}
+        navigateBack="/balance-sheets"
+      />
 
       <main className="flex-1 overflow-auto p-4 w-full">
         <BalanceSheetFeature

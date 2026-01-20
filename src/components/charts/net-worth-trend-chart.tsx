@@ -1,4 +1,4 @@
-import { getNetWorthChartOptions } from "@/lib/charts/net-worth-utils";
+import { getNetWorthTrendChartOptions } from "@/lib/charts";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import { ChartData } from "chart.js";
@@ -20,7 +20,7 @@ export function NetWorthTrendChart({
 }: NetWorthTrendChartProps) {
   const { isPrivacyMode } = usePrivacy();
   const chartOptions = useMemo(
-    () => getNetWorthChartOptions(homeCurrency, isPrivacyMode),
+    () => getNetWorthTrendChartOptions(homeCurrency, isPrivacyMode),
     [homeCurrency, isPrivacyMode],
   );
 
@@ -28,7 +28,7 @@ export function NetWorthTrendChart({
     <div className={cn("h-[300px] w-full", className)}>
       {isLoading ? (
         <div className="h-full flex items-center justify-center text-muted-foreground">
-          Loading history...
+          Loading trend...
         </div>
       ) : chartData ? (
         <Line data={chartData} options={chartOptions} />

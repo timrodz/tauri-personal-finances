@@ -25,11 +25,11 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  Archive,
-  ArchiveRestore,
-  Edit2,
-  GripVertical,
-  Trash2,
+  ArchiveIcon,
+  ArchiveRestoreIcon,
+  Edit2Icon,
+  GripVerticalIcon,
+  Trash2Icon,
 } from "lucide-react";
 
 interface AccountRowProps {
@@ -84,7 +84,7 @@ export function AccountRow({
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+          <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
           <span className="sr-only">Drag handle</span>
         </Button>
       </TableCell>
@@ -114,7 +114,7 @@ export function AccountRow({
                 onClick={onEditStart}
                 disabled={account.isArchived}
               >
-                <Edit2 className="h-4 w-4" />
+                <Edit2Icon className="h-4 w-4" />
                 <span className="sr-only">Edit</span>
               </Button>
             </DialogTrigger>
@@ -139,7 +139,7 @@ export function AccountRow({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="Unarchive">
-                  <ArchiveRestore className="h-4 w-4" />
+                  <ArchiveRestoreIcon className="h-4 w-4" />
                   <span className="sr-only">Unarchive</span>
                 </Button>
               </AlertDialogTrigger>
@@ -163,14 +163,14 @@ export function AccountRow({
           ) : (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" title="Archive">
-                  <Archive className="h-4 w-4" />
-                  <span className="sr-only">Archive</span>
+                <Button variant="ghost" size="icon" title="ArchiveIcon">
+                  <ArchiveIcon className="h-4 w-4" />
+                  <span className="sr-only">ArchiveIcon</span>
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Archive Account?</AlertDialogTitle>
+                  <AlertDialogTitle>ArchiveIcon Account?</AlertDialogTitle>
                   <AlertDialogDescription>
                     {`Are you sure you want to archive "${account.name}"? It will be hidden from your lists by default but still included in calculations.`}
                   </AlertDialogDescription>
@@ -180,7 +180,7 @@ export function AccountRow({
                   <AlertDialogAction
                     onClick={() => onToggleArchive(account.id)}
                   >
-                    Archive
+                    ArchiveIcon
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -190,7 +190,7 @@ export function AccountRow({
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-destructive">
-                <Trash2 className="h-4 w-4" />
+                <Trash2Icon className="h-4 w-4" />
                 <span className="sr-only">Delete</span>
               </Button>
             </AlertDialogTrigger>

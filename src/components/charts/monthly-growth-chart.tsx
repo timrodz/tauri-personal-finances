@@ -1,13 +1,10 @@
-import { NetWorthDataPoint } from "@/lib/api";
-import {
-  getMonthlyGrowthChartData,
-  getNetWorthChartOptions,
-} from "@/lib/charts/net-worth-utils";
+import { getMonthlyGrowthChartOptions } from "@/lib/charts";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
 import {
   BarElement,
   CategoryScale,
+  ChartData,
   Chart as ChartJS,
   Legend,
   LinearScale,
@@ -27,38 +24,38 @@ ChartJS.register(
 );
 
 interface MonthlyGrowthChartProps {
-  filteredHistory: NetWorthDataPoint[] | undefined;
+  isLoading: boolean;
+  chartData: ChartData<"bar"> | null;
   homeCurrency: string;
   className?: string;
 }
 
 export function MonthlyGrowthChart({
-  filteredHistory,
+  isLoading,
+  chartData,
   homeCurrency,
   className,
 }: MonthlyGrowthChartProps) {
   const { isPrivacyMode } = usePrivacy();
-  const chartData = useMemo(
-    () => getMonthlyGrowthChartData(filteredHistory),
-    [filteredHistory],
-  );
 
   const chartOptions = useMemo(
-    () => getNetWorthChartOptions(homeCurrency, isPrivacyMode),
+    () => getMonthlyGrowthChartOptions(homeCurrency, isPrivacyMode),
     [homeCurrency, isPrivacyMode],
   );
 
-  if (!chartData) {
-    return (
-      <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-        Not enough data for growth chart
-      </div>
-    );
-  }
-
   return (
     <div className={cn("h-[300px] w-full", className)}>
-      <Bar data={chartData} options={chartOptions} />
+      {isLoading ? (
+        <div className="h-full flex items-center justify-center text-muted-foreground">
+          Loading monthly growth...
+        </div>
+      ) : chartData ? (
+        <Bar data={chartData} options={chartOptions} />
+      ) : (
+        <div className="h-full flex items-center justify-center text-muted-foreground">
+          No data available
+        </div>
+      )}
     </div>
   );
 }

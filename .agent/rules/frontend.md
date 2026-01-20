@@ -20,6 +20,7 @@ globs: src/, *.ts, *.tsx
 - Components should never define sub-components or custom functions inside, they should be placed in outside files
 - Styles are handled with shadcn, use the CLI `bunx shadcn@latest ...` to add new components. Only use colors defined by the theme in src/index.css
 - Any number field needs to be wrapped around the `<PrivateValue>` React component or `toPrivateValue` function
+- For icons use lucide-react and import the name with the `Icon` suffix: `ArrowUpIcon` instead of `ArrowUp`
 
 ## TypeScript
 

@@ -1,6 +1,5 @@
 import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { useUserSettings } from "@/hooks/use-user-settings";
 import { BalanceSheetPage } from "@/pages/BalanceSheetPage";
 import { HomePage } from "@/pages/HomePage";
 import { useMemo } from "react";
@@ -11,26 +10,16 @@ import {
   Routes,
 } from "react-router-dom";
 
-// Placeholder components
-const Settings = () => (
-  <div className="p-8">
-    <h1>Settings</h1>
-  </div>
-);
-
 function App() {
-  const { isLoading: isStatusLoading, data: onboardingStatus } =
+  const { isLoading: isOnboardingLoading, data: onboardingStatus } =
     useOnboarding();
-  const { isLoading: isSettingsLoading } = useUserSettings();
-
-  const isLoading = isStatusLoading || isSettingsLoading;
 
   const isOnboardingCompleted = useMemo(() => {
     if (!onboardingStatus) return false;
     return onboardingStatus.every((step) => step.isCompleted);
   }, [onboardingStatus]);
 
-  if (isLoading) {
+  if (isOnboardingLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-muted-foreground animate-pulse">Loading...</div>
@@ -47,7 +36,6 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/balance-sheets/:year" element={<BalanceSheetPage />} />
-        <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
