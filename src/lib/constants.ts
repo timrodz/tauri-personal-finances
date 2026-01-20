@@ -13,6 +13,8 @@ export const MONTHS = [
   "Dec",
 ] as const;
 
+export const ONE_YEAR_IN_MONTHS = 12;
+
 /**
  * The string that will be rendered when privacy mode is enabled
  */

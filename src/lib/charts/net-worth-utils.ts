@@ -1,4 +1,5 @@
 import { NetWorthDataPoint } from "@/lib/api";
+import { ONE_YEAR_IN_MONTHS } from "@/lib/constants";
 import { formatCurrencyCompact } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
 import { ChartData, ChartType, ScriptableContext, TooltipItem } from "chart.js";
@@ -14,9 +15,9 @@ export function getFilteredHistory(
 
   switch (timeRange) {
     case "5Y":
-      return history.slice(-60);
+      return history.slice(-ONE_YEAR_IN_MONTHS * 5);
     case "1Y":
-      return history.slice(-12);
+      return history.slice(-ONE_YEAR_IN_MONTHS);
     case "6M":
       return history.slice(-6);
     case "3M":
