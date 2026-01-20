@@ -55,3 +55,11 @@ pub struct CurrencyRate {
     pub year: i32,
     pub timestamp: DateTime<Utc>,
 }
+
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct OnboardingStep {
+    pub step_key: String,
+    pub is_completed: bool,
+    pub updated_at: DateTime<Utc>,
+}

@@ -1,8 +1,9 @@
-use crate::models::{Account, BalanceSheet, CurrencyRate, Entry, UserSettings};
+use crate::models::{Account, BalanceSheet, CurrencyRate, Entry, OnboardingStep, UserSettings};
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
+use crate::services::onboarding::OnboardingService;
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
 use tauri::State;
@@ -174,4 +175,21 @@ pub async fn upsert_currency_rate(
 #[tauri::command]
 pub async fn delete_currency_rate(state: State<'_, AppState>, id: String) -> Result<(), String> {
     crate::services::currency_rate::CurrencyRateService::delete(&state.db, id).await
+}
+
+// --- Onboarding ---
+
+#[tauri::command]
+pub async fn get_onboarding_status(
+    state: State<'_, AppState>,
+) -> Result<Vec<OnboardingStep>, String> {
+    OnboardingService::get_status(&state.db).await
+}
+
+#[tauri::command]
+pub async fn complete_onboarding_step(
+    state: State<'_, AppState>,
+    step_key: String,
+) -> Result<(), String> {
+    OnboardingService::complete_step(&state.db, step_key).await
 }

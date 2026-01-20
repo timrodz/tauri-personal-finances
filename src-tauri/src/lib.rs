@@ -85,7 +85,9 @@ pub fn run() {
             commands::get_currency_rates,
             commands::upsert_currency_rate,
             commands::delete_currency_rate,
-            commands::get_net_worth_history
+            commands::get_net_worth_history,
+            commands::get_onboarding_status,
+            commands::complete_onboarding_step
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
