@@ -68,17 +68,12 @@ This file serves as the primary context for AI agents working on this project.
 - **Frontend Linting:** `bun run lint`
 - **Backend Linting:** `cargo clippy --manifest-path src-tauri/Cargo.toml`
 
-## 5. Current Project Status
-
-**Completed Phases:**
-
-- ✅ Phase 0: Frontend Setup
-- ✅ Phase 1: Foundation (DB, Models)
-- ✅ Phase 2: User Onboarding (Settings)
-- ✅ Phase 3: Account Management (CRUD)
-- ✅ Phase 4: Balance Sheet Core
-
 **Reference Documents:**
 
 - `PRD.md`: Detailed product requirements.
 - `TASKS.md`: Granular task tracking.
+
+## 5. Contributing
+
+- Write conventional commits
+- If the pre-commit hook fails, investigate and fix the issues, backend first then frontend if applicable.
