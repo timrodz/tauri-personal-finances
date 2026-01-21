@@ -18,3 +18,4 @@ globs: *.rs, *.sql
 - After editing a file always run `cargo clippy` to verify lints and fix errors
 - Use variables directly in the `format!` string
 - Avoid mutability, `let value` over `let mut value`
+- Avoid `unwrap` and use its alternatives

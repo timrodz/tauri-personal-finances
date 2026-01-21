@@ -61,8 +61,9 @@ impl SyncService {
 
         let client = Client::new();
         let today = chrono::Utc::now().naive_utc().date();
+        let today_year = today.year();
 
-        let earliest_year = *years.iter().min().unwrap();
+        let earliest_year = years.iter().min().unwrap_or(&today_year);
         let symbols = foreign_currencies.join(",");
         let start_date = format!("{earliest_year}-01-01");
         let end_date = format!("{}", today.format("%Y-%m-%d"));
@@ -86,22 +87,14 @@ impl SyncService {
         };
 
         if !resp.status().is_success() {
-            eprintln!(
-                "[Sync] Frankfurter API error: Status {}",
-                resp.status()
-            );
+            eprintln!("[Sync] Frankfurter API error: Status {}", resp.status());
             return Err(format!("API error: {}", resp.status()));
         }
 
         match resp.json::<FrankfurterResponse>().await {
             Ok(data) => {
-                let _ = Self::process_and_save_rates(
-                    pool,
-                    data.rates,
-                    home_currency,
-                    &rate_map,
-                )
-                .await;
+                let _ =
+                    Self::process_and_save_rates(pool, data.rates, home_currency, &rate_map).await;
             }
             Err(e) => return Err(format!("Failed to parse JSON: {e}")),
         }
@@ -116,7 +109,6 @@ impl SyncService {
         home_currency: &str,
         rate_map: &HashMap<String, CurrencyRate>,
     ) -> Result<(), String> {
-        // Process rates
         let monthly_rates = Self::process_frankfurter_rates(rates);
         let total_to_process = monthly_rates.values().map(|m| m.len()).sum::<usize>();
         println!("[Sync] Processing {total_to_process} rates...",);
@@ -141,11 +133,11 @@ impl SyncService {
 
             for (foreign, rate_in_home) in rates_obj {
                 let key = format!("{year}-{month}-{foreign}-{home_currency}");
-
-                // Skip if already finalized
-                if rate_map.contains_key(&key)
-                    && rate_map.get(&key).unwrap().timestamp.naive_utc().date() > last_day
-                {
+                let existing_rate_for_end_of_month = match rate_map.get(&key) {
+                    Some(rate) => rate.timestamp.naive_utc().date() > last_day,
+                    None => false,
+                };
+                if existing_rate_for_end_of_month {
                     continue;
                 }
 
@@ -177,9 +169,7 @@ impl SyncService {
                 }
             }
         }
-        println!(
-            "[Sync] Sync complete: {success_count} updated/inserted, {fail_count} failed."
-        );
+        println!("[Sync] Sync complete: {success_count} updated/inserted, {fail_count} failed.");
         Ok(())
     }
 
@@ -277,17 +267,41 @@ mod tests {
 
         assert_eq!(processed.len(), 4);
 
-        assert_eq!(processed.get(&(2023, 12)).unwrap().get("USD").unwrap(), &0.66);
-        assert_eq!(processed.get(&(2023, 12)).unwrap().get("EUR").unwrap(), &0.59);
+        assert_eq!(
+            processed.get(&(2023, 12)).unwrap().get("USD").unwrap(),
+            &0.66
+        );
+        assert_eq!(
+            processed.get(&(2023, 12)).unwrap().get("EUR").unwrap(),
+            &0.59
+        );
 
-        assert_eq!(processed.get(&(2024, 1)).unwrap().get("USD").unwrap(), &0.62);
-        assert_eq!(processed.get(&(2024, 1)).unwrap().get("EUR").unwrap(), &0.57);
+        assert_eq!(
+            processed.get(&(2024, 1)).unwrap().get("USD").unwrap(),
+            &0.62
+        );
+        assert_eq!(
+            processed.get(&(2024, 1)).unwrap().get("EUR").unwrap(),
+            &0.57
+        );
 
-        assert_eq!(processed.get(&(2024, 2)).unwrap().get("USD").unwrap(), &0.63);
-        assert_eq!(processed.get(&(2024, 2)).unwrap().get("EUR").unwrap(), &0.56);
+        assert_eq!(
+            processed.get(&(2024, 2)).unwrap().get("USD").unwrap(),
+            &0.63
+        );
+        assert_eq!(
+            processed.get(&(2024, 2)).unwrap().get("EUR").unwrap(),
+            &0.56
+        );
 
-        assert_eq!(processed.get(&(2024, 3)).unwrap().get("USD").unwrap(), &0.61);
-        assert_eq!(processed.get(&(2024, 3)).unwrap().get("EUR").unwrap(), &0.55);
+        assert_eq!(
+            processed.get(&(2024, 3)).unwrap().get("USD").unwrap(),
+            &0.61
+        );
+        assert_eq!(
+            processed.get(&(2024, 3)).unwrap().get("EUR").unwrap(),
+            &0.55
+        );
     }
 
     #[tokio::test]
@@ -326,29 +340,20 @@ mod tests {
         .expect("Failed to create EUR account");
 
         // Setup: Create balance sheets for multiple years
-        let _sheet_2022 = crate::services::balance_sheet::BalanceSheetService::upsert(
-            &pool,
-            None,
-            2022,
-        )
-        .await
-        .expect("Failed to create 2022 balance sheet");
+        let _sheet_2022 =
+            crate::services::balance_sheet::BalanceSheetService::upsert(&pool, None, 2022)
+                .await
+                .expect("Failed to create 2022 balance sheet");
 
-        let _sheet_2023 = crate::services::balance_sheet::BalanceSheetService::upsert(
-            &pool,
-            None,
-            2023,
-        )
-        .await
-        .expect("Failed to create 2023 balance sheet");
+        let _sheet_2023 =
+            crate::services::balance_sheet::BalanceSheetService::upsert(&pool, None, 2023)
+                .await
+                .expect("Failed to create 2023 balance sheet");
 
-        let _sheet_2024 = crate::services::balance_sheet::BalanceSheetService::upsert(
-            &pool,
-            None,
-            2024,
-        )
-        .await
-        .expect("Failed to create 2024 balance sheet");
+        let _sheet_2024 =
+            crate::services::balance_sheet::BalanceSheetService::upsert(&pool, None, 2024)
+                .await
+                .expect("Failed to create 2024 balance sheet");
 
         // Execute sync
         let result = SyncService::sync_exchange_rates(&pool).await;
@@ -357,21 +362,17 @@ mod tests {
         assert!(result.is_ok(), "Sync should succeed");
 
         // Verify rates were saved for all years (2022, 2023, 2024) and all months
-        let all_rates =
-            crate::services::currency_rate::CurrencyRateService::get_all(&pool)
-                .await
-                .expect("Failed to get rates");
+        let all_rates = crate::services::currency_rate::CurrencyRateService::get_all(&pool)
+            .await
+            .expect("Failed to get rates");
 
         // We should have rates for USD and EUR from NZD
-        let expected_pairs = vec![
-            ("USD", "NZD"),
-            ("EUR", "NZD"),
-        ];
+        let expected_pairs = vec![("USD", "NZD"), ("EUR", "NZD")];
 
         for (from_currency, to_currency) in &expected_pairs {
-            let has_rates = all_rates.iter().any(|r| {
-                &r.from_currency == *from_currency && &r.to_currency == *to_currency
-            });
+            let has_rates = all_rates
+                .iter()
+                .any(|r| &r.from_currency == *from_currency && &r.to_currency == *to_currency);
             assert!(
                 has_rates,
                 "Should have rates for {from_currency} -> {to_currency}"
