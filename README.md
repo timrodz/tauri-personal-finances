@@ -38,6 +38,10 @@ cargo test
 
 - Retirement planner calculations live in `src-tauri/src/services/retirement.rs` and are exposed via the `calculate_retirement_projection` Tauri command.
 
+## Frontend notes
+
+- Retirement planner TypeScript types live in `src/lib/types.ts` for UI and Tauri payloads.
+
 ## Progress screenshots
 
 ### 20/01/2026

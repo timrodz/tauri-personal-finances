@@ -62,3 +62,25 @@ export interface OnboardingStep {
   isCompleted: boolean;
   updatedAt: string;
 }
+
+export type ReturnScenario = "conservative" | "moderate" | "aggressive";
+
+export interface RetirementPlan {
+  id: string;
+  name: string;
+  targetRetirementDate: string | null;
+  startingNetWorth: number;
+  monthlyContribution: number;
+  expectedMonthlyExpenses: number;
+  returnScenario: ReturnScenario;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RetirementProjection {
+  projectedRetirementDate: string | null;
+  yearsToRetirement: number;
+  finalNetWorth: number;
+  monthlyIncome3pct: number;
+  monthlyIncome4pct: number;
+}

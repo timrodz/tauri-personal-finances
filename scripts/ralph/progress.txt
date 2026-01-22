@@ -4,6 +4,7 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
 ## Codebase Patterns
 - Migrations use TEXT ids with CURRENT_TIMESTAMP defaults for created/updated timestamps.
 - Services must be exported in src-tauri/src/services/mod.rs to be used elsewhere.
+- Main navigation uses the MainNav component with NavLink active styling.
 
 ## 2026-01-23 00:14 NZDT - US-001
 - What was implemented
@@ -90,4 +91,35 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Patterns discovered: None.
   - Gotchas encountered: None.
   - Useful context: Retirement projections use the 4% withdrawal rate when solving for target net worth.
+---
+## 2026-01-23 09:07 NZDT - US-007
+- What was implemented
+  - Added retirement planner TypeScript types and compile-time type checks.
+  - Documented frontend retirement planner types in README.
+- Files changed
+  - src/lib/types.ts
+  - src/lib/types.test.ts
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Type-only tests in `src/lib/types.test.ts` ensure TS interfaces stay aligned.
+---
+## 2026-01-23 09:11 NZDT - US-008
+- What was implemented
+  - Added /retirement route and Retirement page placeholder.
+  - Added MainNav with highlighted active links for Dashboard and Retirement Planner.
+- Files changed
+  - src/App.tsx
+  - src/components/main-nav.tsx
+  - src/pages/HomePage.tsx
+  - src/pages/Retirement.tsx
+  - src/pages/Retirement.test.tsx
+  - scripts/ralph/prd.json
+  - scripts/ralph/progress.txt
+- **Learnings for future iterations:**
+  - Patterns discovered: use MainNav for top-level routing links.
+  - Gotchas encountered: None.
+  - Useful context: NavLink `end` is required for "/" to avoid always-active styling.
 ---

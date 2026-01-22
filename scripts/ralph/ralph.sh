@@ -100,12 +100,12 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   fi
 
   # Check for completion signal
-  if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
-    echo ""
-    echo "Ralph completed all tasks!"
-    echo "Completed at iteration $i of $MAX_ITERATIONS"
-    exit 0
-  fi
+  # if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
+  #   echo ""
+  #   echo "Ralph completed all tasks!"
+  #   echo "Completed at iteration $i of $MAX_ITERATIONS"
+  #   exit 0
+  # fi
 
   echo "Iteration $i complete. Continuing..."
   sleep 2
