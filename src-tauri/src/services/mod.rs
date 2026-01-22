@@ -5,4 +5,5 @@ pub mod currency_rate;
 pub mod entry;
 pub mod net_worth;
 pub mod onboarding;
+pub mod retirement;
 pub mod user_settings;
