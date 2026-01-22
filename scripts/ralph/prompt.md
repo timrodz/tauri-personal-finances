@@ -82,7 +82,7 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 After completing a user story, check if ALL stories have `passes: true`.
 
 If ALL stories are complete and passing, reply with:
-<promise>COMPLETE</promise>
+`<promise>COMPLETE</promise>`
 
 If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
 

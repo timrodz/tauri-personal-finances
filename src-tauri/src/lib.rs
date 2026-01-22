@@ -87,7 +87,12 @@ pub fn run() {
             commands::delete_currency_rate,
             commands::get_net_worth_history,
             commands::get_onboarding_status,
-            commands::complete_onboarding_step
+            commands::complete_onboarding_step,
+            commands::create_retirement_plan,
+            commands::get_retirement_plans,
+            commands::get_retirement_plan,
+            commands::update_retirement_plan,
+            commands::delete_retirement_plan
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

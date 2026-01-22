@@ -1,11 +1,15 @@
-use crate::models::{Account, BalanceSheet, CurrencyRate, Entry, OnboardingStep, UserSettings};
+use crate::models::{
+    Account, BalanceSheet, CurrencyRate, Entry, OnboardingStep, RetirementPlan, UserSettings,
+};
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::onboarding::OnboardingService;
+use crate::services::retirement_plan::RetirementPlanService;
 use crate::services::user_settings::UserSettingsService;
 use crate::AppState;
+use chrono::NaiveDate;
 use tauri::State;
 
 // --- User Settings ---
@@ -192,4 +196,72 @@ pub async fn complete_onboarding_step(
     step_key: String,
 ) -> Result<(), String> {
     OnboardingService::complete_step(&state.db, step_key).await
+}
+
+// --- Retirement Plans ---
+
+#[tauri::command]
+pub async fn create_retirement_plan(
+    state: State<'_, AppState>,
+    name: String,
+    target_retirement_date: Option<NaiveDate>,
+    starting_net_worth: f64,
+    monthly_contribution: f64,
+    expected_monthly_expenses: f64,
+    return_scenario: String,
+) -> Result<RetirementPlan, String> {
+    RetirementPlanService::create(
+        &state.db,
+        name,
+        target_retirement_date,
+        starting_net_worth,
+        monthly_contribution,
+        expected_monthly_expenses,
+        return_scenario,
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn get_retirement_plans(
+    state: State<'_, AppState>,
+) -> Result<Vec<RetirementPlan>, String> {
+    RetirementPlanService::get_all(&state.db).await
+}
+
+#[tauri::command]
+pub async fn get_retirement_plan(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<Option<RetirementPlan>, String> {
+    RetirementPlanService::get_by_id(&state.db, id).await
+}
+
+#[tauri::command]
+pub async fn update_retirement_plan(
+    state: State<'_, AppState>,
+    id: String,
+    name: String,
+    target_retirement_date: Option<NaiveDate>,
+    starting_net_worth: f64,
+    monthly_contribution: f64,
+    expected_monthly_expenses: f64,
+    return_scenario: String,
+) -> Result<RetirementPlan, String> {
+    RetirementPlanService::update(
+        &state.db,
+        id,
+        name,
+        target_retirement_date,
+        starting_net_worth,
+        monthly_contribution,
+        expected_monthly_expenses,
+        return_scenario,
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn delete_retirement_plan(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    RetirementPlanService::delete(&state.db, id).await
 }

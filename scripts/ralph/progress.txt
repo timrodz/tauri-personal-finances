@@ -1,0 +1,62 @@
+# Ralph Progress Log
+Started: Fri 23 Jan 2026 00:10:21 NZDT
+---
+## Codebase Patterns
+- Migrations use TEXT ids with CURRENT_TIMESTAMP defaults for created/updated timestamps.
+- Services must be exported in src-tauri/src/services/mod.rs to be used elsewhere.
+
+## 2026-01-23 00:14 NZDT - US-001
+- What was implemented
+  - Added retirement_plans migration and RetirementPlan model with camelCase serialization test.
+- Files changed
+  - src-tauri/migrations/20260122000000_create_retirement_plans.sql
+  - src-tauri/src/models.rs
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: models use chrono types with serde camelCase for Tauri payloads.
+  - Gotchas encountered: cargo test can be slow; increase timeout if needed.
+  - Useful context: migrations use TEXT ids and CURRENT_TIMESTAMP defaults.
+---
+## 2026-01-23 00:22 NZDT - US-002
+- What was implemented
+  - Added RetirementService with return scenarios, compound growth, withdrawal, and years-to-retirement calculations.
+  - Added basic unit tests for return scenario mapping and zero-return compound growth handling.
+  - Registered retirement service module.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - src-tauri/src/services/mod.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: services live in src-tauri/src/services and must be exported in src-tauri/src/services/mod.rs.
+  - Gotchas encountered: cargo clippy emits existing dead_code warnings; expect them until commands are wired.
+  - Useful context: retirement calculations use annualized contributions with FV formula and solve years via logarithms.
+---
+## 2026-01-23 00:50 NZDT - US-003
+- What was implemented
+  - Added unit tests covering compound growth, withdrawal rates, all return scenarios, and already-achievable retirement case.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Retirement service tests use simple one-year scenarios for stable assertions.
+---
+## 2026-01-23 08:48 NZDT - US-004
+- What was implemented
+  - Added retirement plan CRUD service with list limit and tests plus Tauri commands for create/read/update/delete.
+- Files changed
+  - src-tauri/src/services/retirement_plan.rs
+  - src-tauri/src/services/mod.rs
+  - src-tauri/src/commands.rs
+  - src-tauri/src/lib.rs
+  - README.md
+  - scripts/ralph/prompt.md
+  - src-tauri/src/services/retirement.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Retirement plan list API enforces a max of 3 rows via SQL LIMIT.
+---

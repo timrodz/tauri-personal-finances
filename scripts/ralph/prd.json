@@ -1,0 +1,219 @@
+{
+  "project": "Personal Finances",
+  "branchName": "ralph/retirement-planner",
+  "description": "Retirement Planner - Project financial future with 3%/4% safe withdrawal rules and scenario comparison",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create retirement planner database models",
+      "description": "As a developer, I need database models to store retirement plan data so it persists across sessions.",
+      "acceptanceCriteria": [
+        "Create `retirement_plans` table with fields: id (UUID), name (String), target_retirement_date (Date nullable), starting_net_worth (f64), monthly_contribution (f64), expected_monthly_expenses (f64), return_scenario (TEXT: 'conservative'/'moderate'/'aggressive'), created_at, updated_at",
+        "Add SQLx migration file in src-tauri/migrations/",
+        "Add RetirementPlan struct to src-tauri/src/models.rs following existing patterns",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create RetirementService with calculation logic",
+      "description": "As a user, I want the app to calculate my retirement projections so I can understand my financial trajectory.",
+      "acceptanceCriteria": [
+        "Create src-tauri/src/services/retirement.rs following existing service patterns",
+        "Implement compound growth formula: FV = PV * (1 + r)^n + PMT * (((1 + r)^n - 1) / r)",
+        "Support three return scenarios: conservative (4%), moderate (7%), aggressive (10%) annual returns",
+        "Calculate sustainable monthly income using both 3% and 4% annual withdrawal rules",
+        "Calculate years to reach retirement goal (target net worth = annual_expenses / withdrawal_rate)",
+        "Add mod retirement to src-tauri/src/services/mod.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Add unit tests for retirement calculations",
+      "description": "As a developer, I need unit tests to verify retirement calculation accuracy.",
+      "acceptanceCriteria": [
+        "Add tests module in src-tauri/src/services/retirement.rs",
+        "Test compound growth calculation with known values",
+        "Test 3% and 4% withdrawal rate calculations",
+        "Test all three return scenarios (conservative/moderate/aggressive)",
+        "Test edge case: retirement already achievable",
+        "Tests pass (cargo test)",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create CRUD Tauri commands for retirement plans",
+      "description": "As a frontend developer, I need Tauri commands to create, read, update, delete retirement plans.",
+      "acceptanceCriteria": [
+        "Add create_retirement_plan command - creates new plan, returns created plan",
+        "Add get_retirement_plans command - returns all saved plans (max 3)",
+        "Add get_retirement_plan command - returns single plan by ID",
+        "Add update_retirement_plan command - updates plan by ID",
+        "Add delete_retirement_plan command - removes plan by ID",
+        "Register all commands in src-tauri/src/main.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create get_latest_net_worth command",
+      "description": "As a frontend developer, I need a command to fetch the most recent net worth for pre-populating the retirement form.",
+      "acceptanceCriteria": [
+        "Add get_latest_net_worth command that returns most recent NetWorthDataPoint",
+        "Uses NetWorthService::get_history() and returns last entry sorted by year/month",
+        "Returns None/null if no balance sheet data exists",
+        "Register command in src-tauri/src/main.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create calculate_retirement_projection command",
+      "description": "As a frontend developer, I need a command to calculate retirement projections from plan inputs.",
+      "acceptanceCriteria": [
+        "Add calculate_retirement_projection command that accepts plan inputs",
+        "Returns projection results: projected_retirement_date, years_to_retirement, final_net_worth, monthly_income_3pct, monthly_income_4pct",
+        "Uses RetirementService calculation methods",
+        "Register command in src-tauri/src/main.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add TypeScript types for retirement planner",
+      "description": "As a frontend developer, I need TypeScript types matching the Rust models.",
+      "acceptanceCriteria": [
+        "Add RetirementPlan interface to src/lib/types.ts",
+        "Add RetirementProjection interface with projection result fields",
+        "Add ReturnScenario type: 'conservative' | 'moderate' | 'aggressive'",
+        "Types match Rust struct field names (camelCase)",
+        "Typecheck passes (pnpm run typecheck)"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Add retirement planner route and navigation",
+      "description": "As a user, I want to access the retirement planner from the app navigation.",
+      "acceptanceCriteria": [
+        "Add /retirement route to React router",
+        "Create src/pages/Retirement.tsx page component with placeholder content",
+        "Add 'Retirement Planner' link to main navigation/sidebar",
+        "Navigation highlights when on /retirement route",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create retirement plan input form",
+      "description": "As a user, I want to enter my retirement planning inputs so I can generate projections.",
+      "acceptanceCriteria": [
+        "Form includes: plan name (text), target retirement date (optional date picker), monthly contribution (number), expected monthly expenses (number)",
+        "Return scenario selector with options: Conservative (4%), Moderate (7%), Aggressive (10%)",
+        "Starting net worth field that fetches and pre-populates from get_latest_net_worth command",
+        "Starting net worth is editable (user can override)",
+        "Form validation: all monetary values must be positive, expenses required",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Display retirement projection results",
+      "description": "As a user, I want to see my retirement projections so I can understand my financial future.",
+      "acceptanceCriteria": [
+        "Display projected retirement date (or 'Already achievable' if current savings sufficient)",
+        "Display years until retirement",
+        "Display projected net worth at retirement",
+        "Display sustainable monthly income under 3% rule",
+        "Display sustainable monthly income under 4% rule",
+        "Highlight if projected income meets/exceeds expected expenses (green) or falls short (amber/red)",
+        "Results call calculate_retirement_projection and update when form inputs change",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Add save plan functionality",
+      "description": "As a user, I want to save my retirement plan so I can compare scenarios later.",
+      "acceptanceCriteria": [
+        "Save button calls create_retirement_plan command",
+        "Shows success message after saving",
+        "Enforces max 3 scenarios limit - shows message if limit reached",
+        "Saved plan appears in scenario list",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Implement scenario comparison view",
+      "description": "As a user, I want to compare up to 3 retirement scenarios side-by-side.",
+      "acceptanceCriteria": [
+        "Display saved scenarios in a comparison table/grid below the form",
+        "Show key metrics: name, retirement date, years remaining, monthly income (3%), monthly income (4%)",
+        "Visual indicator (badge/icon) showing which scenario reaches retirement earliest",
+        "Visual indicator showing which scenario provides highest sustainable income",
+        "Delete button on each scenario row calls delete_retirement_plan",
+        "Empty state message when no scenarios saved",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Handle edge cases and error states",
+      "description": "As a user, I want clear feedback when calculations aren't possible or inputs are invalid.",
+      "acceptanceCriteria": [
+        "Show message when no balance sheet data exists ('Enter starting net worth manually')",
+        "Handle case where retirement is not achievable with current inputs (show warning message)",
+        "Show loading state while Tauri commands are processing",
+        "Display error messages for failed Tauri commands",
+        "All monetary values display in home currency from user settings",
+        "Typecheck passes (pnpm run typecheck and cargo clippy)"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

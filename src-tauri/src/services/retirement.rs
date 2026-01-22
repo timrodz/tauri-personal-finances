@@ -128,4 +128,49 @@ mod tests {
         let expected = 10_000.0 + 500.0 * 12.0 * 2.0;
         assert!((future - expected).abs() < 0.001);
     }
+
+    #[test]
+    fn compound_growth_matches_known_values() {
+        let future = RetirementService::compound_growth_future_value(10_000.0, 100.0, 0.10, 1.0);
+        let expected = 12_200.0;
+        assert!((future - expected).abs() < 0.001);
+    }
+
+    #[test]
+    fn monthly_income_withdrawal_rates_match_expected() {
+        let net_worth = 1_200_000.0;
+        assert!((RetirementService::monthly_income_3pct(net_worth) - 3_000.0).abs() < 0.001);
+        assert!((RetirementService::monthly_income_4pct(net_worth) - 4_000.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn compound_growth_applies_all_return_scenarios() {
+        let base = 10_000.0;
+        let years = 1.0;
+        let conservative = RetirementService::compound_growth_future_value(
+            base,
+            0.0,
+            RETURN_RATE_CONSERVATIVE,
+            years,
+        );
+        let moderate =
+            RetirementService::compound_growth_future_value(base, 0.0, RETURN_RATE_MODERATE, years);
+        let aggressive = RetirementService::compound_growth_future_value(
+            base,
+            0.0,
+            RETURN_RATE_AGGRESSIVE,
+            years,
+        );
+
+        assert!((conservative - 10_400.0).abs() < 0.001);
+        assert!((moderate - 10_700.0).abs() < 0.001);
+        assert!((aggressive - 11_000.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn years_to_retirement_returns_zero_when_already_achievable() {
+        let years = RetirementService::years_to_retirement(1_000_000.0, 0.0, 3_000.0, 0.04, 0.07)
+            .unwrap();
+        assert!((years - 0.0).abs() < f64::EPSILON);
+    }
 }
