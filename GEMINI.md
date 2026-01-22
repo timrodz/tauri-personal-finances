@@ -71,7 +71,6 @@ This file serves as the primary context for AI agents working on this project.
 **Reference Documents:**
 
 - `PRD.md`: Detailed product requirements.
-- `TASKS.md`: Granular task tracking.
 
 ## 5. Contributing
 

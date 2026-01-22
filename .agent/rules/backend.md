@@ -10,7 +10,6 @@ globs: *.rs, *.sql
 - Add or update unit tests for every piece of co de, even if not asked
 - Never define magic numbers or strings, store them as variables
 - Always use descriptive variable names
-- When finishing a task check TASKS.md and check off what you have completed, ensuring you meet acceptance criteria as well
 - Use early return pattern
 - Big chunks of code need to be split into separate functions with single responsibility principle
 

@@ -9,7 +9,6 @@ globs: src/, *.ts, *.tsx
 - Keep constants, types/interfaces, and utilities in separate files based on project context
 - Never define magic numbers or strings, store them as variables
 - Always use descriptive variable names
-- When finishing a task check TASKS.md and check off what you have completed, ensuring you meet acceptance criteria as well
 - Apply early return principles
 - Reduce amount of nested logical checks
 - Use absolute imports
