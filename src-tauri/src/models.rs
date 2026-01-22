@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -62,4 +62,49 @@ pub struct OnboardingStep {
     pub step_key: String,
     pub is_completed: bool,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct RetirementPlan {
+    pub id: String,
+    pub name: String,
+    pub target_retirement_date: Option<NaiveDate>,
+    pub starting_net_worth: f64,
+    pub monthly_contribution: f64,
+    pub expected_monthly_expenses: f64,
+    pub return_scenario: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::RetirementPlan;
+    use chrono::{NaiveDate, TimeZone, Utc};
+
+    #[test]
+    fn retirement_plan_serializes_with_camel_case_keys() {
+        let plan = RetirementPlan {
+            id: "plan-1".to_string(),
+            name: "Baseline".to_string(),
+            target_retirement_date: Some(NaiveDate::from_ymd_opt(2045, 1, 1).unwrap()),
+            starting_net_worth: 250_000.0,
+            monthly_contribution: 1_500.0,
+            expected_monthly_expenses: 4_000.0,
+            return_scenario: "moderate".to_string(),
+            created_at: Utc.with_ymd_and_hms(2026, 1, 22, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2026, 1, 22, 0, 0, 0).unwrap(),
+        };
+
+        let value = serde_json::to_value(plan).expect("serialize retirement plan");
+
+        assert!(value.get("targetRetirementDate").is_some());
+        assert!(value.get("startingNetWorth").is_some());
+        assert!(value.get("monthlyContribution").is_some());
+        assert!(value.get("expectedMonthlyExpenses").is_some());
+        assert!(value.get("returnScenario").is_some());
+        assert!(value.get("createdAt").is_some());
+        assert!(value.get("updatedAt").is_some());
+    }
 }
