@@ -79,12 +79,12 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 
 ## Stop Condition
 
-After completing a user story, check if ALL stories have `passes: true`.
+After completing a user story, check if ALL stories in `scripts/prd.json` have `passes: true`.
 
 If ALL stories are complete and passing, reply with:
 `<promise>COMPLETE</promise>`
 
-If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
+If there are still stories with `passes: false`, end your response and do not ask user to pick next steps (another iteration will pick up the next story)
 
 ## Important
 

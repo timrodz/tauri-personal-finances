@@ -60,3 +60,18 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Retirement plan list API enforces a max of 3 rows via SQL LIMIT.
 ---
+## 2026-01-23 08:55 NZDT - US-005
+- What was implemented
+  - Added NetWorthService::get_latest and Tauri command to fetch latest net worth data point.
+  - Added unit tests covering latest net worth retrieval and empty-history behavior.
+- Files changed
+  - src-tauri/src/services/net_worth.rs
+  - src-tauri/src/commands.rs
+  - src-tauri/src/lib.rs
+  - AGENTS.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Latest net worth retrieval relies on get_history sorting and pops the last entry.
+---

@@ -22,6 +22,12 @@ All application logic must be built with Rust, and the frontend must be used for
 - lint: `bun lint`
 - typecheck: `bun typecheck`
 
+### Database notes
+
+- Retirement planner data is stored in the `retirement_plans` table (see `src-tauri/migrations`).
+- Retirement planner CRUD commands live in `src-tauri/src/commands.rs` for Tauri invoke handlers.
+- Net worth commands include `get_net_worth_history` and `get_latest_net_worth` in `src-tauri/src/commands.rs`.
+
 ## Rules
 
 - Add or update tests even if not asked to.

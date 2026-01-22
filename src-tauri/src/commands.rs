@@ -30,6 +30,13 @@ pub async fn get_net_worth_history(
 }
 
 #[tauri::command]
+pub async fn get_latest_net_worth(
+    state: State<'_, AppState>,
+) -> Result<Option<NetWorthDataPoint>, String> {
+    NetWorthService::get_latest(&state.db).await
+}
+
+#[tauri::command]
 pub async fn update_user_settings(
     state: State<'_, AppState>,
     name: String,

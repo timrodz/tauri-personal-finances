@@ -137,6 +137,11 @@ impl NetWorthService {
 
         Ok(result)
     }
+
+    pub async fn get_latest(pool: &SqlitePool) -> Result<Option<NetWorthDataPoint>, String> {
+        let mut history = Self::get_history(pool).await?;
+        Ok(history.pop())
+    }
 }
 
 #[cfg(test)]
@@ -261,5 +266,54 @@ mod tests {
 
         // 6. Verify empty because 3000 is in the future
         assert_eq!(history.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_get_latest_net_worth() {
+        let pool = setup_test_db().await;
+
+        UserSettingsService::upsert(&pool, "Test User".into(), "USD".into(), "system".into())
+            .await
+            .expect("setup settings");
+
+        let asset_usd =
+            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into())
+                .await
+                .expect("asset usd");
+
+        let sheet = BalanceSheetService::upsert(&pool, None, 2025)
+            .await
+            .expect("sheet");
+
+        EntryService::upsert(&pool, sheet.id.clone(), asset_usd.id.clone(), 1, 1000.0)
+            .await
+            .expect("entry jan");
+        EntryService::upsert(&pool, sheet.id.clone(), asset_usd.id.clone(), 2, 1500.0)
+            .await
+            .expect("entry feb");
+
+        let latest = NetWorthService::get_latest(&pool)
+            .await
+            .expect("latest");
+
+        let latest = latest.expect("expected latest point");
+        assert_eq!(latest.year, 2025);
+        assert_eq!(latest.month, 2);
+        assert!((latest.net_worth - 1500.0).abs() < 0.001);
+    }
+
+    #[tokio::test]
+    async fn test_get_latest_net_worth_empty() {
+        let pool = setup_test_db().await;
+
+        UserSettingsService::upsert(&pool, "Test User".into(), "USD".into(), "system".into())
+            .await
+            .expect("setup settings");
+
+        let latest = NetWorthService::get_latest(&pool)
+            .await
+            .expect("latest");
+
+        assert!(latest.is_none());
     }
 }

@@ -86,6 +86,7 @@ pub fn run() {
             commands::upsert_currency_rate,
             commands::delete_currency_rate,
             commands::get_net_worth_history,
+            commands::get_latest_net_worth,
             commands::get_onboarding_status,
             commands::complete_onboarding_step,
             commands::create_retirement_plan,

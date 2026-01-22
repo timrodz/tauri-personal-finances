@@ -28,11 +28,6 @@ From `src-tauri`:
 cargo test
 ```
 
-### Database notes
-
-- Retirement planner data is stored in the `retirement_plans` table (see `src-tauri/migrations`).
-- Retirement planner CRUD commands live in `src-tauri/src/commands.rs` for Tauri invoke handlers.
-
 ### VS Code Extensions
 
 - [VS Code](https://code.visualstudio.com/)
