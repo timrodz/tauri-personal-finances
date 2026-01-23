@@ -1,7 +1,7 @@
 {
   "project": "Personal Finances",
   "branchName": "ralph/retirement-planner",
-  "description": "Retirement Planner - Project financial future with 3%/4% safe withdrawal rules and scenario comparison",
+  "description": "Retirement Planner - Project financial future with 3%/4% safe withdrawal rules, scenario comparison, and net worth growth projections",
   "userStories": [
     {
       "id": "US-001",
@@ -213,6 +213,124 @@
       ],
       "priority": 13,
       "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Add retirement plan projections table",
+      "description": "As a developer, I need to store net worth projection data points for charting.",
+      "acceptanceCriteria": [
+        "Create `retirement_plan_projections` table with fields: id (UUID), plan_id (FK to retirement_plans), year (i32), month (i32), projected_net_worth (f64), created_at",
+        "Add SQLx migration file in src-tauri/migrations/",
+        "Add RetirementPlanProjection struct to src-tauri/src/models.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Generate and store projection data points",
+      "description": "As a user, I want my net worth growth projections stored so I can view them in a chart.",
+      "acceptanceCriteria": [
+        "RetirementService generates monthly projection data points from current date to retirement date",
+        "Projection data points are saved to retirement_plan_projections table when plan is created/updated",
+        "Old projection data points are deleted and replaced when plan inputs change",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Add get_retirement_plan_projections command",
+      "description": "As a frontend developer, I need a command to fetch projection data points for charting.",
+      "acceptanceCriteria": [
+        "Add get_retirement_plan_projections command that accepts plan_id",
+        "Returns list of projection data points sorted by year/month ascending",
+        "Register command in src-tauri/src/main.rs",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Add TypeScript types for projection data",
+      "description": "As a frontend developer, I need TypeScript types for projection data points.",
+      "acceptanceCriteria": [
+        "Add RetirementPlanProjection interface to src/lib/types.ts with fields: id, planId, year, month, projectedNetWorth, createdAt",
+        "Typecheck passes (pnpm run typecheck)"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Implement target date mode calculations",
+      "description": "As a user, I want projections for my specified target date, not just earliest possible date.",
+      "acceptanceCriteria": [
+        "When target_retirement_date is set, calculate projections for that specific date",
+        "When target_retirement_date is null/cleared, fall back to earliest possible retirement date",
+        "Projected net worth and sustainable income are calculated based on the selected retirement date",
+        "Unit tests cover both target date mode and discovery mode",
+        "Typecheck passes (cargo clippy)"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Display net worth growth chart",
+      "description": "As a user, I want to see a chart of my projected net worth growth over time.",
+      "acceptanceCriteria": [
+        "Add line chart showing net worth growth from current date to retirement date",
+        "Chart uses data from get_retirement_plan_projections command",
+        "Chart displays yearly data points (aggregate monthly data)",
+        "Chart clearly marks the retirement date on the timeline",
+        "Chart updates when form inputs change and projections are recalculated",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Update results display for target date mode",
+      "description": "As a user, I want to see whether I'm viewing projections for my target date or earliest possible date.",
+      "acceptanceCriteria": [
+        "Display which mode is active: 'Target Date' or 'Earliest Possible'",
+        "When target date is set, show 'Projections for [date]' header",
+        "When target date is cleared, show 'Earliest Retirement: [date]' header",
+        "Results and chart update immediately when target date is set or cleared",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Add load scenario functionality",
+      "description": "As a user, I want to load a saved scenario to view its details and chart.",
+      "acceptanceCriteria": [
+        "Clicking a saved scenario in comparison view loads it into the main form",
+        "Form inputs are populated with the loaded scenario's values",
+        "Results and chart update to show the loaded scenario's projections",
+        "Visual indicator (highlight/border) shows which scenario is currently loaded",
+        "Typecheck passes (pnpm run typecheck)",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
       "notes": ""
     }
   ]

@@ -26,6 +26,7 @@ The Retirement Planner enables users to project their financial future by calcul
 **Acceptance Criteria:**
 - [ ] Create `retirement_plans` table with fields: id (UUID), name (String), target_retirement_date (Date nullable), starting_net_worth (f64), monthly_contribution (f64), expected_monthly_expenses (f64), return_scenario (enum: conservative/moderate/aggressive), created_at, updated_at
 - [ ] Create `retirement_plan_results` table for cached calculation results: id, plan_id (FK), withdrawal_rate (f64), projected_retirement_date (Date), years_to_retirement (f64), final_net_worth (f64), sustainable_monthly_income (f64), calculated_at
+- [ ] Create `retirement_plan_projections` table for net worth growth data points: id, plan_id (FK), year (i32), month (i32), projected_net_worth (f64), created_at
 - [ ] Add SQLx migrations
 - [ ] Typecheck passes (`cargo clippy`)
 
@@ -39,8 +40,12 @@ The Retirement Planner enables users to project their financial future by calcul
 - [ ] Calculate sustainable monthly income using both 3% and 4% annual withdrawal rules
 - [ ] Calculate years to reach retirement goal (target net worth = annual_expenses / withdrawal_rate)
 - [ ] Calculate earliest retirement date when savings can sustain expenses indefinitely
+- [ ] **Target date mode:** When a target retirement date is specified, calculate projections for that specific date (projected net worth, sustainable income at that date) even if it differs from the earliest possible retirement date
+- [ ] **Discovery mode:** When no target date is specified (null/cleared), fall back to calculating earliest possible retirement date
+- [ ] Generate and store monthly net worth projection data points from current date to retirement date
+- [ ] Projection data points are recalculated and replaced when plan inputs change
 - [ ] All calculations use home currency from user settings
-- [ ] Unit tests cover all calculation scenarios
+- [ ] Unit tests cover all calculation scenarios including both target date and discovery modes
 - [ ] Typecheck passes (`cargo clippy`)
 
 ### US-003: Create Tauri commands for retirement planning
@@ -53,6 +58,7 @@ The Retirement Planner enables users to project their financial future by calcul
 - [ ] `update_retirement_plan` command - updates plan and recalculates
 - [ ] `delete_retirement_plan` command - removes plan
 - [ ] `get_latest_net_worth` command - returns most recent net worth from balance sheet data
+- [ ] `get_retirement_plan_projections` command - returns net worth projection data points for a plan (for charting)
 - [ ] Commands registered in main.rs
 - [ ] Typecheck passes (`cargo clippy`)
 
@@ -73,14 +79,20 @@ The Retirement Planner enables users to project their financial future by calcul
 **Description:** As a user, I want to see my retirement projections so I can understand my financial future.
 
 **Acceptance Criteria:**
-- [ ] Display projected retirement date (or "Already achievable" if current savings sufficient)
+- [ ] **Discovery mode (no target date):** Display earliest possible retirement date and projections at that date
+- [ ] **Target date mode:** When target retirement date is set, display projections for that specific date regardless of earliest possible date
+- [ ] Display the retirement date being used (target date or earliest possible)
 - [ ] Display years until retirement
-- [ ] Display projected net worth at retirement
-- [ ] Display sustainable monthly income under 3% rule
-- [ ] Display sustainable monthly income under 4% rule
+- [ ] Display projected net worth at retirement date
+- [ ] Display sustainable monthly income under 3% rule (based on projected net worth at retirement date)
+- [ ] Display sustainable monthly income under 4% rule (based on projected net worth at retirement date)
 - [ ] Highlight if projected income meets/exceeds expected expenses
-- [ ] Show growth trajectory visualization (net worth over time chart)
-- [ ] Results update when inputs change
+- [ ] Show net worth growth chart from current date to retirement date using stored projection data points
+- [ ] Chart displays monthly or yearly data points (yearly recommended for long time horizons)
+- [ ] Chart clearly marks the retirement date on the timeline
+- [ ] Chart shows the projected net worth value at key milestones (current, midpoint, retirement)
+- [ ] Results and chart update when inputs change (including when target date is set or cleared)
+- [ ] When target date is cleared, immediately switch to showing earliest possible retirement date projections
 - [ ] Typecheck passes (`pnpm run typecheck`)
 - [ ] Verify in browser using dev-browser skill
 
@@ -92,6 +104,9 @@ The Retirement Planner enables users to project their financial future by calcul
 - [ ] Show key metrics for each scenario: name, retirement date, years remaining, monthly income (3%), monthly income (4%)
 - [ ] Visual indicator showing which scenario reaches retirement earliest
 - [ ] Visual indicator showing which scenario provides highest sustainable income
+- [ ] Clicking/selecting a saved scenario loads it into the main view (form inputs and projection results)
+- [ ] When a scenario is loaded, the form is populated with its inputs and results/chart update accordingly
+- [ ] Visual indicator showing which scenario is currently loaded/active
 - [ ] Ability to delete a scenario from comparison
 - [ ] Empty state when no scenarios saved
 - [ ] Limit enforcement: cannot save more than 3 scenarios (show message)
@@ -134,6 +149,13 @@ The Retirement Planner enables users to project their financial future by calcul
 - **FR-8:** The system must display all monetary values in the user's home currency
 - **FR-9:** The system must persist retirement plans across app sessions
 - **FR-10:** The system must support both goal-oriented (target date) and discovery (earliest date) planning modes
+- **FR-11:** When a target retirement date is specified, the system must calculate and display projections for that specific date (projected net worth and sustainable income at target date)
+- **FR-12:** When the target retirement date is cleared/null, the system must fall back to discovery mode and display earliest possible retirement date projections
+- **FR-13:** The system must always display the projected net worth at the selected retirement date (whether target or earliest possible)
+- **FR-14:** The system must generate and store net worth projection data points (monthly) from current date to retirement date
+- **FR-15:** The system must recalculate and replace projection data points when plan inputs change
+- **FR-16:** The system must provide projection data points via a dedicated command for rendering the growth chart
+- **FR-17:** The system must allow loading a saved scenario to view its inputs, results, and projection chart
 
 ---
 
