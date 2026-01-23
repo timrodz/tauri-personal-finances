@@ -215,3 +215,17 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Projection errors surface through React Query and can be categorized via helper logic.
 ---
+## 2026-01-23 22:20 NZDT - US-014
+- What was implemented
+  - Added retirement_plan_projections migration with FK to retirement_plans and indexes.
+  - Added RetirementPlanProjection struct with camelCase serialization.
+  - Added unit test for projection model serialization.
+- Files changed
+  - src-tauri/migrations/20260123000000_create_retirement_plan_projections.sql
+  - src-tauri/src/models.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Projection table uses ON DELETE CASCADE for automatic cleanup when plan is deleted.
+---

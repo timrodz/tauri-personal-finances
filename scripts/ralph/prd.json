@@ -228,7 +228,7 @@
         "Typecheck passes (cargo clippy)"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
