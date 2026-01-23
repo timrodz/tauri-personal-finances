@@ -8,6 +8,7 @@ const validErrors = validateRetirementInputs({
   startingNetWorth: "250000",
   monthlyContribution: "1200",
   expectedMonthlyExpenses: "3500",
+  inflationRate: "2.5",
 });
 console.assert(validErrors.length === 0, "Expected no validation errors");
 
@@ -16,6 +17,7 @@ const invalidErrors = validateRetirementInputs({
   startingNetWorth: "0",
   monthlyContribution: "-10",
   expectedMonthlyExpenses: "",
+  inflationRate: "20",
 });
 console.assert(invalidErrors.length >= 3, "Expected validation errors");
 

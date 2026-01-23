@@ -14,6 +14,7 @@ export interface RetirementPlanInput {
   monthlyContribution: number;
   expectedMonthlyExpenses: number;
   returnScenario: ReturnScenario;
+  inflationRate: number;
 }
 
 export function useRetirementPlans() {

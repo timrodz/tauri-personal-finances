@@ -402,3 +402,21 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: None.
 ---
+## 2026-01-24 00:02 NZDT - US-027
+- What was implemented
+  - Added inflation rate input handling, validation, and wiring into retirement projections and plan creation.
+  - Updated retirement query keys and API bindings to pass inflation rates through to Tauri commands.
+  - Extended validation tests to cover inflation rate ranges.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/features/retirement/lib/validation.ts
+  - src/features/retirement/lib/validation.test.ts
+  - src/hooks/use-retirement.ts
+  - src/hooks/use-retirement-plans.ts
+  - src/lib/api.ts
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Inflation rate input is captured as a percent and converted to a decimal before invoking backend commands.
+---

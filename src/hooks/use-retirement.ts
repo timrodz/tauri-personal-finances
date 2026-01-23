@@ -10,6 +10,7 @@ export const RETIREMENT_KEYS = {
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
     targetRetirementDate: string | null;
+    inflationRate: number;
   }) =>
     [
       ...RETIREMENT_KEYS.all,
@@ -19,6 +20,7 @@ export const RETIREMENT_KEYS = {
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
       inputs.targetRetirementDate,
+      inputs.inflationRate,
     ] as const,
   scenarioProjection: (
     planId: string,
@@ -28,6 +30,7 @@ export const RETIREMENT_KEYS = {
       expectedMonthlyExpenses: number;
       returnScenario: ReturnScenario;
       targetRetirementDate: string | null;
+      inflationRate: number;
     },
   ) =>
     [
@@ -39,6 +42,7 @@ export const RETIREMENT_KEYS = {
       inputs.expectedMonthlyExpenses,
       inputs.returnScenario,
       inputs.targetRetirementDate,
+      inputs.inflationRate,
     ] as const,
   planProjections: (planId: string) =>
     [...RETIREMENT_KEYS.all, "plan-projections", planId] as const,
@@ -51,6 +55,7 @@ export function useRetirementProjection(
     expectedMonthlyExpenses: number;
     returnScenario: ReturnScenario;
     targetRetirementDate: string | null;
+    inflationRate: number;
   },
   options?: { enabled?: boolean },
 ) {
@@ -63,6 +68,7 @@ export function useRetirementProjection(
         inputs.expectedMonthlyExpenses,
         inputs.returnScenario,
         inputs.targetRetirementDate,
+        inputs.inflationRate,
       ),
     enabled: options?.enabled,
   });
@@ -79,6 +85,7 @@ export function useRetirementScenarioProjections(
         expectedMonthlyExpenses: plan.expectedMonthlyExpenses,
         returnScenario: plan.returnScenario,
         targetRetirementDate: plan.targetRetirementDate,
+        inflationRate: plan.inflationRate,
       }),
       queryFn: () =>
         api.calculateRetirementProjection(
@@ -87,6 +94,7 @@ export function useRetirementScenarioProjections(
           plan.expectedMonthlyExpenses,
           plan.returnScenario,
           plan.targetRetirementDate,
+          plan.inflationRate,
         ),
       enabled: Boolean(plans?.length),
     })),

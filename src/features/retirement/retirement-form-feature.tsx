@@ -67,6 +67,7 @@ export function RetirementFormFeature() {
   const [startingNetWorth, setStartingNetWorth] = useState("");
   const [monthlyContribution, setMonthlyContribution] = useState("");
   const [expectedMonthlyExpenses, setExpectedMonthlyExpenses] = useState("");
+  const [inflationRate, setInflationRate] = useState("0");
   const [returnScenario, setReturnScenario] =
     useState<ReturnScenario>("moderate");
   const [hasEditedStartingNetWorth, setHasEditedStartingNetWorth] =
@@ -80,13 +81,26 @@ export function RetirementFormFeature() {
   const parsedStartingNetWorth = Number(startingNetWorth);
   const parsedMonthlyContribution = Number(monthlyContribution);
   const parsedExpectedMonthlyExpenses = Number(expectedMonthlyExpenses);
+  const inflationRateInput = inflationRate.trim();
+  const parsedInflationRatePercent = inflationRateInput
+    ? Number(inflationRateInput)
+    : 0;
+  const inflationRateValid =
+    !inflationRateInput ||
+    (Number.isFinite(parsedInflationRatePercent) &&
+      parsedInflationRatePercent >= 0 &&
+      parsedInflationRatePercent <= 15);
+  const parsedInflationRate = inflationRateValid
+    ? parsedInflationRatePercent / 100
+    : 0;
   const canCalculateProjection =
     Number.isFinite(parsedStartingNetWorth) &&
     parsedStartingNetWorth > 0 &&
     Number.isFinite(parsedMonthlyContribution) &&
     parsedMonthlyContribution > 0 &&
     Number.isFinite(parsedExpectedMonthlyExpenses) &&
-    parsedExpectedMonthlyExpenses > 0;
+    parsedExpectedMonthlyExpenses > 0 &&
+    inflationRateValid;
 
   const projectionQuery = useRetirementProjection(
     {
@@ -95,6 +109,7 @@ export function RetirementFormFeature() {
       expectedMonthlyExpenses: parsedExpectedMonthlyExpenses,
       returnScenario,
       targetRetirementDate: targetRetirementDate || null,
+      inflationRate: parsedInflationRate,
     },
     { enabled: canCalculateProjection },
   );
@@ -194,6 +209,7 @@ export function RetirementFormFeature() {
       startingNetWorth,
       monthlyContribution,
       expectedMonthlyExpenses,
+      inflationRate,
     });
 
     setErrors(validationErrors);
@@ -213,6 +229,7 @@ export function RetirementFormFeature() {
       startingNetWorth,
       monthlyContribution,
       expectedMonthlyExpenses,
+      inflationRate,
     });
 
     setErrors(validationErrors);
@@ -230,6 +247,7 @@ export function RetirementFormFeature() {
         monthlyContribution: parsedMonthlyContribution,
         expectedMonthlyExpenses: parsedExpectedMonthlyExpenses,
         returnScenario,
+        inflationRate: parsedInflationRate,
       });
       setSaveNotice({
         type: "success",
@@ -254,6 +272,7 @@ export function RetirementFormFeature() {
     setExpectedMonthlyExpenses(
       formatNumberForInput(plan.expectedMonthlyExpenses),
     );
+    setInflationRate(formatNumberForInput(plan.inflationRate * 100));
     setReturnScenario(plan.returnScenario);
     setHasEditedStartingNetWorth(true);
     setErrors([]);
@@ -475,6 +494,23 @@ export function RetirementFormFeature() {
                     <SelectItem value="aggressive">Aggressive (10%)</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inflation-rate">Inflation rate (%)</Label>
+                <Input
+                  id="inflation-rate"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max="15"
+                  step="0.1"
+                  placeholder="0"
+                  value={inflationRate}
+                  onChange={(event) => setInflationRate(event.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Optional. Use 0% to ignore inflation.
+                </p>
               </div>
             </div>
 
