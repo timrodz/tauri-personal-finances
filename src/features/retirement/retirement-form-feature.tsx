@@ -40,7 +40,10 @@ import {
   formatNumberForInput,
   validateRetirementInputs,
 } from "@/features/retirement/lib/validation";
-import { getProjectionStatus } from "@/features/retirement/lib/projection";
+import {
+  getProjectionErrorKind,
+  getProjectionStatus,
+} from "@/features/retirement/lib/projection";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
@@ -68,6 +71,8 @@ export function RetirementFormFeature() {
   const [errors, setErrors] = useState<string[]>([]);
 
   const homeCurrency = settings?.homeCurrency ?? "USD";
+  const latestNetWorthMissing =
+    !latestNetWorthLoading && !latestNetWorthError && latestNetWorth === null;
   const parsedStartingNetWorth = Number(startingNetWorth);
   const parsedMonthlyContribution = Number(monthlyContribution);
   const parsedExpectedMonthlyExpenses = Number(expectedMonthlyExpenses);
@@ -91,6 +96,8 @@ export function RetirementFormFeature() {
   const {
     data: savedPlans,
     isLoading: savedPlansLoading,
+    isError: savedPlansError,
+    error: savedPlansErrorData,
     createPlan,
     deletePlan,
   } = useRetirementPlans();
@@ -106,6 +113,7 @@ export function RetirementFormFeature() {
         projection: projectionQuery?.data ?? null,
         isLoading: projectionQuery?.isLoading ?? false,
         isError: projectionQuery?.isError ?? false,
+        error: projectionQuery?.error ?? null,
       };
     }) ?? [];
 
@@ -237,6 +245,17 @@ export function RetirementFormFeature() {
     income3Status === "onTrack" ? "text-emerald-600" : "text-amber-600";
   const income4Class =
     income4Status === "onTrack" ? "text-emerald-600" : "text-amber-600";
+  const projectionErrorKind = projectionQuery.isError
+    ? getProjectionErrorKind(projectionQuery.error)
+    : null;
+  const projectionErrorMessage =
+    projectionErrorKind === "notAchievable"
+      ? "Retirement is not achievable with the current inputs. Try adjusting your savings or expenses."
+      : projectionQuery.isError
+        ? "Unable to calculate a projection right now."
+        : null;
+  const projectionErrorTone =
+    projectionErrorKind === "notAchievable" ? "text-amber-600" : "text-destructive";
 
   return (
     <div className="space-y-6">
@@ -315,6 +334,11 @@ export function RetirementFormFeature() {
                 {latestNetWorth && !hasEditedStartingNetWorth && (
                   <p className="text-xs text-muted-foreground">
                     Pre-filled from your latest net worth snapshot.
+                  </p>
+                )}
+                {latestNetWorthMissing && (
+                  <p className="text-xs text-muted-foreground">
+                    Enter starting net worth manually.
                   </p>
                 )}
                 {latestNetWorthError && (
@@ -431,6 +455,12 @@ export function RetirementFormFeature() {
             </div>
           )}
 
+          {!projectionQuery.isLoading && projectionErrorMessage && (
+            <div className={`rounded-md border border-border/60 bg-muted/30 p-4 text-sm ${projectionErrorTone}`}>
+              {projectionErrorMessage}
+            </div>
+          )}
+
           {!projectionQuery.isLoading && projectionQuery.data && (
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-3">
@@ -500,7 +530,8 @@ export function RetirementFormFeature() {
 
           {!projectionQuery.isLoading &&
             !projectionQuery.data &&
-            canCalculateProjection && (
+            canCalculateProjection &&
+            !projectionQuery.isError && (
               <div className="rounded-md border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
                 Enter updated assumptions to refresh your projection results.
               </div>
@@ -535,6 +566,11 @@ export function RetirementFormFeature() {
                   Calculating scenario projections...
                 </div>
               )}
+              {scenarioRows.some((row) => row.isError) && (
+                <div className="text-xs text-amber-600">
+                  One or more scenarios could not be calculated.
+                </div>
+              )}
               {deletePlan.isError && (
                 <div className="text-xs text-destructive">
                   Unable to delete the scenario right now.
@@ -560,6 +596,11 @@ export function RetirementFormFeature() {
                     const isHighestIncome = highestIncomeScenarioIds.has(
                       row.plan.id,
                     );
+                    const scenarioErrorKind = getProjectionErrorKind(row.error);
+                    const scenarioErrorLabel =
+                      scenarioErrorKind === "notAchievable"
+                        ? "Not achievable"
+                        : "Unavailable";
 
                     return (
                       <TableRow key={row.plan.id}>
@@ -600,6 +641,11 @@ export function RetirementFormFeature() {
                               Calculating...
                             </span>
                           )}
+                          {row.isError && (
+                            <span className="text-xs text-amber-600">
+                              {scenarioErrorLabel}
+                            </span>
+                          )}
                           {!row.isLoading && row.projection && (
                             <span>
                               {formatScenarioDate(
@@ -607,7 +653,7 @@ export function RetirementFormFeature() {
                               )}
                             </span>
                           )}
-                          {!row.isLoading && !row.projection && (
+                          {!row.isLoading && !row.projection && !row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -615,6 +661,11 @@ export function RetirementFormFeature() {
                         </TableCell>
                         <TableCell>
                           {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -624,7 +675,7 @@ export function RetirementFormFeature() {
                               {row.projection.yearsToRetirement.toFixed(1)}
                             </span>
                           )}
-                          {!row.isLoading && !row.projection && (
+                          {!row.isLoading && !row.projection && !row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -632,6 +683,11 @@ export function RetirementFormFeature() {
                         </TableCell>
                         <TableCell>
                           {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -644,7 +700,7 @@ export function RetirementFormFeature() {
                               )}
                             </span>
                           )}
-                          {!row.isLoading && !row.projection && (
+                          {!row.isLoading && !row.projection && !row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -652,6 +708,11 @@ export function RetirementFormFeature() {
                         </TableCell>
                         <TableCell>
                           {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -664,7 +725,7 @@ export function RetirementFormFeature() {
                               )}
                             </span>
                           )}
-                          {!row.isLoading && !row.projection && (
+                          {!row.isLoading && !row.projection && !row.isError && (
                             <span className="text-xs text-muted-foreground">
                               --
                             </span>
@@ -690,9 +751,18 @@ export function RetirementFormFeature() {
               </Table>
             </div>
           )}
-          {!savedPlansLoading && (!savedPlans || savedPlans.length === 0) && (
+          {!savedPlansLoading &&
+            !savedPlansError &&
+            (!savedPlans || savedPlans.length === 0) && (
             <div className="text-sm text-muted-foreground">
               No scenarios saved yet. Save a scenario to compare later.
+            </div>
+          )}
+          {savedPlansError && (
+            <div className="text-sm text-destructive">
+              {savedPlansErrorData instanceof Error
+                ? savedPlansErrorData.message
+                : "Unable to load saved scenarios right now."}
             </div>
           )}
         </CardContent>

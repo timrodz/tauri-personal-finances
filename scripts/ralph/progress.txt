@@ -200,3 +200,18 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Scenario table uses calculate_retirement_projection per saved plan via the new scenario projections hook.
 ---
+## 2026-01-23 22:11 NZDT - US-013
+- What was implemented
+  - Added retirement planner edge-state messaging for missing net worth data, projection errors, and scenario calculation warnings.
+  - Added projection error classification helper with tests to surface not-achievable warnings.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/features/retirement/lib/projection.ts
+  - src/features/retirement/lib/projection.test.ts
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Projection errors surface through React Query and can be categorized via helper logic.
+---
