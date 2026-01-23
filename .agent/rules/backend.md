@@ -7,7 +7,6 @@ globs: *.rs, *.sql
 # Backend rules
 
 - Keep database transactions ACID-compliant
-- Add or update unit tests for every piece of co de, even if not asked
 - Never define magic numbers or strings, store them as variables
 - Always use descriptive variable names
 - Use early return pattern

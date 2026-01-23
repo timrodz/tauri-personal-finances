@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --fix src",
+    "test": "vitest",
     "tauri": "tauri",
     "shadcn:add": "shadcn@latest add",
     "prepare": "husky"
@@ -35,7 +36,8 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.12.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "vitest": "^4.0.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

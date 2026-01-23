@@ -10,12 +10,15 @@ This is a desktop application for personal finances, built with Tauri (Rust back
 - TypeScript: Frontend programming language
 - Shadcn: pre-defined UI components
 - SQLite: Database
+- Vitest: Frontend testing framework
 
 All application logic must be built with Rust, and the frontend must be used for rendering / manipulating data from the backend.
 
 There is no cloud storage enabled for this application; it's expected that user data lives in a SQLite `.db` file; we only interact with that file.
 
 ## Development practices
+
+Add or update unit tests for every piece of code
 
 ### Backend
 
@@ -34,6 +37,7 @@ There is no cloud storage enabled for this application; it's expected that user 
 - To add shadcn components use `bun shadcn:add`
 - Lint: `bun lint`
 - Typecheck: `bun typecheck`
+- Tests: `bun test`
 - Formatting: prefer camelCase for variables and PascalCase for components.
 
 ## Commit & Pull Request Guidelines
