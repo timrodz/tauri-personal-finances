@@ -14,6 +14,7 @@ const plan: RetirementPlan = {
   monthlyContribution: 1500,
   expectedMonthlyExpenses: 4000,
   returnScenario: scenario,
+  inflationRate: 2.5,
   createdAt: "2026-01-22T00:00:00Z",
   updatedAt: "2026-01-22T00:00:00Z",
 };
@@ -24,6 +25,7 @@ const projection: RetirementProjection = {
   finalNetWorth: 1200000,
   monthlyIncome3pct: 3000,
   monthlyIncome4pct: 4000,
+  inflationAdjustedExpenses: 5200,
 };
 
 void plan;

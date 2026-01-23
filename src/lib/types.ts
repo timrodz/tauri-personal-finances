@@ -73,6 +73,7 @@ export interface RetirementPlan {
   monthlyContribution: number;
   expectedMonthlyExpenses: number;
   returnScenario: ReturnScenario;
+  inflationRate: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,6 +84,7 @@ export interface RetirementProjection {
   finalNetWorth: number;
   monthlyIncome3pct: number;
   monthlyIncome4pct: number;
+  inflationAdjustedExpenses: number;
 }
 
 export interface RetirementPlanProjection {

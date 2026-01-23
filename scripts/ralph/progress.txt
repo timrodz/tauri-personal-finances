@@ -390,3 +390,15 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: None.
 ---
+## 2026-01-23 23:58 NZDT - US-026
+- What was implemented
+  - Added inflation fields to retirement TypeScript interfaces and type tests.
+- Files changed
+  - src/lib/types.ts
+  - src/lib/types.test.ts
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: None.
+---
