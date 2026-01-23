@@ -14,12 +14,13 @@ impl RetirementPlanService {
         monthly_contribution: f64,
         expected_monthly_expenses: f64,
         return_scenario: String,
+        inflation_rate: f64,
     ) -> Result<RetirementPlan, String> {
         let new_id = Uuid::new_v4().to_string();
         let now = chrono::Utc::now();
 
         sqlx::query_as::<_, RetirementPlan>(
-            "INSERT INTO retirement_plans (id, name, target_retirement_date, starting_net_worth, monthly_contribution, expected_monthly_expenses, return_scenario, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *",
+            "INSERT INTO retirement_plans (id, name, target_retirement_date, starting_net_worth, monthly_contribution, expected_monthly_expenses, return_scenario, inflation_rate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *",
         )
         .bind(new_id)
         .bind(name)
@@ -28,6 +29,7 @@ impl RetirementPlanService {
         .bind(monthly_contribution)
         .bind(expected_monthly_expenses)
         .bind(return_scenario)
+        .bind(inflation_rate)
         .bind(now)
         .bind(now)
         .fetch_one(pool)
@@ -64,11 +66,12 @@ impl RetirementPlanService {
         monthly_contribution: f64,
         expected_monthly_expenses: f64,
         return_scenario: String,
+        inflation_rate: f64,
     ) -> Result<RetirementPlan, String> {
         let now = chrono::Utc::now();
 
         sqlx::query_as::<_, RetirementPlan>(
-            "UPDATE retirement_plans SET name = ?, target_retirement_date = ?, starting_net_worth = ?, monthly_contribution = ?, expected_monthly_expenses = ?, return_scenario = ?, updated_at = ? WHERE id = ? RETURNING *",
+            "UPDATE retirement_plans SET name = ?, target_retirement_date = ?, starting_net_worth = ?, monthly_contribution = ?, expected_monthly_expenses = ?, return_scenario = ?, inflation_rate = ?, updated_at = ? WHERE id = ? RETURNING *",
         )
         .bind(name)
         .bind(target_retirement_date)
@@ -76,6 +79,7 @@ impl RetirementPlanService {
         .bind(monthly_contribution)
         .bind(expected_monthly_expenses)
         .bind(return_scenario)
+        .bind(inflation_rate)
         .bind(now)
         .bind(id)
         .fetch_one(pool)
@@ -110,6 +114,7 @@ mod tests {
             1_500.0,
             4_000.0,
             "moderate".to_string(),
+            2.5,
         )
         .await
         .expect("Failed to create plan");
@@ -132,6 +137,7 @@ mod tests {
             2_000.0,
             3_500.0,
             "conservative".to_string(),
+            1.5,
         )
         .await
         .expect("Failed to update plan");
@@ -148,6 +154,7 @@ mod tests {
                 1_000.0,
                 3_000.0,
                 "moderate".to_string(),
+                0.0,
             )
             .await
             .expect("Failed to create extra plan");

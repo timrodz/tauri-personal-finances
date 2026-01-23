@@ -74,6 +74,7 @@ pub struct RetirementPlan {
     pub monthly_contribution: f64,
     pub expected_monthly_expenses: f64,
     pub return_scenario: String,
+    pub inflation_rate: f64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -104,6 +105,7 @@ mod tests {
             monthly_contribution: 1_500.0,
             expected_monthly_expenses: 4_000.0,
             return_scenario: "moderate".to_string(),
+            inflation_rate: 2.5,
             created_at: Utc.with_ymd_and_hms(2026, 1, 22, 0, 0, 0).unwrap(),
             updated_at: Utc.with_ymd_and_hms(2026, 1, 22, 0, 0, 0).unwrap(),
         };
@@ -115,6 +117,7 @@ mod tests {
         assert!(value.get("monthlyContribution").is_some());
         assert!(value.get("expectedMonthlyExpenses").is_some());
         assert!(value.get("returnScenario").is_some());
+        assert!(value.get("inflationRate").is_some());
         assert!(value.get("createdAt").is_some());
         assert!(value.get("updatedAt").is_some());
     }

@@ -346,3 +346,18 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: None.
 ---
+## 2026-01-23 23:42 NZDT - US-023
+- What was implemented
+  - Added inflation_rate to RetirementPlan model and updated retirement plan create/update flows to persist the value.
+  - Updated retirement plan-related tests to supply inflation rates.
+- Files changed
+  - src-tauri/src/models.rs
+  - src-tauri/src/services/retirement_plan.rs
+  - src-tauri/src/services/retirement_plan_projection.rs
+  - src-tauri/src/commands.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: None.
+---

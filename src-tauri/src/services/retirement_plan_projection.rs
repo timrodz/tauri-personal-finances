@@ -78,6 +78,7 @@ mod tests {
             1_000.0,
             3_000.0,
             "moderate".to_string(),
+            0.0,
         )
         .await
         .expect("create plan");
@@ -129,6 +130,7 @@ mod tests {
             500.0,
             2_000.0,
             "conservative".to_string(),
+            1.0,
         )
         .await
         .expect("create plan");
@@ -181,6 +183,7 @@ mod tests {
             1_200.0,
             2_500.0,
             "aggressive".to_string(),
+            0.0,
         )
         .await
         .expect("create plan");

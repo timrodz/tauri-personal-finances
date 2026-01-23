@@ -219,6 +219,7 @@ pub async fn create_retirement_plan(
     monthly_contribution: f64,
     expected_monthly_expenses: f64,
     return_scenario: String,
+    inflation_rate: f64,
 ) -> Result<RetirementPlan, String> {
     let plan = RetirementPlanService::create(
         &state.db,
@@ -228,6 +229,7 @@ pub async fn create_retirement_plan(
         monthly_contribution,
         expected_monthly_expenses,
         return_scenario.clone(),
+        inflation_rate,
     )
     .await?;
 
@@ -286,6 +288,7 @@ pub async fn update_retirement_plan(
     monthly_contribution: f64,
     expected_monthly_expenses: f64,
     return_scenario: String,
+    inflation_rate: f64,
 ) -> Result<RetirementPlan, String> {
     let plan = RetirementPlanService::update(
         &state.db,
@@ -296,6 +299,7 @@ pub async fn update_retirement_plan(
         monthly_contribution,
         expected_monthly_expenses,
         return_scenario.clone(),
+        inflation_rate,
     )
     .await?;
 
