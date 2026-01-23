@@ -292,9 +292,7 @@ mod tests {
             .await
             .expect("entry feb");
 
-        let latest = NetWorthService::get_latest(&pool)
-            .await
-            .expect("latest");
+        let latest = NetWorthService::get_latest(&pool).await.expect("latest");
 
         let latest = latest.expect("expected latest point");
         assert_eq!(latest.year, 2025);
@@ -310,9 +308,7 @@ mod tests {
             .await
             .expect("setup settings");
 
-        let latest = NetWorthService::get_latest(&pool)
-            .await
-            .expect("latest");
+        let latest = NetWorthService::get_latest(&pool).await.expect("latest");
 
         assert!(latest.is_none());
     }

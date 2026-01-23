@@ -15,7 +15,7 @@ globs: *.rs, *.sql
 
 ## Rust
 
-- After editing a file always run `cargo clippy` to verify lints and fix errors
+- After editing a file always run `cargo fmt` and `cargo clippy`
 - Use variables directly in the `format!` string
 - Avoid mutability, `let value` over `let mut value`
 - Avoid `unwrap` and use its alternatives

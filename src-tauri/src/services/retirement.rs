@@ -231,7 +231,11 @@ impl RetirementService {
                 } else {
                     days_diff as f64 / 365.25
                 };
-                let date = if years <= 0.0 { None } else { Some(target_date) };
+                let date = if years <= 0.0 {
+                    None
+                } else {
+                    Some(target_date)
+                };
                 (years, date)
             }
             None => {
@@ -310,7 +314,8 @@ impl RetirementService {
                 projected_net_worth: current_net_worth,
             });
 
-            current_net_worth = current_net_worth * (1.0 + monthly_return_rate) + monthly_contribution;
+            current_net_worth =
+                current_net_worth * (1.0 + monthly_return_rate) + monthly_contribution;
 
             let next_month = if current_date.month() == 12 {
                 NaiveDate::from_ymd_opt(current_date.year() + 1, 1, 1)
@@ -408,23 +413,17 @@ mod tests {
 
     #[test]
     fn years_to_retirement_returns_zero_when_already_achievable() {
-        let years = RetirementService::years_to_retirement(1_000_000.0, 0.0, 3_000.0, 0.04, 0.07)
-            .unwrap();
+        let years =
+            RetirementService::years_to_retirement(1_000_000.0, 0.0, 3_000.0, 0.04, 0.07).unwrap();
         assert!((years - 0.0).abs() < f64::EPSILON);
     }
 
     #[test]
     fn years_to_retirement_with_inflation_increases_target() {
         let base_years =
-            RetirementService::years_to_retirement(50_000.0, 500.0, 3_000.0, 0.04, 0.07)
-                .unwrap();
+            RetirementService::years_to_retirement(50_000.0, 500.0, 3_000.0, 0.04, 0.07).unwrap();
         let inflated_years = RetirementService::years_to_retirement_with_inflation(
-            50_000.0,
-            500.0,
-            3_000.0,
-            0.04,
-            0.07,
-            0.03,
+            50_000.0, 500.0, 3_000.0, 0.04, 0.07, 0.03,
         )
         .unwrap();
 
@@ -517,7 +516,9 @@ mod tests {
     fn calculate_projection_target_date_mode_calculates_correct_net_worth() {
         let today = Local::now().date_naive();
         let target_date = NaiveDate::from_ymd_opt(today.year() + 1, today.month(), today.day())
-            .unwrap_or_else(|| NaiveDate::from_ymd_opt(today.year() + 1, today.month(), 28).unwrap());
+            .unwrap_or_else(|| {
+                NaiveDate::from_ymd_opt(today.year() + 1, today.month(), 28).unwrap()
+            });
 
         let projection = RetirementService::calculate_projection(
             10_000.0,
@@ -554,12 +555,8 @@ mod tests {
         let today = Local::now().date_naive();
         let past_date = today - Duration::days(30);
 
-        let points = RetirementService::generate_projection_data_points(
-            100_000.0,
-            1_000.0,
-            0.07,
-            past_date,
-        );
+        let points =
+            RetirementService::generate_projection_data_points(100_000.0, 1_000.0, 0.07, past_date);
 
         assert_eq!(points.len(), 1);
         assert_eq!(points[0].year, today.year());
@@ -596,10 +593,7 @@ mod tests {
         };
 
         let points = RetirementService::generate_projection_data_points(
-            100_000.0,
-            1_000.0,
-            0.12,
-            next_month,
+            100_000.0, 1_000.0, 0.12, next_month,
         );
 
         assert!(points.len() >= 2);
