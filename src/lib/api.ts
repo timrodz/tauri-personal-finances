@@ -6,6 +6,7 @@ import {
   CurrencyRate,
   Entry,
   OnboardingStep,
+  RetirementPlan,
   RetirementProjection,
   ReturnScenario,
   UserSettings,
@@ -21,7 +22,14 @@ export interface NetWorthDataPoint {
 }
 
 // Re-export types for consumers
-export type { Account, BalanceSheet, CurrencyRate, Entry, UserSettings };
+export type {
+  Account,
+  BalanceSheet,
+  CurrencyRate,
+  Entry,
+  RetirementPlan,
+  UserSettings,
+};
 
 // API Adapter
 export const api = {
@@ -156,6 +164,21 @@ export const api = {
   },
 
   // Retirement
+  getRetirementPlans: async (): Promise<RetirementPlan[]> => {
+    return await invoke(COMMANDS.GET_RETIREMENT_PLANS);
+  },
+
+  createRetirementPlan: async (input: {
+    name: string;
+    targetRetirementDate: string | null;
+    startingNetWorth: number;
+    monthlyContribution: number;
+    expectedMonthlyExpenses: number;
+    returnScenario: ReturnScenario;
+  }): Promise<RetirementPlan> => {
+    return await invoke(COMMANDS.CREATE_RETIREMENT_PLAN, input);
+  },
+
   calculateRetirementProjection: async (
     startingNetWorth: number,
     monthlyContribution: number,

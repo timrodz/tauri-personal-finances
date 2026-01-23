@@ -33,6 +33,11 @@ export const COMMANDS = {
   GET_LATEST_NET_WORTH: "get_latest_net_worth",
 
   // Retirement
+  CREATE_RETIREMENT_PLAN: "create_retirement_plan",
+  GET_RETIREMENT_PLANS: "get_retirement_plans",
+  GET_RETIREMENT_PLAN: "get_retirement_plan",
+  UPDATE_RETIREMENT_PLAN: "update_retirement_plan",
+  DELETE_RETIREMENT_PLAN: "delete_retirement_plan",
   CALCULATE_RETIREMENT_PROJECTION: "calculate_retirement_projection",
 
   // Onboarding

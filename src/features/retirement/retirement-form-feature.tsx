@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
 import { useRetirementProjection } from "@/hooks/use-retirement";
+import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/currency-formatting";
 import { ReturnScenario } from "@/lib/types";
@@ -25,6 +26,10 @@ import {
   validateRetirementInputs,
 } from "@/features/retirement/lib/validation";
 import { getProjectionStatus } from "@/features/retirement/lib/projection";
+import {
+  getScenarioLimitMessage,
+  isScenarioLimitReached,
+} from "@/features/retirement/lib/scenarios";
 import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -68,6 +73,18 @@ export function RetirementFormFeature() {
     },
     { enabled: canCalculateProjection },
   );
+  const { data: savedPlans, isLoading: savedPlansLoading, createPlan } =
+    useRetirementPlans();
+
+  const scenarioCount = savedPlans?.length ?? 0;
+  const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
+  const scenarioLimitMessage = getScenarioLimitMessage(scenarioCount);
+  const saveDisabled =
+    createPlan.isPending || savedPlansLoading || scenarioLimitReached;
+  const [saveNotice, setSaveNotice] = useState<{
+    type: "success" | "error" | "limit";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!hasEditedStartingNetWorth && latestNetWorth?.netWorth != null) {
@@ -86,6 +103,53 @@ export function RetirementFormFeature() {
     });
 
     setErrors(validationErrors);
+  };
+
+  const handleSavePlan = async () => {
+    if (scenarioLimitReached) {
+      setSaveNotice({
+        type: "limit",
+        message: scenarioLimitMessage ?? "Scenario limit reached.",
+      });
+      return;
+    }
+
+    const validationErrors = validateRetirementInputs({
+      planName,
+      startingNetWorth,
+      monthlyContribution,
+      expectedMonthlyExpenses,
+    });
+
+    setErrors(validationErrors);
+    if (validationErrors.length > 0) {
+      return;
+    }
+
+    setSaveNotice(null);
+
+    try {
+      await createPlan.mutateAsync({
+        name: planName.trim(),
+        targetRetirementDate: targetRetirementDate || null,
+        startingNetWorth: parsedStartingNetWorth,
+        monthlyContribution: parsedMonthlyContribution,
+        expectedMonthlyExpenses: parsedExpectedMonthlyExpenses,
+        returnScenario,
+      });
+      setSaveNotice({
+        type: "success",
+        message: "Scenario saved successfully.",
+      });
+    } catch (error) {
+      setSaveNotice({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unable to save the scenario right now.",
+      });
+    }
   };
 
   const projectedDateLabel = projectionQuery.data?.projectedRetirementDate
@@ -260,9 +324,36 @@ export function RetirementFormFeature() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Generate projection
-            </Button>
+            <div className="grid gap-3 md:grid-cols-2">
+              <Button type="submit" className="w-full">
+                Generate projection
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={handleSavePlan}
+                disabled={saveDisabled}
+              >
+                {createPlan.isPending ? "Saving scenario..." : "Save scenario"}
+              </Button>
+            </div>
+            {scenarioLimitReached && scenarioLimitMessage && (
+              <p className="text-xs text-amber-600">{scenarioLimitMessage}</p>
+            )}
+            {saveNotice && (
+              <p
+                className={`text-xs ${
+                  saveNotice.type === "success"
+                    ? "text-emerald-600"
+                    : saveNotice.type === "error"
+                      ? "text-destructive"
+                      : "text-amber-600"
+                }`}
+              >
+                {saveNotice.message}
+              </p>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -360,6 +451,58 @@ export function RetirementFormFeature() {
           {!projectionQuery.isLoading && !canCalculateProjection && (
             <div className="rounded-md border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
               Fill in the required values to see your retirement projection.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-xl">Saved scenarios</CardTitle>
+          <CardDescription>
+            Keep up to three scenarios to compare your retirement options.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {savedPlansLoading && (
+            <div className="text-sm text-muted-foreground">
+              Loading saved scenarios...
+            </div>
+          )}
+          {!savedPlansLoading && savedPlans && savedPlans.length > 0 && (
+            <div className="space-y-3">
+              {savedPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-sm"
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{plan.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {plan.returnScenario.charAt(0).toUpperCase() +
+                        plan.returnScenario.slice(1)}{" "}
+                      ·{" "}
+                      {formatCurrencyCompact(
+                        plan.startingNetWorth,
+                        homeCurrency,
+                      )}{" "}
+                      starting
+                    </p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatCurrencyCompact(
+                      plan.expectedMonthlyExpenses,
+                      homeCurrency,
+                    )}{" "}
+                    expenses / mo
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {!savedPlansLoading && (!savedPlans || savedPlans.length === 0) && (
+            <div className="text-sm text-muted-foreground">
+              No scenarios saved yet. Save a scenario to compare later.
             </div>
           )}
         </CardContent>
