@@ -1,10 +1,4 @@
----
-trigger: glob
-description: When working on the frontend
-globs: src/, *.ts, *.tsx
----
-
-# Frontend
+# Frontend rules
 
 - Keep constants, types/interfaces, and utilities in separate files based on project context
 - Never define magic numbers or strings, store them as variables

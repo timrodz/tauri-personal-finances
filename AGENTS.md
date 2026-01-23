@@ -27,9 +27,9 @@ Add or update unit tests for every piece of code
 - Services live in `src-tauri/src/services`
 - Database migrations live in `src-tauri/migrations`
 - Build: `cargo build`
-- Lint: `cargo fmt`
-- Typecheck: `cargo clippy`
-- Formatting: `rustfmt` default style; use snake_case for Tauri command names.
+- Lint: `cargo clippy`
+- Typecheck: `cargo check`
+- Formatter: `cargo fmt`. Apply `rustfmt` default style; use snake_case for Tauri command names.
 
 ### Frontend
 
