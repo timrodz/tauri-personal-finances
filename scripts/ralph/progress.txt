@@ -271,3 +271,18 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: TypeScript interfaces use camelCase field names matching Rust serde(rename_all = "camelCase").
 ---
+## 2026-01-23 23:30 NZDT - US-018
+- What was implemented
+  - Updated calculate_projection to accept optional target_retirement_date parameter.
+  - When target date is set, projections use that specific date; otherwise fall back to earliest possible retirement date.
+  - Updated calculate_retirement_projection Tauri command to pass target date through.
+  - Added unit tests for target date mode vs discovery mode.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - src-tauri/src/commands.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: None.
+  - Gotchas encountered: None.
+  - Useful context: Target date mode uses days_diff/365.25 to calculate years; discovery mode uses logarithmic solver.
+---
