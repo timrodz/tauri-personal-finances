@@ -229,3 +229,20 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Gotchas encountered: None.
   - Useful context: Projection table uses ON DELETE CASCADE for automatic cleanup when plan is deleted.
 ---
+## 2026-01-23 22:45 NZDT - US-015
+- What was implemented
+  - Added generate_projection_data_points method to RetirementService for monthly projections.
+  - Created RetirementPlanProjectionService with save_projections and get_by_plan_id methods.
+  - Updated create_retirement_plan and update_retirement_plan commands to auto-generate and persist projections.
+  - Added unit tests for projection generation and persistence.
+- Files changed
+  - src-tauri/src/services/retirement.rs
+  - src-tauri/src/services/retirement_plan_projection.rs
+  - src-tauri/src/services/mod.rs
+  - src-tauri/src/commands.rs
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: Monthly compound returns use formula (1 + annual_rate)^(1/12) - 1.
+  - Gotchas encountered: None.
+  - Useful context: Projections are regenerated on each plan create/update by deleting old data first.
+---
