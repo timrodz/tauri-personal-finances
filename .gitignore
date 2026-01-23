@@ -27,6 +27,7 @@ dist-ssr
 .env
 
 # Ralph working files (generated during runs)
+tasks/
 prd.json
 progress.txt
 .last-branch
