@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Retirement Planner enables users to project their financial future by calculating when they can retire based on current net worth, investment strategies, and expected expenses. Users can model scenarios using 3% and 4% safe withdrawal rules to understand how savings will sustain their retirement lifestyle. The feature supports goal-oriented planning (target retirement date) and discovery planning (earliest possible retirement date).
+The Retirement Planner enables users to project their financial future by calculating when they can retire based on current net worth, investment strategies, expected expenses, and inflation assumptions. Users can model scenarios using 3% and 4% safe withdrawal rules to understand how savings will sustain their retirement lifestyle. The feature supports goal-oriented planning (target retirement date) and discovery planning (earliest possible retirement date), with optional inflation adjustments for more realistic projections.
 
 ---
 
@@ -12,6 +12,7 @@ The Retirement Planner enables users to project their financial future by calcul
 - Calculate earliest possible retirement date based on current trajectory
 - Display projections including net worth growth, years to goal, and sustainable monthly income under 3%/4% withdrawal rules
 - Support multiple investment return scenarios (conservative/moderate/aggressive)
+- Support optional inflation rate adjustment for realistic expense projections
 - Allow saving and comparing up to 3 retirement scenarios side-by-side
 - Persist retirement plans in local SQLite database
 - Pre-populate starting net worth from the most recent balance sheet entry
@@ -24,7 +25,7 @@ The Retirement Planner enables users to project their financial future by calcul
 **Description:** As a developer, I need database models to store retirement plan data so it persists across sessions.
 
 **Acceptance Criteria:**
-- [ ] Create `retirement_plans` table with fields: id (UUID), name (String), target_retirement_date (Date nullable), starting_net_worth (f64), monthly_contribution (f64), expected_monthly_expenses (f64), return_scenario (enum: conservative/moderate/aggressive), created_at, updated_at
+- [ ] Create `retirement_plans` table with fields: id (UUID), name (String), target_retirement_date (Date nullable), starting_net_worth (f64), monthly_contribution (f64), expected_monthly_expenses (f64), return_scenario (enum: conservative/moderate/aggressive), inflation_rate (f64 nullable, default 0.0), created_at, updated_at
 - [ ] Create `retirement_plan_results` table for cached calculation results: id, plan_id (FK), withdrawal_rate (f64), projected_retirement_date (Date), years_to_retirement (f64), final_net_worth (f64), sustainable_monthly_income (f64), calculated_at
 - [ ] Create `retirement_plan_projections` table for net worth growth data points: id, plan_id (FK), year (i32), month (i32), projected_net_worth (f64), created_at
 - [ ] Add SQLx migrations
@@ -40,12 +41,13 @@ The Retirement Planner enables users to project their financial future by calcul
 - [ ] Calculate sustainable monthly income using both 3% and 4% annual withdrawal rules
 - [ ] Calculate years to reach retirement goal (target net worth = annual_expenses / withdrawal_rate)
 - [ ] Calculate earliest retirement date when savings can sustain expenses indefinitely
+- [ ] Apply inflation adjustment to expected expenses when inflation_rate > 0 (expenses grow annually by inflation rate)
 - [ ] **Target date mode:** When a target retirement date is specified, calculate projections for that specific date (projected net worth, sustainable income at that date) even if it differs from the earliest possible retirement date
 - [ ] **Discovery mode:** When no target date is specified (null/cleared), fall back to calculating earliest possible retirement date
 - [ ] Generate and store monthly net worth projection data points from current date to retirement date
 - [ ] Projection data points are recalculated and replaced when plan inputs change
 - [ ] All calculations use home currency from user settings
-- [ ] Unit tests cover all calculation scenarios including both target date and discovery modes
+- [ ] Unit tests cover all calculation scenarios including both target date and discovery modes, and inflation adjustments
 - [ ] Typecheck passes (`cargo clippy`)
 
 ### US-003: Create Tauri commands for retirement planning
@@ -68,9 +70,10 @@ The Retirement Planner enables users to project their financial future by calcul
 **Acceptance Criteria:**
 - [ ] Form includes: plan name, target retirement date (optional date picker), monthly contribution, expected monthly expenses in retirement
 - [ ] Return scenario selector: Conservative (4%), Moderate (7%), Aggressive (10%)
+- [ ] Inflation rate input field (optional, defaults to 0%, common presets: 2%, 3%, 4%)
 - [ ] Starting net worth field pre-populated from latest balance sheet net worth
 - [ ] Starting net worth is editable (user can override)
-- [ ] Form validation: all monetary values must be positive, expenses required
+- [ ] Form validation: all monetary values must be positive, expenses required, inflation rate must be between 0% and 15%
 - [ ] Submit creates plan via Tauri command
 - [ ] Typecheck passes (`pnpm run typecheck`)
 - [ ] Verify in browser using dev-browser skill
@@ -86,7 +89,8 @@ The Retirement Planner enables users to project their financial future by calcul
 - [ ] Display projected net worth at retirement date
 - [ ] Display sustainable monthly income under 3% rule (based on projected net worth at retirement date)
 - [ ] Display sustainable monthly income under 4% rule (based on projected net worth at retirement date)
-- [ ] Highlight if projected income meets/exceeds expected expenses
+- [ ] When inflation rate is set, display inflation-adjusted expected expenses at retirement date
+- [ ] Highlight if projected income meets/exceeds expected expenses (using inflation-adjusted expenses when applicable)
 - [ ] Show net worth growth chart from current date to retirement date using stored projection data points
 - [ ] Chart displays monthly or yearly data points (yearly recommended for long time horizons)
 - [ ] Chart clearly marks the retirement date on the timeline
@@ -101,7 +105,7 @@ The Retirement Planner enables users to project their financial future by calcul
 
 **Acceptance Criteria:**
 - [ ] Display saved scenarios in a comparison table/grid
-- [ ] Show key metrics for each scenario: name, retirement date, years remaining, monthly income (3%), monthly income (4%)
+- [ ] Show key metrics for each scenario: name, retirement date, years remaining, monthly income (3%), monthly income (4%), inflation rate
 - [ ] Visual indicator showing which scenario reaches retirement earliest
 - [ ] Visual indicator showing which scenario provides highest sustainable income
 - [ ] Clicking/selecting a saved scenario loads it into the main view (form inputs and projection results)
@@ -156,13 +160,15 @@ The Retirement Planner enables users to project their financial future by calcul
 - **FR-15:** The system must recalculate and replace projection data points when plan inputs change
 - **FR-16:** The system must provide projection data points via a dedicated command for rendering the growth chart
 - **FR-17:** The system must allow loading a saved scenario to view its inputs, results, and projection chart
+- **FR-18:** The system must support an optional inflation rate (0-15%) that adjusts expected expenses over time
+- **FR-19:** When inflation is applied, the system must calculate inflation-adjusted expenses at retirement date using: `Adjusted_Expenses = Current_Expenses × (1 + inflation_rate)^years`
+- **FR-20:** The system must display both current and inflation-adjusted expenses when inflation rate > 0
 
 ---
 
 ## Non-Goals
 
 - No integration with external financial APIs or data sources
-- No inflation adjustment calculations (future enhancement)
 - No tax considerations or tax-advantaged account modeling
 - No Monte Carlo simulations or probability-based projections
 - No export/import of retirement plans
@@ -207,6 +213,9 @@ Monthly_Income = Annual_Withdrawal / 12
 
 // Target Net Worth for Retirement
 Target_Net_Worth = Annual_Expenses / Withdrawal_Rate
+
+// Inflation-Adjusted Expenses
+Adjusted_Expenses = Current_Expenses × (1 + inflation_rate)^years_to_retirement
 ```
 
 ---
@@ -223,6 +232,6 @@ Target_Net_Worth = Annual_Expenses / Withdrawal_Rate
 
 ## Open Questions
 
-- Should we add an inflation adjustment toggle in a future iteration?
 - Should the growth chart show monthly or yearly data points?
 - Should we warn users if their return scenario assumptions seem unrealistic?
+- Should we show a comparison between inflation-adjusted and non-adjusted projections?

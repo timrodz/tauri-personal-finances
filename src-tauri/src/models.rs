@@ -78,9 +78,20 @@ pub struct RetirementPlan {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct RetirementPlanProjection {
+    pub id: String,
+    pub plan_id: String,
+    pub year: i32,
+    pub month: i32,
+    pub projected_net_worth: f64,
+    pub created_at: DateTime<Utc>,
+}
+
 #[cfg(test)]
 mod tests {
-    use super::RetirementPlan;
+    use super::{RetirementPlan, RetirementPlanProjection};
     use chrono::{NaiveDate, TimeZone, Utc};
 
     #[test]
@@ -106,5 +117,26 @@ mod tests {
         assert!(value.get("returnScenario").is_some());
         assert!(value.get("createdAt").is_some());
         assert!(value.get("updatedAt").is_some());
+    }
+
+    #[test]
+    fn retirement_plan_projection_serializes_with_camel_case_keys() {
+        let projection = RetirementPlanProjection {
+            id: "proj-1".to_string(),
+            plan_id: "plan-1".to_string(),
+            year: 2030,
+            month: 6,
+            projected_net_worth: 350_000.0,
+            created_at: Utc.with_ymd_and_hms(2026, 1, 23, 0, 0, 0).unwrap(),
+        };
+
+        let value = serde_json::to_value(projection).expect("serialize projection");
+
+        assert!(value.get("id").is_some());
+        assert!(value.get("planId").is_some());
+        assert!(value.get("year").is_some());
+        assert!(value.get("month").is_some());
+        assert!(value.get("projectedNetWorth").is_some());
+        assert!(value.get("createdAt").is_some());
     }
 }
