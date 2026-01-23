@@ -9,6 +9,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,11 +24,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
-import { useRetirementProjection } from "@/hooks/use-retirement";
+import {
+  useRetirementProjection,
+  useRetirementScenarioProjections,
+} from "@/hooks/use-retirement";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/currency-formatting";
 import { ReturnScenario } from "@/lib/types";
+import {
+  getEarliestScenarioIds,
+  getHighestIncomeScenarioIds,
+} from "@/features/retirement/lib/scenario-comparison";
 import {
   formatNumberForInput,
   validateRetirementInputs,
@@ -30,7 +45,7 @@ import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
 } from "@/features/retirement/lib/scenarios";
-import { RefreshCwIcon } from "lucide-react";
+import { RefreshCwIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function RetirementFormFeature() {
@@ -73,8 +88,39 @@ export function RetirementFormFeature() {
     },
     { enabled: canCalculateProjection },
   );
-  const { data: savedPlans, isLoading: savedPlansLoading, createPlan } =
-    useRetirementPlans();
+  const {
+    data: savedPlans,
+    isLoading: savedPlansLoading,
+    createPlan,
+    deletePlan,
+  } = useRetirementPlans();
+  const scenarioProjectionQueries =
+    useRetirementScenarioProjections(savedPlans);
+
+  const scenarioRows =
+    savedPlans?.map((plan, index) => {
+      const projectionQuery = scenarioProjectionQueries[index];
+
+      return {
+        plan,
+        projection: projectionQuery?.data ?? null,
+        isLoading: projectionQuery?.isLoading ?? false,
+        isError: projectionQuery?.isError ?? false,
+      };
+    }) ?? [];
+
+  const scenarioSummaries = scenarioRows
+    .filter((row) => row.projection)
+    .map((row) => ({
+      id: row.plan.id,
+      yearsToRetirement: row.projection?.yearsToRetirement ?? 0,
+      monthlyIncome3pct: row.projection?.monthlyIncome3pct ?? 0,
+      monthlyIncome4pct: row.projection?.monthlyIncome4pct ?? 0,
+    }));
+
+  const earliestScenarioIds = getEarliestScenarioIds(scenarioSummaries);
+  const highestIncomeScenarioIds =
+    getHighestIncomeScenarioIds(scenarioSummaries);
 
   const scenarioCount = savedPlans?.length ?? 0;
   const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
@@ -161,6 +207,18 @@ export function RetirementFormFeature() {
         new Date(`${projectionQuery.data.projectedRetirementDate}T00:00:00`),
       )
     : "Already achievable";
+
+  const formatScenarioDate = (projectedRetirementDate: string | null) => {
+    if (!projectedRetirementDate) {
+      return "Already achievable";
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(`${projectedRetirementDate}T00:00:00`));
+  };
 
   const income3Status = projectionQuery.data
     ? getProjectionStatus(
@@ -470,34 +528,166 @@ export function RetirementFormFeature() {
             </div>
           )}
           {!savedPlansLoading && savedPlans && savedPlans.length > 0 && (
-            <div className="space-y-3">
-              {savedPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-sm"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{plan.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {plan.returnScenario.charAt(0).toUpperCase() +
-                        plan.returnScenario.slice(1)}{" "}
-                      ·{" "}
-                      {formatCurrencyCompact(
-                        plan.startingNetWorth,
-                        homeCurrency,
-                      )}{" "}
-                      starting
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatCurrencyCompact(
-                      plan.expectedMonthlyExpenses,
-                      homeCurrency,
-                    )}{" "}
-                    expenses / mo
-                  </div>
+            <div className="space-y-4">
+              {scenarioRows.some((row) => row.isLoading) && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <RefreshCwIcon className="h-3.5 w-3.5 animate-spin" />
+                  Calculating scenario projections...
                 </div>
-              ))}
+              )}
+              {deletePlan.isError && (
+                <div className="text-xs text-destructive">
+                  Unable to delete the scenario right now.
+                </div>
+              )}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Scenario</TableHead>
+                    <TableHead>Retirement date</TableHead>
+                    <TableHead>Years remaining</TableHead>
+                    <TableHead>Income (3%)</TableHead>
+                    <TableHead>Income (4%)</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {scenarioRows.map((row) => {
+                    const isDeleting =
+                      deletePlan.isPending &&
+                      deletePlan.variables === row.plan.id;
+                    const isEarliest = earliestScenarioIds.has(row.plan.id);
+                    const isHighestIncome = highestIncomeScenarioIds.has(
+                      row.plan.id,
+                    );
+
+                    return (
+                      <TableRow key={row.plan.id}>
+                        <TableCell className="max-w-[220px] whitespace-normal">
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-medium text-foreground">
+                                {row.plan.name}
+                              </span>
+                              {isEarliest && (
+                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                  Earliest
+                                </span>
+                              )}
+                              {isHighestIncome && (
+                                <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+                                  Top income
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {row.plan.returnScenario
+                                .charAt(0)
+                                .toUpperCase() +
+                                row.plan.returnScenario.slice(1)}{" "}
+                              ·{" "}
+                              {formatCurrencyCompact(
+                                row.plan.startingNetWorth,
+                                homeCurrency,
+                              )}{" "}
+                              starting
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              Calculating...
+                            </span>
+                          )}
+                          {!row.isLoading && row.projection && (
+                            <span>
+                              {formatScenarioDate(
+                                row.projection.projectedRetirementDate,
+                              )}
+                            </span>
+                          )}
+                          {!row.isLoading && !row.projection && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {!row.isLoading && row.projection && (
+                            <span>
+                              {row.projection.yearsToRetirement.toFixed(1)}
+                            </span>
+                          )}
+                          {!row.isLoading && !row.projection && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {!row.isLoading && row.projection && (
+                            <span>
+                              {formatCurrency(
+                                row.projection.monthlyIncome3pct,
+                                homeCurrency,
+                              )}
+                            </span>
+                          )}
+                          {!row.isLoading && !row.projection && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {row.isLoading && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                          {!row.isLoading && row.projection && (
+                            <span>
+                              {formatCurrency(
+                                row.projection.monthlyIncome4pct,
+                                homeCurrency,
+                              )}
+                            </span>
+                          )}
+                          {!row.isLoading && !row.projection && (
+                            <span className="text-xs text-muted-foreground">
+                              --
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => deletePlan.mutate(row.plan.id)}
+                            disabled={deletePlan.isPending}
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                            {isDeleting ? "Removing..." : "Delete"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           )}
           {!savedPlansLoading && (!savedPlans || savedPlans.length === 0) && (

@@ -179,6 +179,10 @@ export const api = {
     return await invoke(COMMANDS.CREATE_RETIREMENT_PLAN, input);
   },
 
+  deleteRetirementPlan: async (id: string): Promise<void> => {
+    await invoke(COMMANDS.DELETE_RETIREMENT_PLAN, { id });
+  },
+
   calculateRetirementProjection: async (
     startingNetWorth: number,
     monthlyContribution: number,

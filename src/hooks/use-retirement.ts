@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
-import { ReturnScenario } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
+import { RetirementPlan, ReturnScenario } from "@/lib/types";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 export const RETIREMENT_KEYS = {
   all: ["retirement"] as const,
@@ -13,6 +13,24 @@ export const RETIREMENT_KEYS = {
     [
       ...RETIREMENT_KEYS.all,
       "projection",
+      inputs.startingNetWorth,
+      inputs.monthlyContribution,
+      inputs.expectedMonthlyExpenses,
+      inputs.returnScenario,
+    ] as const,
+  scenarioProjection: (
+    planId: string,
+    inputs: {
+      startingNetWorth: number;
+      monthlyContribution: number;
+      expectedMonthlyExpenses: number;
+      returnScenario: ReturnScenario;
+    },
+  ) =>
+    [
+      ...RETIREMENT_KEYS.all,
+      "scenario-projection",
+      planId,
       inputs.startingNetWorth,
       inputs.monthlyContribution,
       inputs.expectedMonthlyExpenses,
@@ -39,5 +57,28 @@ export function useRetirementProjection(
         inputs.returnScenario,
       ),
     enabled: options?.enabled,
+  });
+}
+
+export function useRetirementScenarioProjections(
+  plans: RetirementPlan[] | undefined,
+) {
+  return useQueries({
+    queries: (plans ?? []).map((plan) => ({
+      queryKey: RETIREMENT_KEYS.scenarioProjection(plan.id, {
+        startingNetWorth: plan.startingNetWorth,
+        monthlyContribution: plan.monthlyContribution,
+        expectedMonthlyExpenses: plan.expectedMonthlyExpenses,
+        returnScenario: plan.returnScenario,
+      }),
+      queryFn: () =>
+        api.calculateRetirementProjection(
+          plan.startingNetWorth,
+          plan.monthlyContribution,
+          plan.expectedMonthlyExpenses,
+          plan.returnScenario,
+        ),
+      enabled: Boolean(plans?.length),
+    })),
   });
 }

@@ -44,6 +44,7 @@ cargo test
 - Retirement planner form UI lives in `src/features/retirement/retirement-form-feature.tsx` with shared validation in `src/features/retirement/lib/validation.ts`.
 - Retirement projection UI uses `src/hooks/use-retirement.ts` with projection helpers in `src/features/retirement/lib/projection.ts`.
 - Retirement scenario saving uses `src/hooks/use-retirement-plans.ts` and helpers in `src/features/retirement/lib/scenarios.ts`.
+- Retirement scenario comparison tags are computed in `src/features/retirement/lib/scenario-comparison.ts` and rendered in the retirement form table.
 
 ## Progress screenshots
 

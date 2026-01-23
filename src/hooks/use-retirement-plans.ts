@@ -32,8 +32,16 @@ export function useRetirementPlans() {
     },
   });
 
+  const deletePlan = useMutation({
+    mutationFn: (id: string): Promise<void> => api.deleteRetirementPlan(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RETIREMENT_PLAN_KEYS.list() });
+    },
+  });
+
   return {
     ...query,
     createPlan,
+    deletePlan,
   };
 }

@@ -6,6 +6,7 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
 - Services must be exported in src-tauri/src/services/mod.rs to be used elsewhere.
 - Main navigation uses the MainNav component with NavLink active styling.
 - Frontend Tauri commands are wrapped in React Query hooks under src/hooks with stable query keys.
+- Scenario comparison projections are fetched per plan via the useRetirementScenarioProjections hook.
 
 ## 2026-01-23 00:14 NZDT - US-001
 - What was implemented
@@ -180,4 +181,22 @@ Started: Fri 23 Jan 2026 00:10:21 NZDT
   - Patterns discovered: None.
   - Gotchas encountered: None.
   - Useful context: Saved retirement scenarios are fetched via a dedicated React Query hook and capped at three in the UI.
+---
+## 2026-01-23 22:06 NZDT - US-012
+- What was implemented
+  - Added scenario comparison table with projection badges, per-scenario metrics, and delete actions.
+  - Added scenario comparison helpers/tests and retirement plan deletion wiring in the frontend API and hooks.
+- Files changed
+  - src/features/retirement/retirement-form-feature.tsx
+  - src/features/retirement/lib/scenario-comparison.ts
+  - src/features/retirement/lib/scenario-comparison.test.ts
+  - src/hooks/use-retirement.ts
+  - src/hooks/use-retirement-plans.ts
+  - src/lib/api.ts
+  - README.md
+  - scripts/ralph/prd.json
+- **Learnings for future iterations:**
+  - Patterns discovered: Scenario comparison indicators are derived from projection helpers instead of stored plan data.
+  - Gotchas encountered: None.
+  - Useful context: Scenario table uses calculate_retirement_projection per saved plan via the new scenario projections hook.
 ---
