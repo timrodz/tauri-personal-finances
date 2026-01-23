@@ -59,11 +59,20 @@ impl SyncService {
             rate_map.insert(key, r);
         }
 
-        let client = Client::new();
+        let client = Client::builder()
+            .timeout(std::time::Duration::from_secs(10))
+            .build()
+            .map_err(|e| format!("Failed to build HTTP client: {e}"))?;
         let today = chrono::Utc::now().naive_utc().date();
         let today_year = today.year();
 
-        let earliest_year = years.iter().min().unwrap_or(&today_year);
+        let earliest_year = *years.iter().min().unwrap_or(&today_year);
+        if earliest_year > today_year {
+            println!(
+                       "[Sync] Earliest balance sheet year {earliest_year} is in the future. Sync skipped."
+                   );
+            return Ok(());
+        }
         let symbols = foreign_currencies.join(",");
         let start_date = format!("{earliest_year}-01-01");
         let end_date = format!("{}", today.format("%Y-%m-%d"));
@@ -356,6 +365,7 @@ mod tests {
                 .expect("Failed to create 2024 balance sheet");
 
         // Execute sync
+        // TODO: Mock API response
         let result = SyncService::sync_exchange_rates(&pool).await;
 
         // Verify sync completed successfully
