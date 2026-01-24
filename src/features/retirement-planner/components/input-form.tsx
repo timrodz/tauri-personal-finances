@@ -6,7 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,7 +31,6 @@ import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { RetirementPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod/v3";
@@ -66,8 +70,7 @@ export function InputForm({
   onProjectionValuesChange,
   loadPlan,
 }: InputFormProps) {
-  const { data: latestNetWorth, isLoading: latestNetWorthLoading } =
-    useLatestNetWorth();
+  const { data: latestNetWorth } = useLatestNetWorth();
 
   const {
     data: savedPlans,
@@ -85,8 +88,6 @@ export function InputForm({
   const scenarioCount = savedPlans?.length ?? 0;
   const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
   const scenarioLimitMessage = getScenarioLimitMessage(scenarioCount);
-  const saveDisabled =
-    createPlan.isPending || savedPlansLoading || scenarioLimitReached;
 
   const form = useForm<RetirementInputFormValues>({
     resolver: zodResolver(formSchema),
@@ -191,6 +192,12 @@ export function InputForm({
     }
   };
 
+  const saveDisabled =
+    !form.formState.isValid ||
+    createPlan.isPending ||
+    savedPlansLoading ||
+    scenarioLimitReached;
+
   return (
     <Card className="shadow-sm">
       <CardHeader className="space-y-2">
@@ -209,7 +216,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-plan-name">
-                    Plan name
+                    Plan name <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -258,8 +265,11 @@ export function InputForm({
                       checked={useYear}
                       onCheckedChange={setUseYear}
                     />
-                    <Label htmlFor="use-year" className="text-sm">
-                      Use year
+                    <Label
+                      htmlFor="use-year"
+                      className="text-sm text-muted-foreground"
+                    >
+                      Use target year in projection
                     </Label>
                   </div>
                 </Field>
@@ -274,10 +284,8 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-starting-net-worth">
-                    Starting net worth
-                    {latestNetWorthLoading && (
-                      <RefreshCwIcon className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-                    )}
+                    Starting net worth{" "}
+                    <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -300,7 +308,8 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-monthly-contributions">
-                    Monthly contributions in {homeCurrency}
+                    Monthly contributions ({homeCurrency}){" "}
+                    <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -324,7 +333,8 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-expected-monthly-expenses">
-                    Expected monthly expenses in {homeCurrency}
+                    Expected monthly expenses ({homeCurrency}){" "}
+                    <span className="text-destructive">*</span>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -349,7 +359,7 @@ export function InputForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Investments return scenario</FieldLabel>
+                  <FieldLabel>Monthly contribution returns</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select scenario" />
@@ -367,6 +377,9 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
+                  <FieldDescription>
+                    {`Contributions are linked to investments, but in a real world scenario they also include savings.`}
+                  </FieldDescription>
                 </Field>
               )}
             />
@@ -376,7 +389,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-inflation-rate">
-                    Inflation rate %
+                    Inflation rate percentage (%)
                   </FieldLabel>
                   <Input
                     {...field}
@@ -389,9 +402,9 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Use 0% to ignore inflation.
-                  </p>
+                  <FieldDescription>
+                    0% effectively ignores inflation.
+                  </FieldDescription>
                 </Field>
               )}
             />
@@ -407,7 +420,9 @@ export function InputForm({
               onClick={handleSavePlan}
               disabled={saveDisabled}
             >
-              {createPlan.isPending ? "Saving plan..." : "Save plan"}
+              {createPlan.isPending
+                ? "Saving plan..."
+                : "Save plan from projections"}
             </Button>
           </div>
           {scenarioLimitReached && scenarioLimitMessage && (
