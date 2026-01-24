@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
@@ -22,6 +24,7 @@ import {
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { RetirementPlan } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -76,6 +79,8 @@ export function InputForm({
     type: "success" | "error" | "limit";
     message: string;
   } | null>(null);
+
+  const [useYear, setUseYear] = useState(true);
 
   const scenarioCount = savedPlans?.length ?? 0;
   const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
@@ -134,6 +139,10 @@ export function InputForm({
     onProjectionValuesChange({
       ...values,
       inflationRate: values.inflationRate / 100,
+      targetRetirementYear:
+        useYear && values.targetRetirementYear
+          ? values.targetRetirementYear
+          : undefined,
     });
   };
 
@@ -157,7 +166,10 @@ export function InputForm({
     try {
       await createPlan.mutateAsync({
         name: values.planName.trim(),
-        targetRetirementYear: values.targetRetirementYear ?? null,
+        targetRetirementYear:
+          useYear && values.targetRetirementYear
+            ? values.targetRetirementYear
+            : null,
         startingNetWorth: values.startingNetWorth,
         monthlyContribution: values.monthlyContribution,
         expectedMonthlyExpenses: values.expectedMonthlyExpenses,
@@ -217,8 +229,13 @@ export function InputForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-target-retirement-year">
-                    Target year
+                  <FieldLabel
+                    htmlFor="form-rhf-target-retirement-year"
+                    className={cn(
+                      useYear ? "text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    Target year (optional)
                   </FieldLabel>
                   <Input
                     {...field}
@@ -228,10 +245,23 @@ export function InputForm({
                     id="form-rhf-target-retirement-year"
                     type="number"
                     aria-invalid={fieldState.invalid}
+                    className={cn(
+                      useYear ? "text-foreground" : "text-muted-foreground",
+                    )}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="use-year"
+                      checked={useYear}
+                      onCheckedChange={setUseYear}
+                    />
+                    <Label htmlFor="use-year" className="text-sm">
+                      Use year
+                    </Label>
+                  </div>
                 </Field>
               )}
             />

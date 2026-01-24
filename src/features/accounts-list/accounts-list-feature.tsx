@@ -69,9 +69,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
     }
   }, []);
 
-  const visibleAccounts = accounts.filter(
-    (a) => showArchived || !a.isArchived,
-  );
+  const visibleAccounts = accounts.filter((a) => showArchived || !a.isArchived);
   const hasArchivedAccounts = accounts.some((a) => a.isArchived);
 
   const handleDelete = async (id: string) => {
