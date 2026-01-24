@@ -50,7 +50,7 @@ export function ScenarioTableRow({
       year: "numeric",
       month: "short",
       day: "numeric",
-    }).format(new Date(`${projectedRetirementDate}T00:00:00`));
+    }).format(new Date(projectedRetirementDate));
   };
 
   return (

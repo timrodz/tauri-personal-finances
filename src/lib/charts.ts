@@ -13,6 +13,7 @@ import {
   ScriptableContext,
   TooltipItem,
 } from "chart.js";
+import { getRetirementYearFromDateString } from "./dates";
 
 export function getBalanceSheetChartData(monthlyTotals: MonthlyTotal[]) {
   const labels = [...MONTHS];
@@ -312,11 +313,9 @@ export function getRetirementProjectionChartData(
   if (!projections || projections.length === 0) return null;
 
   const yearlyMap = new Map<number, number>();
-  let retirementYear: number | null = null;
-
-  if (options?.projectedRetirementDate) {
-    retirementYear = new Date(options.projectedRetirementDate).getFullYear();
-  }
+  const retirementYear = options?.projectedRetirementDate
+    ? getRetirementYearFromDateString(options.projectedRetirementDate)
+    : null;
 
   for (const p of projections) {
     if (!yearlyMap.has(p.year) || p.month === 12) {

@@ -81,9 +81,7 @@ export function RetirementPlannerFeature() {
         year: "numeric",
         month: "short",
         day: "numeric",
-      }).format(
-        new Date(`${projectionQuery.data.projectedRetirementDate}T00:00:00`),
-      )
+      }).format(new Date(projectionQuery.data.projectedRetirementDate))
     : projectionQuery.data
       ? "Already achievable"
       : "—";
