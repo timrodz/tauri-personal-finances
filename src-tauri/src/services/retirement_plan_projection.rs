@@ -1,6 +1,6 @@
 use crate::models::RetirementPlanProjection;
 use crate::services::retirement::ProjectionDataPoint;
-use sqlx::SqlitePool;
+use sqlx::{Sqlite, SqlitePool};
 use uuid::Uuid;
 
 pub struct RetirementPlanProjectionService;
@@ -20,7 +20,25 @@ impl RetirementPlanProjectionService {
         plan_id: &str,
         data_points: Vec<ProjectionDataPoint>,
     ) -> Result<Vec<RetirementPlanProjection>, String> {
-        Self::delete_by_plan_id(pool, plan_id).await?;
+        let mut tx = pool.begin().await.map_err(|e| e.to_string())?;
+
+        let projections = Self::save_projections_in_tx(&mut tx, plan_id, data_points).await?;
+
+        tx.commit().await.map_err(|e| e.to_string())?;
+
+        Ok(projections)
+    }
+
+    pub async fn save_projections_in_tx(
+        tx: &mut sqlx::Transaction<'_, Sqlite>,
+        plan_id: &str,
+        data_points: Vec<ProjectionDataPoint>,
+    ) -> Result<Vec<RetirementPlanProjection>, String> {
+        sqlx::query("DELETE FROM retirement_plan_projections WHERE plan_id = ?")
+            .bind(plan_id)
+            .execute(&mut **tx)
+            .await
+            .map_err(|e| e.to_string())?;
 
         let now = chrono::Utc::now();
         let mut projections = Vec::with_capacity(data_points.len());
@@ -36,7 +54,7 @@ impl RetirementPlanProjectionService {
             .bind(point.month)
             .bind(point.projected_net_worth)
             .bind(now)
-            .fetch_one(pool)
+            .fetch_one(&mut **tx)
             .await
             .map_err(|e| e.to_string())?;
 

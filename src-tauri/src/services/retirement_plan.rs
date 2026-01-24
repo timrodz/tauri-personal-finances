@@ -1,6 +1,6 @@
 use crate::models::RetirementPlan;
 use chrono::NaiveDate;
-use sqlx::SqlitePool;
+use sqlx::{Executor, Sqlite, SqlitePool};
 use uuid::Uuid;
 
 pub struct RetirementPlanService;
@@ -16,6 +16,32 @@ impl RetirementPlanService {
         return_scenario: String,
         inflation_rate: f64,
     ) -> Result<RetirementPlan, String> {
+        Self::create_with_executor(
+            pool,
+            name,
+            target_retirement_year,
+            starting_net_worth,
+            monthly_contribution,
+            expected_monthly_expenses,
+            return_scenario,
+            inflation_rate,
+        )
+        .await
+    }
+
+    pub async fn create_with_executor<'e, E>(
+        executor: E,
+        name: String,
+        target_retirement_year: Option<i32>,
+        starting_net_worth: f64,
+        monthly_contribution: f64,
+        expected_monthly_expenses: f64,
+        return_scenario: String,
+        inflation_rate: f64,
+    ) -> Result<RetirementPlan, String>
+    where
+        E: Executor<'e, Database = Sqlite>,
+    {
         let new_id = Uuid::new_v4().to_string();
         let now = chrono::Utc::now();
         let target_retirement_date = match target_retirement_year {
@@ -36,7 +62,7 @@ impl RetirementPlanService {
         .bind(inflation_rate)
         .bind(now)
         .bind(now)
-        .fetch_one(pool)
+        .fetch_one(executor)
         .await
         .map_err(|e| e.to_string())
     }

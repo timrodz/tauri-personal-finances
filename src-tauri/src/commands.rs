@@ -221,22 +221,11 @@ pub async fn create_retirement_plan(
     return_scenario: String,
     inflation_rate: f64,
 ) -> Result<RetirementPlan, String> {
-    let plan = RetirementPlanService::create(
-        &state.db,
-        name,
-        target_retirement_year,
-        starting_net_worth,
-        monthly_contribution,
-        expected_monthly_expenses,
-        return_scenario.clone(),
-        inflation_rate,
-    )
-    .await?;
-
     let annual_return_rate = RetirementService::annual_return_rate(&return_scenario)?;
 
     let retirement_date = match target_retirement_year {
-        Some(year) => NaiveDate::from_ymd_opt(year, 1, 1).unwrap(),
+        Some(year) => NaiveDate::from_ymd_opt(year, 1, 1)
+            .ok_or_else(|| format!("Invalid retirement year: {year}"))?,
         None => {
             let years = RetirementService::years_to_retirement_with_inflation(
                 starting_net_worth,
@@ -259,7 +248,23 @@ pub async fn create_retirement_plan(
         retirement_date,
     );
 
-    RetirementPlanProjectionService::save_projections(&state.db, &plan.id, data_points).await?;
+    let mut tx = state.db.begin().await.map_err(|e| e.to_string())?;
+
+    let plan = RetirementPlanService::create_with_executor(
+        &mut *tx,
+        name,
+        target_retirement_year,
+        starting_net_worth,
+        monthly_contribution,
+        expected_monthly_expenses,
+        return_scenario,
+        inflation_rate,
+    )
+    .await?;
+
+    RetirementPlanProjectionService::save_projections_in_tx(&mut tx, &plan.id, data_points).await?;
+
+    tx.commit().await.map_err(|e| e.to_string())?;
 
     Ok(plan)
 }
