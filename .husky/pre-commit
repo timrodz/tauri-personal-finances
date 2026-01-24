@@ -3,6 +3,7 @@
 # Check for changes in src/
 if git diff --cached --name-only | grep -q "^src/"; then
   echo "Detected changes in src/, running checks..."
+  bun format || exit 1
   bun lint || exit 1
   bun typecheck || exit 1
 fi

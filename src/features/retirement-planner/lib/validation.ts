@@ -26,14 +26,21 @@ export function validateRetirementInputs(
   }
 
   const expectedMonthlyExpenses = Number(inputs.expectedMonthlyExpenses);
-  if (!Number.isFinite(expectedMonthlyExpenses) || expectedMonthlyExpenses <= 0) {
+  if (
+    !Number.isFinite(expectedMonthlyExpenses) ||
+    expectedMonthlyExpenses <= 0
+  ) {
     errors.push("Expected monthly expenses must be a positive amount.");
   }
 
   const inflationRateInput = inputs.inflationRate.trim();
   if (inflationRateInput) {
     const inflationRate = Number(inflationRateInput);
-    if (!Number.isFinite(inflationRate) || inflationRate < 0 || inflationRate > 15) {
+    if (
+      !Number.isFinite(inflationRate) ||
+      inflationRate < 0 ||
+      inflationRate > 15
+    ) {
       errors.push("Inflation rate must be between 0% and 15%.");
     }
   }
