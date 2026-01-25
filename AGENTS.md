@@ -33,6 +33,7 @@ Backend (Rust/Tauri):
 - Rust uses `rustfmt` defaults; Tauri command names must be `snake_case`.
 - TypeScript uses `camelCase` for variables and `PascalCase` for components.
 - Prefer small, focused modules; keep services in `src-tauri/src/services` and UI logic in `src/`.
+- Reduce function parameters and amount of nested logic checks.
 
 ## Testing Guidelines
 - Frontend tests use Vitest and should live near the code they cover under `src/`.
