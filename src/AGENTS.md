@@ -1,38 +1,50 @@
-# Frontend rules
+# Repository Guidelines
 
-- Keep constants, types/interfaces, and utilities in specific files, outside of a feature or component.
-- Never define magic numbers or strings, store them as variables
-- Always use descriptive variable names
-- Apply early return principles
-- Reduce amount of nested logical checks
-- Use absolute imports
-- Files must have less than 150 lines of code
+## Project Overview
 
-## React
+This guide is **frontend-specific**. Files under `src/` are the React + TypeScript UI for a Tauri desktop app. Backend logic lives in `src-tauri/` and is out of scope for changes here unless explicitly requested.
 
-- If you run `useMemo` and have a complex calculation there, split it to an outside function
-- Components should never define sub-components or custom functions inside, they should be placed in outside files
-- Styles are handled with shadcn, use the CLI `bunx shadcn@latest ...` to add new components. Only use colors defined by the theme in src/index.css
-- Any number field needs to be wrapped around the `<PrivateValue>` React component or `toPrivateValue` function
-- For icons use lucide-react and import the name with the `Icon` suffix: `ArrowUpIcon` instead of `ArrowUp`
-- Features must always create sub-components so the main feature code is small to read.
-- Features and feature components should have their own state handling if it's not used by any other components
-- Use primitive dependencies for hooks (useEffect, useMemo, useCallback)
-- Use separate type files for `formSchema`
-- Use separate type files for constants (`const MY_SPECIFIC_VALUE = {...}`)
-- When working with forms, use `zodResolver` from `zod/v3`. Number fields must be registered with `valueAsNumber: true`
+## Project Structure & Module Organization
 
-## Naming conventions
+- `src/`: React UI, routes, and client-side state (frontend-only).
+- `src/pages/`: page entrypoints, named like `src/pages/<name>-page.tsx`.
+- `src/components/`: multipurpose components
+- `src/features/`: feature modules and components (e.g., `src/features/<name>/<name>-feature.tsx`).
+- `src/hooks/`, `src/providers/`, `src/lib/`: shared hooks, providers, and utilities/types/constants.
+- `public/`: static assets served by Vite.
+  Backend reference: `src-tauri/` contains Rust services and Tauri commands; avoid edits there unless needed.
 
-- Pages: `src/pages/<name>-page.tsx`
-- Generic components: `src/features/<name>/components/<name>-component.tsx`
-- Features: `src/features/<name>/<name>-feature.tsx`
-- Feature components: `src/features/<name>/components/<component-name>.tsx`
-- Feature utilities: `src/features/<name>/lib/<utility-name>.ts`
-- Providers: `src/providers/<name>-provider.tsx`
-- Hooks and queries: `src/hooks/use-<name>.ts`
+## Build, Test, and Development Commands
 
-## TypeScript
+Bun + Vite:
 
-- Never use `any` as a type
-- Never use explicit type casts (`const a = "" as number`)
+- `bun dev`: run the Vite dev server.
+- `bun build`: typecheck and build the frontend bundle.
+- `bun preview`: preview the production build.
+- `bun typecheck`: TypeScript check only.
+- `bun lint`: run ESLint with auto-fix on `src/`.
+- `bun test`: run Vitest.
+- `bun shadcn:add`: add shadcn/ui components.
+
+## Coding Style & Naming Conventions
+
+- TypeScript: `camelCase` variables, `PascalCase` components; avoid `any` and explicit type casts.
+- Use absolute imports and keep files focused (target 150–200 lines).
+- Number fields must be wrapped around `<PrivateValue>` (component) or `toPrivateValue` (function).
+- Define shared constants and types in `src/lib`
+
+## Testing Guidelines
+
+- Vitest tests should live near the code they cover under `src/`.
+- Update or add tests for any behavior change; run `bun test`.
+
+## Commit & Pull Request Guidelines
+
+- Use clear, imperative commit messages (Conventional Commits recommended, e.g., `feat: add budget editor`).
+- PRs should include: what changed, why, and screenshots for UI changes.
+- Call out security-sensitive changes (CSP or capabilities updates).
+
+## Frontend Architecture Notes
+
+- The UI should only call Tauri commands; avoid duplicating business logic.
+- Charts must use Chart.js via `react-chartjs-2`.
