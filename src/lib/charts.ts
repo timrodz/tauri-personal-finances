@@ -562,17 +562,16 @@ export function getSubCategoryTrendChartData(
   if (filteredAccounts.length === 0 || balanceSheets.length === 0) return null;
 
   const accountMap = new Map(filteredAccounts.map((a) => [a.id, a]));
-  const balanceSheetYearMap = new Map(balanceSheets.map((bs) => [bs.id, bs.year]));
+  const balanceSheetYearMap = new Map(
+    balanceSheets.map((bs) => [bs.id, bs.year]),
+  );
 
   const sortedSheets = [...balanceSheets].sort((a, b) => a.year - b.year);
 
   const subCategoryOptions =
     accountType === "Asset" ? ASSET_SUB_CATEGORIES : LIABILITY_SUB_CATEGORIES;
 
-  const periodTotals = new Map<
-    string,
-    Map<string, number>
-  >();
+  const periodTotals = new Map<string, Map<string, number>>();
 
   for (const sheet of sortedSheets) {
     const periodKey = String(sheet.year);
@@ -581,7 +580,10 @@ export function getSubCategoryTrendChartData(
     }
   }
 
-  const latestEntryByAccountPeriod = new Map<string, { month: number; amount: number }>();
+  const latestEntryByAccountPeriod = new Map<
+    string,
+    { month: number; amount: number }
+  >();
 
   for (const entry of entries) {
     const account = accountMap.get(entry.accountId);
@@ -595,7 +597,10 @@ export function getSubCategoryTrendChartData(
 
     const existing = latestEntryByAccountPeriod.get(entryKey);
     if (!existing || entry.month > existing.month) {
-      latestEntryByAccountPeriod.set(entryKey, { month: entry.month, amount: entry.amount });
+      latestEntryByAccountPeriod.set(entryKey, {
+        month: entry.month,
+        amount: entry.amount,
+      });
     }
   }
 
