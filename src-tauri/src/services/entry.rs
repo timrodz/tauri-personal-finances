@@ -108,7 +108,7 @@ mod tests {
         let sheet = BalanceSheetService::upsert(&pool, None, 2025)
             .await
             .expect("setup sheet");
-        let account = AccountService::upsert(&pool, None, "A".into(), "Asset".into(), "NZD".into())
+        let account = AccountService::upsert(&pool, None, "A".into(), "Asset".into(), "NZD".into(), None)
             .await
             .expect("setup acct");
 

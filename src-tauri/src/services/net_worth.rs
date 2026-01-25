@@ -166,7 +166,7 @@ mod tests {
         // 2. Setup Accounts
         // Asset A: USD (Native)
         let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into())
+            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
                 .await
                 .expect("asset usd");
         // Asset B: EUR (Foreign)
@@ -176,12 +176,13 @@ mod tests {
             "Euro Stash".into(),
             "Asset".into(),
             "EUR".into(),
+            None,
         )
         .await
         .expect("asset eur");
         // Liability: USD
         let liab_usd =
-            AccountService::upsert(&pool, None, "Loan".into(), "Liability".into(), "USD".into())
+            AccountService::upsert(&pool, None, "Loan".into(), "Liability".into(), "USD".into(), None)
                 .await
                 .expect("liab usd");
 
@@ -244,7 +245,7 @@ mod tests {
 
         // 2. Setup Account
         let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into())
+            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
                 .await
                 .expect("asset usd");
 
@@ -277,7 +278,7 @@ mod tests {
             .expect("setup settings");
 
         let asset_usd =
-            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into())
+            AccountService::upsert(&pool, None, "Cash".into(), "Asset".into(), "USD".into(), None)
                 .await
                 .expect("asset usd");
 
