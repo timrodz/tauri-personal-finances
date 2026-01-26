@@ -13,6 +13,7 @@ export interface Account {
   id: string;
   name: string;
   accountType: "Asset" | "Liability";
+  subCategory: string | null;
   currency: string;
   sortOrder: number;
   isArchived: boolean;

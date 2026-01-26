@@ -10,8 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Account, api } from "@/lib/api";
+import {
+  getSubCategoriesByAccountType,
+  type AccountType,
+  type SubCategory,
+} from "@/lib/constants/sub-categories";
 import { RefreshCwIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AccountFormProps {
   onComplete: () => void;
@@ -25,14 +30,27 @@ export function AccountFormFeature({
   defaultCurrency = "USD",
 }: AccountFormProps) {
   const [name, setName] = useState(initialValues?.name || "");
-  const [accountType, setAccountType] = useState<"Asset" | "Liability">(
+  const [accountType, setAccountType] = useState<AccountType>(
     initialValues?.accountType || "Asset",
+  );
+  const [subCategory, setSubCategory] = useState<SubCategory | null>(
+    (initialValues?.subCategory as SubCategory) || null,
   );
   const [currency, setCurrency] = useState(
     initialValues?.currency || defaultCurrency,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (subCategory) {
+      const validOptions = getSubCategoriesByAccountType(accountType);
+      const isValid = validOptions.some((opt) => opt.key === subCategory);
+      if (!isValid) {
+        setSubCategory(null);
+      }
+    }
+  }, [accountType, subCategory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +60,15 @@ export function AccountFormFeature({
     setError(null);
     try {
       if (initialValues) {
-        await api.updateAccount(initialValues.id, name, accountType, currency);
+        await api.updateAccount(
+          initialValues.id,
+          name,
+          accountType,
+          currency,
+          subCategory,
+        );
       } else {
-        await api.createAccount(name, accountType, currency);
+        await api.createAccount(name, accountType, currency, subCategory);
       }
       onComplete();
     } catch (err) {
@@ -82,7 +106,7 @@ export function AccountFormFeature({
           <Label>Type</Label>
           <Select
             value={accountType}
-            onValueChange={(val: "Asset" | "Liability") => setAccountType(val)}
+            onValueChange={(val: AccountType) => setAccountType(val)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Type" />
@@ -99,6 +123,28 @@ export function AccountFormFeature({
           value={currency}
           onValueChange={setCurrency}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Sub-Category (Optional)</Label>
+        <Select
+          value={subCategory ?? "none"}
+          onValueChange={(val) =>
+            setSubCategory(val === "none" ? null : (val as SubCategory))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select sub-category..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {getSubCategoriesByAccountType(accountType).map((opt) => (
+              <SelectItem key={opt.key} value={opt.key}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Button

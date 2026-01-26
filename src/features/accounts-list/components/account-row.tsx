@@ -21,6 +21,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { Account } from "@/lib/api";
+import { getSubCategoryLabel } from "@/lib/constants/sub-categories";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -100,6 +101,13 @@ export function AccountRow({
           {account.accountType}
         </span>
       </TableCell>
+      <TableCell>
+        {account.subCategory && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+            {getSubCategoryLabel(account.subCategory)}
+          </span>
+        )}
+      </TableCell>
       <TableCell>{account.currency}</TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-2">
@@ -165,12 +173,12 @@ export function AccountRow({
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="ArchiveIcon">
                   <ArchiveIcon className="h-4 w-4" />
-                  <span className="sr-only">ArchiveIcon</span>
+                  <span className="sr-only">Archive</span>
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>ArchiveIcon Account?</AlertDialogTitle>
+                  <AlertDialogTitle>Archive Account?</AlertDialogTitle>
                   <AlertDialogDescription>
                     {`Are you sure you want to archive "${account.name}"? It will be hidden from your lists by default but still included in calculations.`}
                   </AlertDialogDescription>
@@ -180,7 +188,7 @@ export function AccountRow({
                   <AlertDialogAction
                     onClick={() => onToggleArchive(account.id)}
                   >
-                    ArchiveIcon
+                    Archive
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

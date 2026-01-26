@@ -19,6 +19,7 @@ pub struct Account {
     pub id: String,
     pub name: String,
     pub account_type: String, // 'Asset' or 'Liability'
+    pub sub_category: Option<String>,
     pub currency: String,
     pub sort_order: i32,
     pub is_archived: bool,

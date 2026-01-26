@@ -1,11 +1,22 @@
 import { NetWorthDataPoint } from "@/lib/api";
 import { MONTHS } from "@/lib/constants";
 import {
+  ASSET_SUB_CATEGORIES,
+  LIABILITY_SUB_CATEGORIES,
+  SubCategory,
+} from "@/lib/constants/sub-categories";
+import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
-import { MonthlyTotal, RetirementPlanProjection } from "@/lib/types";
+import {
+  Account,
+  BalanceSheet,
+  Entry,
+  MonthlyTotal,
+  RetirementPlanProjection,
+} from "@/lib/types";
 import {
   ChartData,
   ChartOptions,
@@ -14,6 +25,26 @@ import {
   TooltipItem,
 } from "chart.js";
 import { getRetirementYearFromDateString } from "./dates";
+
+export const SUB_CATEGORY_COLORS: Record<
+  SubCategory | "uncategorized",
+  { bg: string; border: string }
+> = {
+  cash: { bg: "rgba(34, 197, 94, 0.6)", border: "rgb(34, 197, 94)" },
+  investments: { bg: "rgba(59, 130, 246, 0.6)", border: "rgb(59, 130, 246)" },
+  retirement: { bg: "rgba(14, 165, 233, 0.6)", border: "rgb(14, 165, 233)" },
+  real_estate: { bg: "rgba(168, 85, 247, 0.6)", border: "rgb(168, 85, 247)" },
+  vehicles: { bg: "rgba(245, 158, 11, 0.6)", border: "rgb(245, 158, 11)" },
+  other_asset: { bg: "rgba(107, 114, 128, 0.6)", border: "rgb(107, 114, 128)" },
+  credit_cards: { bg: "rgba(239, 68, 68, 0.6)", border: "rgb(239, 68, 68)" },
+  loans: { bg: "rgba(251, 146, 60, 0.6)", border: "rgb(251, 146, 60)" },
+  mortgages: { bg: "rgba(236, 72, 153, 0.6)", border: "rgb(236, 72, 153)" },
+  other_liability: {
+    bg: "rgba(156, 163, 175, 0.6)",
+    border: "rgb(156, 163, 175)",
+  },
+  uncategorized: { bg: "rgba(75, 85, 99, 0.6)", border: "rgb(75, 85, 99)" },
+};
 
 export function getBalanceSheetChartData(monthlyTotals: MonthlyTotal[]) {
   const labels = [...MONTHS];
@@ -404,6 +435,284 @@ export function getRetirementProjectionChartOptions(
       mode: "nearest",
       axis: "x",
       intersect: false,
+    },
+  };
+}
+
+export interface SubCategoryBreakdownInput {
+  accounts: Account[];
+  entries: Entry[];
+  accountType: "Asset" | "Liability";
+}
+
+export function getSubCategoryBreakdownChartData(
+  input: SubCategoryBreakdownInput,
+): ChartData<"doughnut"> | null {
+  const { accounts, entries, accountType } = input;
+
+  const filteredAccounts = accounts.filter(
+    (a) => a.accountType === accountType && !a.isArchived,
+  );
+
+  if (filteredAccounts.length === 0) return null;
+
+  const latestEntryByAccount = new Map<string, number>();
+  for (const entry of entries) {
+    const existing = latestEntryByAccount.get(entry.accountId);
+    if (existing === undefined || entry.month > existing) {
+      latestEntryByAccount.set(entry.accountId, entry.amount);
+    }
+  }
+
+  const subCategoryTotals = new Map<string, number>();
+  let uncategorizedTotal = 0;
+
+  for (const account of filteredAccounts) {
+    const balance = latestEntryByAccount.get(account.id) ?? 0;
+    if (balance === 0) continue;
+
+    if (account.subCategory) {
+      const current = subCategoryTotals.get(account.subCategory) ?? 0;
+      subCategoryTotals.set(account.subCategory, current + balance);
+    } else {
+      uncategorizedTotal += balance;
+    }
+  }
+
+  const subCategoryOptions =
+    accountType === "Asset" ? ASSET_SUB_CATEGORIES : LIABILITY_SUB_CATEGORIES;
+
+  const labels: string[] = [];
+  const data: number[] = [];
+  const backgroundColors: string[] = [];
+  const borderColors: string[] = [];
+
+  for (const option of subCategoryOptions) {
+    const total = subCategoryTotals.get(option.key);
+    if (total && total > 0) {
+      labels.push(option.label);
+      data.push(total);
+      const colors = SUB_CATEGORY_COLORS[option.key];
+      backgroundColors.push(colors.bg);
+      borderColors.push(colors.border);
+    }
+  }
+
+  if (uncategorizedTotal > 0) {
+    labels.push("Uncategorized");
+    data.push(uncategorizedTotal);
+    backgroundColors.push(SUB_CATEGORY_COLORS.uncategorized.bg);
+    borderColors.push(SUB_CATEGORY_COLORS.uncategorized.border);
+  }
+
+  if (data.length === 0) return null;
+
+  return {
+    labels,
+    datasets: [
+      {
+        data,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+}
+
+export function getSubCategoryBreakdownChartOptions(
+  isPrivacyMode: boolean,
+): ChartOptions<"doughnut"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<"doughnut">) => {
+            let label = context.label || "";
+            if (label) label += ": ";
+            label += toPrivateValue(context.formattedValue, isPrivacyMode);
+            return label;
+          },
+        },
+      },
+    },
+  };
+}
+
+export interface SubCategoryTrendInput {
+  accounts: Account[];
+  entries: Entry[];
+  balanceSheets: BalanceSheet[];
+  accountType: "Asset" | "Liability";
+}
+
+export function getSubCategoryTrendChartData(
+  input: SubCategoryTrendInput,
+): ChartData<"bar"> | null {
+  const { accounts, entries, balanceSheets, accountType } = input;
+
+  const filteredAccounts = accounts.filter(
+    (a) => a.accountType === accountType && !a.isArchived,
+  );
+
+  if (filteredAccounts.length === 0 || balanceSheets.length === 0) return null;
+
+  const accountMap = new Map(filteredAccounts.map((a) => [a.id, a]));
+  const balanceSheetYearMap = new Map(
+    balanceSheets.map((bs) => [bs.id, bs.year]),
+  );
+
+  const sortedSheets = [...balanceSheets].sort((a, b) => a.year - b.year);
+
+  const subCategoryOptions =
+    accountType === "Asset" ? ASSET_SUB_CATEGORIES : LIABILITY_SUB_CATEGORIES;
+
+  const periodTotals = new Map<string, Map<string, number>>();
+
+  for (const sheet of sortedSheets) {
+    const periodKey = String(sheet.year);
+    if (!periodTotals.has(periodKey)) {
+      periodTotals.set(periodKey, new Map());
+    }
+  }
+
+  const latestEntryByAccountPeriod = new Map<
+    string,
+    { month: number; amount: number }
+  >();
+
+  for (const entry of entries) {
+    const account = accountMap.get(entry.accountId);
+    if (!account) continue;
+
+    const year = balanceSheetYearMap.get(entry.balanceSheetId);
+    if (year === undefined) continue;
+
+    const periodKey = String(year);
+    const entryKey = `${entry.accountId}-${periodKey}`;
+
+    const existing = latestEntryByAccountPeriod.get(entryKey);
+    if (!existing || entry.month > existing.month) {
+      latestEntryByAccountPeriod.set(entryKey, {
+        month: entry.month,
+        amount: entry.amount,
+      });
+    }
+  }
+
+  let hasUncategorized = false;
+
+  for (const [entryKey, { amount }] of latestEntryByAccountPeriod) {
+    const [accountId, periodKey] = entryKey.split("-");
+    const account = accountMap.get(accountId);
+    if (!account || amount === 0) continue;
+
+    const periodMap = periodTotals.get(periodKey);
+    if (!periodMap) continue;
+
+    const subCat = account.subCategory ?? "uncategorized";
+    if (subCat === "uncategorized") hasUncategorized = true;
+
+    const current = periodMap.get(subCat) ?? 0;
+    periodMap.set(subCat, current + amount);
+  }
+
+  const labels = sortedSheets.map((s) => String(s.year));
+
+  const datasets: ChartData<"bar">["datasets"] = [];
+
+  for (const option of subCategoryOptions) {
+    const data = labels.map((label) => {
+      const periodMap = periodTotals.get(label);
+      return periodMap?.get(option.key) ?? 0;
+    });
+
+    if (data.some((d) => d > 0)) {
+      const colors = SUB_CATEGORY_COLORS[option.key];
+      datasets.push({
+        label: option.label,
+        data,
+        backgroundColor: colors.bg,
+        borderColor: colors.border,
+        borderWidth: 1,
+      });
+    }
+  }
+
+  if (hasUncategorized) {
+    const data = labels.map((label) => {
+      const periodMap = periodTotals.get(label);
+      return periodMap?.get("uncategorized") ?? 0;
+    });
+
+    if (data.some((d) => d > 0)) {
+      datasets.push({
+        label: "Uncategorized",
+        data,
+        backgroundColor: SUB_CATEGORY_COLORS.uncategorized.bg,
+        borderColor: SUB_CATEGORY_COLORS.uncategorized.border,
+        borderWidth: 1,
+      });
+    }
+  }
+
+  if (datasets.length === 0) return null;
+
+  return {
+    labels,
+    datasets,
+  };
+}
+
+export function getSubCategoryTrendChartOptions(
+  homeCurrency: string,
+  isPrivacyMode: boolean = false,
+): ChartOptions<"bar"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+      },
+      tooltip: {
+        mode: "index",
+        callbacks: {
+          label: (context: TooltipItem<"bar">) => {
+            let label = context.dataset.label || "";
+            if (label) label += ": ";
+            if (context.parsed.y !== null) {
+              label += toPrivateValue(
+                formatCurrencyCompact(context.parsed.y, homeCurrency),
+                isPrivacyMode,
+              );
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+        grid: { display: false },
+      },
+      y: {
+        stacked: true,
+        grid: { color: "rgba(0, 0, 0, 0.05)" },
+        ticks: {
+          callback: (value: string | number) =>
+            toPrivateValue(
+              formatCurrencyCompact(+value, homeCurrency),
+              isPrivacyMode,
+            ),
+        },
+      },
     },
   };
 }

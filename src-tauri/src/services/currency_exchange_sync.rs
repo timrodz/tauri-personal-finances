@@ -376,6 +376,7 @@ mod tests {
             "US Bank".to_string(),
             "Asset".to_string(),
             "USD".to_string(),
+            None,
         )
         .await
         .expect("Failed to create USD account");
@@ -386,6 +387,7 @@ mod tests {
             "EU Bank".to_string(),
             "Asset".to_string(),
             "EUR".to_string(),
+            None,
         )
         .await
         .expect("Failed to create EUR account");

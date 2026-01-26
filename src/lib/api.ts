@@ -66,11 +66,13 @@ export const api = {
     name: string,
     accountType: string,
     currency: string,
+    subCategory?: string | null,
   ): Promise<Account> => {
     return await invoke(COMMANDS.CREATE_ACCOUNT, {
       name,
       accountType,
       currency,
+      subCategory: subCategory ?? null,
     });
   },
 
@@ -79,12 +81,14 @@ export const api = {
     name: string,
     accountType: string,
     currency: string,
+    subCategory?: string | null,
   ): Promise<Account> => {
     return await invoke(COMMANDS.UPDATE_ACCOUNT, {
       id,
       name,
       accountType,
       currency,
+      subCategory: subCategory ?? null,
     });
   },
 

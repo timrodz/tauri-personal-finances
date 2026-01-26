@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Overview
-This is a Tauri desktop app for personal finances with a Rust backend and a React + TypeScript frontend. The app works offline by default and persists data in a local SQLite `.db` file. All business logic lives in Rust; the frontend renders and manipulates data exposed by Tauri commands.
+This is a Tauri v2 desktop app for personal finances with a Rust backend and a React + TypeScript frontend. The app works offline by default and persists data in a local SQLite `.db` file. All business logic lives in Rust; the frontend renders and manipulates data exposed by Tauri commands.
 
 ## Project Structure & Module Organization
 - `src/`: React UI, routes, and client-side state.
@@ -33,6 +33,7 @@ Backend (Rust/Tauri):
 - Rust uses `rustfmt` defaults; Tauri command names must be `snake_case`.
 - TypeScript uses `camelCase` for variables and `PascalCase` for components.
 - Prefer small, focused modules; keep services in `src-tauri/src/services` and UI logic in `src/`.
+- Reduce function parameters and amount of nested logic checks.
 
 ## Testing Guidelines
 - Frontend tests use Vitest and should live near the code they cover under `src/`.

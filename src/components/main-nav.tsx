@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
-import { HomeIcon, SproutIcon } from "lucide-react";
+import { ChartPieIcon, HomeIcon, SproutIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
   { to: "/", label: "Dashboard", end: true, icon: HomeIcon },
+  { to: "/analytics", label: "Analytics", icon: ChartPieIcon },
   { to: "/retirement", label: "Retirement Planner", icon: SproutIcon },
 ];
 

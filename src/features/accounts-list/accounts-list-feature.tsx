@@ -178,6 +178,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
                 <TableHead className="w-[40px]"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Sub-category</TableHead>
                 <TableHead>Currency</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -186,7 +187,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
               {visibleAccounts.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center h-24 text-muted-foreground"
                   >
                     No accounts found. Add one to get started.

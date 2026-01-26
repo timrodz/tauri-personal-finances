@@ -46,6 +46,7 @@ impl AccountService {
         name: String,
         account_type: String,
         currency: String,
+        sub_category: Option<String>,
     ) -> Result<Account, String> {
         let now = chrono::Utc::now();
 
@@ -60,11 +61,12 @@ impl AccountService {
             let exists: Option<Account> = Self::get_by_id(pool, uid.clone()).await?;
             if exists.is_some() {
                 return sqlx::query_as::<_, Account>(
-                    "UPDATE accounts SET name = ?, account_type = ?, currency = ? WHERE id = ? RETURNING *"
+                    "UPDATE accounts SET name = ?, account_type = ?, currency = ?, sub_category = ? WHERE id = ? RETURNING *"
                 )
                 .bind(name)
                 .bind(account_type)
                 .bind(currency)
+                .bind(&sub_category)
                 .bind(uid)
                 .fetch_one(pool)
                 .await
@@ -82,12 +84,13 @@ impl AccountService {
         let next_order = max_order.0 + 1;
 
         sqlx::query_as::<_, Account>(
-            "INSERT INTO accounts (id, name, account_type, currency, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING *"
+            "INSERT INTO accounts (id, name, account_type, currency, sub_category, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *"
         )
         .bind(new_id)
         .bind(name)
         .bind(account_type)
         .bind(currency)
+        .bind(sub_category)
         .bind(next_order)
         .bind(now)
         .fetch_one(pool)
@@ -152,11 +155,13 @@ mod tests {
             "Test Bank".into(),
             "Asset".into(),
             "NZD".into(),
+            None,
         )
         .await
         .expect("Failed to create account");
 
         assert_eq!(account.name, "Test Bank");
+        assert!(account.sub_category.is_none());
 
         // 2. Get All
         let accounts = AccountService::get_all(&pool, true)
@@ -193,6 +198,7 @@ mod tests {
             "Test Bank Updated".into(),
             "Liability".into(),
             "AUD".into(),
+            None,
         )
         .await
         .expect("Failed to update");
@@ -208,6 +214,7 @@ mod tests {
             "Test Bank Updated".into(),
             "Asset".into(),
             "NZD".into(),
+            None,
         )
         .await;
 
@@ -225,5 +232,53 @@ mod tests {
             .await
             .expect("Failed check");
         assert!(check.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_upsert_with_sub_category() {
+        let pool = setup_test_db().await;
+
+        // Create account with sub_category
+        let account = AccountService::upsert(
+            &pool,
+            None,
+            "Savings Account".into(),
+            "Asset".into(),
+            "USD".into(),
+            Some("cash".into()),
+        )
+        .await
+        .expect("Failed to create account with sub_category");
+
+        assert_eq!(account.name, "Savings Account");
+        assert_eq!(account.sub_category, Some("cash".to_string()));
+
+        // Update sub_category
+        let updated = AccountService::upsert(
+            &pool,
+            Some(account.id.clone()),
+            "Savings Account".into(),
+            "Asset".into(),
+            "USD".into(),
+            Some("investments".into()),
+        )
+        .await
+        .expect("Failed to update sub_category");
+
+        assert_eq!(updated.sub_category, Some("investments".to_string()));
+
+        // Clear sub_category by setting to None
+        let cleared = AccountService::upsert(
+            &pool,
+            Some(account.id.clone()),
+            "Savings Account".into(),
+            "Asset".into(),
+            "USD".into(),
+            None,
+        )
+        .await
+        .expect("Failed to clear sub_category");
+
+        assert!(cleared.sub_category.is_none());
     }
 }

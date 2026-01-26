@@ -108,9 +108,10 @@ mod tests {
         let sheet = BalanceSheetService::upsert(&pool, None, 2025)
             .await
             .expect("setup sheet");
-        let account = AccountService::upsert(&pool, None, "A".into(), "Asset".into(), "NZD".into())
-            .await
-            .expect("setup acct");
+        let account =
+            AccountService::upsert(&pool, None, "A".into(), "Asset".into(), "NZD".into(), None)
+                .await
+                .expect("setup acct");
 
         // 1. Upsert (Create)
         let entry = EntryService::upsert(&pool, sheet.id.clone(), account.id.clone(), 1, 100.0)

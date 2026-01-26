@@ -1,5 +1,6 @@
 import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { AnalyticsPage } from "@/pages/analytics-page";
 import { BalanceSheetPage } from "@/pages/balance-sheet-page";
 import { HomePage } from "@/pages/home-page";
 import { RetirementPage } from "@/pages/retirement-page";
@@ -36,6 +37,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/retirement" element={<RetirementPage />} />
         <Route path="/balance-sheets/:year" element={<BalanceSheetPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
