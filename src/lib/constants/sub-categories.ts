@@ -3,6 +3,7 @@ export type AccountType = "Asset" | "Liability";
 export type AssetSubCategory =
   | "cash"
   | "investments"
+  | "retirement"
   | "real_estate"
   | "vehicles"
   | "other_asset";
@@ -24,6 +25,7 @@ export interface SubCategoryOption {
 export const ASSET_SUB_CATEGORIES: SubCategoryOption[] = [
   { key: "cash", label: "Cash", accountType: "Asset" },
   { key: "investments", label: "Investments", accountType: "Asset" },
+  { key: "retirement", label: "Retirement", accountType: "Asset" },
   { key: "real_estate", label: "Real Estate", accountType: "Asset" },
   { key: "vehicles", label: "Vehicles", accountType: "Asset" },
   { key: "other_asset", label: "Other Asset", accountType: "Asset" },

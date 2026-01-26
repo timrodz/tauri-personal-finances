@@ -128,16 +128,16 @@ export function AccountFormFeature({
       <div className="space-y-2">
         <Label>Sub-Category (Optional)</Label>
         <Select
-          value={subCategory ?? ""}
+          value={subCategory ?? "none"}
           onValueChange={(val) =>
-            setSubCategory(val === "" ? null : (val as SubCategory))
+            setSubCategory(val === "none" ? null : (val as SubCategory))
           }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select sub-category..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {getSubCategoriesByAccountType(accountType).map((opt) => (
               <SelectItem key={opt.key} value={opt.key}>
                 {opt.label}

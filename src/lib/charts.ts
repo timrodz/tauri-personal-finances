@@ -32,6 +32,7 @@ export const SUB_CATEGORY_COLORS: Record<
 > = {
   cash: { bg: "rgba(34, 197, 94, 0.6)", border: "rgb(34, 197, 94)" },
   investments: { bg: "rgba(59, 130, 246, 0.6)", border: "rgb(59, 130, 246)" },
+  retirement: { bg: "rgba(14, 165, 233, 0.6)", border: "rgb(14, 165, 233)" },
   real_estate: { bg: "rgba(168, 85, 247, 0.6)", border: "rgb(168, 85, 247)" },
   vehicles: { bg: "rgba(245, 158, 11, 0.6)", border: "rgb(245, 158, 11)" },
   other_asset: { bg: "rgba(107, 114, 128, 0.6)", border: "rgb(107, 114, 128)" },
