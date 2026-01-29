@@ -1,7 +1,7 @@
 import { CurrencySelect } from "@/components/currency-select";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,11 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
-import type { SubCategory } from "@/lib/types/categories";
-import type { Account, AccountType } from "@/lib/types/accounts";
+import { getSubCategoriesByAccountType } from "@/lib/categories";
+import {
+  accountFormSchema,
+  type AccountFormValues,
+  getAccountFormDefaults,
+} from "@/lib/types/account";
+import type { Account } from "@/lib/types/accounts";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getSubCategoriesByAccountType } from "@/lib/categories";
+import { Controller, useForm } from "react-hook-form";
 
 interface AccountFormProps {
   onComplete: () => void;
@@ -25,132 +31,169 @@ interface AccountFormProps {
 export function AccountFormFeature({
   onComplete,
   initialValues,
-  defaultCurrency = "USD",
+  defaultCurrency,
 }: AccountFormProps) {
-  const [name, setName] = useState(initialValues?.name || "");
-  const [accountType, setAccountType] = useState<AccountType>(
-    initialValues?.accountType || "Asset",
-  );
-  const [subCategory, setSubCategory] = useState<SubCategory | null>(
-    (initialValues?.subCategory as SubCategory) || null,
-  );
-  const [currency, setCurrency] = useState(
-    initialValues?.currency || defaultCurrency,
-  );
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const form = useForm<AccountFormValues>({
+    resolver: zodResolver(accountFormSchema),
+    defaultValues: getAccountFormDefaults({
+      initialValues,
+      defaultCurrency,
+    }),
+    mode: "onChange",
+  });
+
+  const accountType = form.watch("accountType");
+  const subCategory = form.watch("subCategory");
+
   useEffect(() => {
-    if (subCategory) {
-      const validOptions = getSubCategoriesByAccountType(accountType);
-      const isValid = validOptions.some((opt) => opt.key === subCategory);
-      if (!isValid) {
-        setSubCategory(null);
-      }
+    form.reset(
+      getAccountFormDefaults({
+        initialValues,
+        defaultCurrency,
+      }),
+    );
+    setError(null);
+  }, [defaultCurrency, form, initialValues]);
+
+  useEffect(() => {
+    if (!subCategory) {
+      return;
     }
-  }, [accountType, subCategory]);
+    const validOptions = getSubCategoriesByAccountType(accountType);
+    const isValid = validOptions.some((opt) => opt.key === subCategory);
+    if (!isValid) {
+      form.setValue("subCategory", null, { shouldValidate: true });
+    }
+  }, [accountType, form, subCategory]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
-    setLoading(true);
+  const handleSubmit = async (values: AccountFormValues) => {
     setError(null);
     try {
       if (initialValues) {
         await api.updateAccount(
           initialValues.id,
-          name,
-          accountType,
-          currency,
-          subCategory,
+          values.name,
+          values.accountType,
+          values.currency,
+          values.subCategory ?? null,
         );
       } else {
-        await api.createAccount(name, accountType, currency, subCategory);
+        await api.createAccount(
+          values.name,
+          values.accountType,
+          values.currency,
+          values.subCategory ?? null,
+        );
       }
       onComplete();
     } catch (err) {
       console.error("Failed to save account:", err);
       setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
     }
   };
 
   const isEditing = !!initialValues;
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 pt-4">
       {error && (
         <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-md border border-destructive/20">
           {error}
         </div>
       )}
-
-      <div className="space-y-2">
-        <Label htmlFor="account-name">Account Name</Label>
-        <Input
-          id="account-name"
-          placeholder="e.g. Main Checking"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          autoFocus
-        />
-      </div>
-
+      <Controller
+        name="name"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="account-name">
+              Account name <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Input
+              {...field}
+              id="account-name"
+              aria-invalid={fieldState.invalid}
+              placeholder="e.g. KiwiBank"
+              autoFocus
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Type</Label>
-          <Select
-            value={accountType}
-            onValueChange={(val: AccountType) => setAccountType(val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Asset">Asset</SelectItem>
-              <SelectItem value="Liability">Liability</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <CurrencySelect
-          label="Currency"
-          value={currency}
-          onValueChange={setCurrency}
+        <Controller
+          name="accountType"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>Type</FieldLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Asset">Asset</SelectItem>
+                  <SelectItem value="Liability">Liability</SelectItem>
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="currency"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <CurrencySelect
+                label="Currency"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
       </div>
-
-      <div className="space-y-2">
-        <Label>Sub-Category (Optional)</Label>
-        <Select
-          value={subCategory ?? "none"}
-          onValueChange={(val) =>
-            setSubCategory(val === "none" ? null : (val as SubCategory))
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select sub-category..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {getSubCategoriesByAccountType(accountType).map((opt) => (
-              <SelectItem key={opt.key} value={opt.key}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
+      <Controller
+        name="subCategory"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel>Sub-category (optional)</FieldLabel>
+            <Select
+              value={field.value ?? "none"}
+              onValueChange={(val) =>
+                field.onChange(val === "none" ? null : val)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select sub-category..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {getSubCategoriesByAccountType(accountType).map((opt) => (
+                  <SelectItem key={opt.key} value={opt.key}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
       <Button
         type="submit"
         className="w-full"
-        disabled={loading || !name.trim()}
+        disabled={isSubmitting || !form.formState.isValid}
       >
-        {loading && <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />}
+        {isSubmitting && (
+          <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />
+        )}
         {isEditing ? "Update Account" : "Create Account"}
       </Button>
     </form>
