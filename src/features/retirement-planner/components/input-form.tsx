@@ -22,46 +22,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useLatestNetWorth } from "@/hooks/use-net-worth";
+import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
 } from "@/lib/retirement";
-import { useLatestNetWorth } from "@/hooks/use-net-worth";
-import { useRetirementPlans } from "@/hooks/use-retirement-plans";
-import type { RetirementPlan } from "@/lib/types/retirement";
+import {
+  retirementProjectionFormSchema,
+  type RetirementPlan,
+  type retirementProjectionFormValues,
+} from "@/lib/types/retirement";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod/v3";
-
-const formSchema = z.object({
-  planName: z
-    .string()
-    .min(1, "Plan name is required.")
-    .max(50, "Plan name must be at most 50 characters."),
-  targetRetirementYear: z.coerce.number().min(2026).optional(),
-  startingNetWorth: z.coerce
-    .number()
-    .positive("Starting net worth must be greater than 0."),
-  monthlyContribution: z.coerce
-    .number()
-    .positive("Monthly contribution must be greater than 0."),
-  expectedMonthlyExpenses: z.coerce
-    .number()
-    .positive("Expected monthly expenses must be greater than 0."),
-  inflationRate: z.coerce
-    .number()
-    .min(0)
-    .max(15, "Inflation rate must be 0-15%."),
-  returnScenario: z.enum(["conservative", "moderate", "aggressive"]),
-});
-
-export type RetirementInputFormValues = z.infer<typeof formSchema>;
 
 interface InputFormProps {
   homeCurrency: string;
-  onProjectionValuesChange: (values: RetirementInputFormValues | null) => void;
+  onProjectionValuesChange: (
+    values: retirementProjectionFormValues | null,
+  ) => void;
   loadPlan: RetirementPlan | null;
 }
 
@@ -89,8 +70,8 @@ export function InputForm({
   const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
   const scenarioLimitMessage = getScenarioLimitMessage(scenarioCount);
 
-  const form = useForm<RetirementInputFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<retirementProjectionFormValues>({
+    resolver: zodResolver(retirementProjectionFormSchema),
     defaultValues: {
       planName: "",
       targetRetirementYear: 2026,
