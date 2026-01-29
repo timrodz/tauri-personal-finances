@@ -20,7 +20,7 @@ import {
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { api } from "@/lib/api";
 import { emitAccountsChanged } from "@/lib/events";
-
+import type { Account } from "@/lib/types/accounts";
 import {
   DndContext,
   DragEndEvent,
@@ -39,7 +39,6 @@ import {
 import { PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountRow } from "./components/account-row";
-import type { Account } from "@/lib/types/accounts";
 
 interface AccountsListProps {
   homeCurrency: string;
@@ -148,15 +147,15 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
             </div>
           )}
         </div>
-          <Dialog
-            open={isAddOpen}
-            onOpenChange={(open) => {
-              setIsAddOpen(open);
-              if (!open) {
-                emitAccountsChanged();
-              }
-            }}
-          >
+        <Dialog
+          open={isAddOpen}
+          onOpenChange={(open) => {
+            setIsAddOpen(open);
+            if (!open) {
+              emitAccountsChanged();
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button size="sm">
               <PlusIcon className="mr-2 h-4 w-4" />

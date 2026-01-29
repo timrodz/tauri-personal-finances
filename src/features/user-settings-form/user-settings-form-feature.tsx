@@ -1,12 +1,5 @@
 import { CurrencySelect } from "@/components/currency-select";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -57,7 +50,7 @@ export function UserSettingsFormFeature({
 
   const isEditing = !!initialValues;
 
-  const FormContent = (
+  return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Your Name</Label>
@@ -96,7 +89,9 @@ export function UserSettingsFormFeature({
       </div>
 
       <p className="text-xs text-muted-foreground mt-2">
-        This will be the base currency for your net worth calculations.
+        {`The home currency will serve the base for your net worth calculations. If your currency is not found, please get in touch with `}
+        <span className="font-mono text-foreground/80">{`support@timrodz.dev`}</span>
+        {` so we can sort you out`}
       </p>
 
       <Button
@@ -113,26 +108,5 @@ export function UserSettingsFormFeature({
             : "Get Started"}
       </Button>
     </form>
-  );
-
-  if (isEditing) {
-    return FormContent;
-  }
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-      <Card className="w-full max-w-md shadow-lg border-none sm:border-solid">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Welcome
-          </CardTitle>
-          <CardDescription>
-            {`Let's get setup first. How should we address you and what's your
-            primary currency?`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>{FormContent}</CardContent>
-      </Card>
-    </div>
   );
 }

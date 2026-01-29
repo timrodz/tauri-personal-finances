@@ -1,13 +1,21 @@
-import { MONTHS } from "@/lib/constants/time";
 import {
   ASSET_SUB_CATEGORIES,
   LIABILITY_SUB_CATEGORIES,
 } from "@/lib/constants/categories";
+import { MONTHS } from "@/lib/constants/time";
 import {
   formatCurrency,
   formatCurrencyCompact,
 } from "@/lib/currency-formatting";
 import { toPrivateValue } from "@/lib/private-value";
+import type { Account } from "@/lib/types/accounts";
+import type {
+  BalanceSheet,
+  Entry,
+  MonthlyTotal,
+} from "@/lib/types/balance-sheets";
+import type { NetWorthDataPoint } from "@/lib/types/net-worth";
+import type { RetirementPlanProjection } from "@/lib/types/retirement";
 import {
   ChartData,
   ChartOptions,
@@ -15,16 +23,8 @@ import {
   ScriptableContext,
   TooltipItem,
 } from "chart.js";
-import { getRetirementYearFromDateString } from "./dates";
 import { SUB_CATEGORY_COLORS } from "./constants/charts";
-import type { NetWorthDataPoint } from "@/lib/types/net-worth";
-import type { Account } from "@/lib/types/accounts";
-import type {
-  MonthlyTotal,
-  Entry,
-  BalanceSheet,
-} from "@/lib/types/balance-sheets";
-import type { RetirementPlanProjection } from "@/lib/types/retirement";
+import { getRetirementYearFromDateString } from "./dates";
 
 export function getBalanceSheetChartData(monthlyTotals: MonthlyTotal[]) {
   const labels = [...MONTHS];

@@ -26,7 +26,8 @@ export function BalanceSheetPage() {
       ? Math.max(...sheets.map((sheet) => sheet.year))
       : null;
   const hasNetWorthData = (netWorthHistory?.length ?? 0) > 0;
-  const isMostRecentSheet = selectedYear !== null && selectedYear === latestYear;
+  const isMostRecentSheet =
+    selectedYear !== null && selectedYear === latestYear;
   const showOnboardingHint =
     !netWorthLoading && !hasNetWorthData && isMostRecentSheet;
 
