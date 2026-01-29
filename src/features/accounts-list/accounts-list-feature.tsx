@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
 import { api } from "@/lib/api";
+import { emitAccountsChanged } from "@/lib/events";
 
 import {
   DndContext,
@@ -73,11 +74,15 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
 
   const visibleAccounts = accounts.filter((a) => showArchived || !a.isArchived);
   const hasArchivedAccounts = accounts.some((a) => a.isArchived);
+  const refreshAccounts = useCallback(() => {
+    fetchAccounts();
+    emitAccountsChanged();
+  }, [fetchAccounts]);
 
   const handleDelete = async (id: string) => {
     try {
       await api.deleteAccount(id);
-      fetchAccounts();
+      refreshAccounts();
     } catch (error) {
       console.error("Failed to delete account:", error);
     }
@@ -86,7 +91,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
   const handleToggleArchive = async (id: string) => {
     try {
       await api.toggleArchiveAccount(id);
-      fetchAccounts();
+      refreshAccounts();
     } catch (error) {
       console.error("Failed to toggle archive:", error);
     }
@@ -143,7 +148,15 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
             </div>
           )}
         </div>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+          <Dialog
+            open={isAddOpen}
+            onOpenChange={(open) => {
+              setIsAddOpen(open);
+              if (!open) {
+                emitAccountsChanged();
+              }
+            }}
+          >
           <DialogTrigger asChild>
             <Button size="sm">
               <PlusIcon className="mr-2 h-4 w-4" />
@@ -161,7 +174,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
               defaultCurrency={homeCurrency}
               onComplete={() => {
                 setIsAddOpen(false);
-                fetchAccounts();
+                refreshAccounts();
               }}
             />
           </DialogContent>
@@ -209,7 +222,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
                       onEditEnd={() => setEditingAccount(null)}
                       onDelete={handleDelete}
                       onToggleArchive={handleToggleArchive}
-                      onRefresh={fetchAccounts}
+                      onRefresh={refreshAccounts}
                     />
                   ))}
                 </SortableContext>

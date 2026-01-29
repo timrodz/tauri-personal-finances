@@ -29,11 +29,13 @@ const TOTAL_COLUMNS = 14;
 interface BalanceSheetFeatureProps {
   balanceSheet: BalanceSheet;
   homeCurrency: string;
+  showOnboardingHint?: boolean;
 }
 
 export function BalanceSheetFeature({
   balanceSheet,
   homeCurrency,
+  showOnboardingHint = false,
 }: BalanceSheetFeatureProps) {
   const { data: accounts, loading: accountsLoading } = useAccounts(true);
   const {
@@ -184,6 +186,8 @@ export function BalanceSheetFeature({
 
   const isLoading =
     accountsLoading || (entriesLoading && entries.length === 0) || ratesLoading;
+  const showEmptySheetHint =
+    showOnboardingHint && !isLoading && entries.length === 0;
 
   const foreignCurrencies = useMemo(() => {
     return Array.from(
@@ -203,6 +207,17 @@ export function BalanceSheetFeature({
 
   return (
     <div className="space-y-8 pb-12">
+      {showEmptySheetHint && (
+        <div className="rounded-xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
+          <p className="text-foreground font-medium mb-1">
+            Start your first balance sheet
+          </p>
+          <p>
+            Add each account you track, then fill in the end-of-month balances.
+            This gives you a clear net worth snapshot and trend over time.
+          </p>
+        </div>
+      )}
       <Card>
         <CardContent>
           <BalanceSheetChart

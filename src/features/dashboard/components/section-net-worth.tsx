@@ -52,7 +52,9 @@ export function SectionNetWorth() {
   );
 
   if (!settings) return null;
-  if (!historyLoading && !netWorthHistory) return null;
+  if (!historyLoading && (!netWorthHistory || netWorthHistory.length === 0)) {
+    return null;
+  }
 
   // Logic: Net Worth Calc
   const homeCurrency = settings.homeCurrency;

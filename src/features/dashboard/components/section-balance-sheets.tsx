@@ -1,5 +1,6 @@
 import { BalanceSheetCard } from "@/components/balance-sheet-card";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Dialog,
   DialogContent,
@@ -13,12 +14,16 @@ import {
   useBalanceSheets,
   useCreateBalanceSheet,
 } from "@/hooks/use-balance-sheets";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useNetWorthHistory } from "@/hooks/use-net-worth";
+import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
 import { PlusIcon, RefreshCwIcon } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function SectionBalanceSheets() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [createYearOpen, setCreateYearOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | undefined>();
 
@@ -27,6 +32,12 @@ export function SectionBalanceSheets() {
     loading: sheetsLoading,
     refetch: refetchSheets,
   } = useBalanceSheets();
+  const {
+    data: accounts,
+    loading: accountsLoading,
+    refetch: refetchAccounts,
+  } = useAccounts();
+  const { data: netWorthHistory } = useNetWorthHistory();
 
   const {
     mutate: createSheet,
@@ -35,6 +46,48 @@ export function SectionBalanceSheets() {
   } = useCreateBalanceSheet();
 
   const existingYears = balanceSheets?.map((bs) => bs.year) ?? [];
+  const latestYear = useMemo(() => {
+    if (!balanceSheets || balanceSheets.length === 0) return null;
+    return Math.max(...balanceSheets.map((sheet) => sheet.year));
+  }, [balanceSheets]);
+  const hasNetWorthData = (netWorthHistory?.length ?? 0) > 0;
+  const hasAccounts = (accounts?.length ?? 0) > 0;
+
+  useEffect(() => {
+    refetchAccounts();
+  }, [location.pathname, refetchAccounts]);
+
+  useEffect(() => {
+    const handleAccountsChanged = () => {
+      refetchAccounts();
+    };
+
+    window.addEventListener(ACCOUNTS_CHANGED_EVENT, handleAccountsChanged);
+    return () =>
+      window.removeEventListener(ACCOUNTS_CHANGED_EVENT, handleAccountsChanged);
+  }, [refetchAccounts]);
+
+  if (!accountsLoading && !hasAccounts) {
+    return (
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">Balance Sheets</h3>
+        </div>
+        <div className="rounded-xl border border-dashed bg-muted/30 p-6 text-sm text-muted-foreground flex items-start justify-between gap-4">
+          <div>
+            <p className="text-foreground font-medium">
+              Create your first account to unlock balance sheets.
+            </p>
+            <p className="mt-1">
+              Add assets and liabilities first, then come back to fill monthly
+              balances.
+            </p>
+          </div>
+          <StatusBadge level="error" text="Add account" pulse />
+        </div>
+      </section>
+    );
+  }
 
   const handleCreateSheet = async () => {
     if (!selectedYear) return;
@@ -66,6 +119,12 @@ export function SectionBalanceSheets() {
                 key={sheet.id}
                 balanceSheet={sheet}
                 onClick={() => navigate(`/balance-sheets/${sheet.year}`)}
+                badgeText={
+                  !hasNetWorthData && latestYear === sheet.year
+                    ? "Start here"
+                    : undefined
+                }
+                badgeLevel="warning"
               />
             ))}
 

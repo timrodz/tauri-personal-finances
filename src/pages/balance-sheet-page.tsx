@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
+import { useNetWorthHistory } from "@/hooks/use-net-worth";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -14,10 +15,20 @@ export function BalanceSheetPage() {
     loading: sheetsLoading,
     error: sheetsError,
   } = useBalanceSheets();
+  const { data: netWorthHistory, isLoading: netWorthLoading } =
+    useNetWorthHistory();
   const { data: settings, isLoading: settingsLoading } = useUserSettings();
 
   const selectedYear = year ? parseInt(year, 10) : null;
   const balanceSheet = sheets?.find((s) => s.year === selectedYear);
+  const latestYear =
+    sheets && sheets.length > 0
+      ? Math.max(...sheets.map((sheet) => sheet.year))
+      : null;
+  const hasNetWorthData = (netWorthHistory?.length ?? 0) > 0;
+  const isMostRecentSheet = selectedYear !== null && selectedYear === latestYear;
+  const showOnboardingHint =
+    !netWorthLoading && !hasNetWorthData && isMostRecentSheet;
 
   if (sheetsLoading || settingsLoading) {
     return (
@@ -57,6 +68,7 @@ export function BalanceSheetPage() {
         <BalanceSheetFeature
           balanceSheet={balanceSheet}
           homeCurrency={settings.homeCurrency}
+          showOnboardingHint={showOnboardingHint}
         />
       </main>
     </div>

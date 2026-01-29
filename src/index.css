@@ -44,6 +44,22 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+}
+
+.animate-badge-pulse {
+  animation: badge-pulse 1.2s ease-in-out infinite;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
