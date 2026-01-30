@@ -1,10 +1,13 @@
-import { getProjectionErrorKind } from "@/lib/retirement";
 import { useRetirementProjection } from "@/hooks/use-retirement";
 import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import { useUserSettings } from "@/hooks/use-user-settings";
-import type { RetirementPlan } from "@/lib/types/retirement";
+import { getProjectionErrorKind } from "@/lib/retirement";
+import type {
+  RetirementPlan,
+  retirementProjectionFormValues,
+} from "@/lib/types/retirement";
 import { useEffect, useMemo, useState } from "react";
-import { InputForm, RetirementInputFormValues } from "./components/input-form";
+import { InputForm } from "./components/input-form";
 import { NetWorthGrowthProjection } from "./components/net-worth-growth-projection";
 import { ProjectionResults } from "./components/projection-results";
 import { SavedScenarios } from "./components/saved-scenarios";
@@ -12,7 +15,7 @@ import { SavedScenarios } from "./components/saved-scenarios";
 export function RetirementPlannerFeature() {
   const { data: settings } = useUserSettings();
   const [projectionInputs, setProjectionInputs] =
-    useState<RetirementInputFormValues | null>(null);
+    useState<retirementProjectionFormValues | null>(null);
   const [loadedPlanId, setLoadedPlanId] = useState<string | null>(null);
   const [chartPlanId, setChartPlanId] = useState<string | null>(null);
 
@@ -122,7 +125,7 @@ export function RetirementPlannerFeature() {
   }
 
   return (
-    <div className="feature-container">
+    <div className="space-y-4">
       <InputForm
         homeCurrency={homeCurrency}
         onProjectionValuesChange={setProjectionInputs}

@@ -1,15 +1,14 @@
 import { Header } from "@/components/header";
-import { MainNav } from "@/components/main-nav";
+import { PageContainer } from "@/components/page-container";
 import { DashboardFeature } from "@/features/dashboard/dashboard-feature";
 
 export function HomePage() {
   return (
-    <main>
-      <Header title="Home" />
-      <MainNav />
-      <section className="feature">
+    <PageContainer>
+      <Header />
+      <main>
         <DashboardFeature />
-      </section>
-    </main>
+      </main>
+    </PageContainer>
   );
 }

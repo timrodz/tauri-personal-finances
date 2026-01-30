@@ -1,17 +1,1 @@
-#!/bin/sh
-
-# Check for changes in src/
-if git diff --cached --name-only | grep -q "^src/"; then
-  echo "Detected changes in src/, running checks..."
-  bun lint || exit 1
-  bun format || exit 1
-  bun typecheck || exit 1
-fi
-
-# Check for changes in src-tauri/
-if git diff --cached --name-only | grep -q "^src-tauri/"; then
-  echo "Detected changes in src-tauri/, running checks..."
-  cargo clippy --manifest-path src-tauri/Cargo.toml || exit 1
-  cargo fmt --manifest-path src-tauri/Cargo.toml || exit 1
-  cargo test --manifest-path src-tauri/Cargo.toml || exit 1
-fi
+bun lint-staged

@@ -1,13 +1,13 @@
 import { SubCategoryBreakdownChart } from "@/components/charts/sub-category-breakdown-chart";
 import { SubCategoryTrendChart } from "@/components/charts/sub-category-trend-chart";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { api } from "@/lib/api";
 import {
   getSubCategoryBreakdownChartData,
   getSubCategoryTrendChartData,
 } from "@/lib/charts";
-import { useAccounts } from "@/hooks/use-accounts";
-import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import type { Entry } from "@/lib/types/balance-sheets";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -90,6 +90,7 @@ export function AnalyticsFeature() {
   );
 
   if (!settings) return null;
+  if (isLoading) return null;
 
   const hasBreakdownData = assetBreakdownData || liabilityBreakdownData;
   const hasTrendData = assetTrendData || liabilityTrendData;
@@ -98,7 +99,7 @@ export function AnalyticsFeature() {
   const homeCurrency = settings.homeCurrency;
 
   return (
-    <div className="feature-container">
+    <div className="space-y-4">
       {hasNoData ? (
         <div className="rounded-xl border bg-card text-card-foreground shadow text-center">
           <p className="text-muted-foreground">

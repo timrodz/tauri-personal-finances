@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
-import type { Account } from "@/lib/types/accounts";
 import { getSubCategoryLabel } from "@/lib/categories";
+import type { Account } from "@/lib/types/accounts";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -85,7 +85,7 @@ export function AccountRow({
           {...attributes}
           {...listeners}
         >
-          <GripVerticalIcon className="h-4 w-4 text-muted-foreground" />
+          <GripVerticalIcon className="size-4 text-muted-foreground" />
           <span className="sr-only">Drag handle</span>
         </Button>
       </TableCell>
@@ -122,7 +122,7 @@ export function AccountRow({
                 onClick={onEditStart}
                 disabled={account.isArchived}
               >
-                <Edit2Icon className="h-4 w-4" />
+                <Edit2Icon className="size-4" />
                 <span className="sr-only">Edit</span>
               </Button>
             </DialogTrigger>
@@ -147,7 +147,7 @@ export function AccountRow({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="Unarchive">
-                  <ArchiveRestoreIcon className="h-4 w-4" />
+                  <ArchiveRestoreIcon className="size-4" />
                   <span className="sr-only">Unarchive</span>
                 </Button>
               </AlertDialogTrigger>
@@ -172,7 +172,7 @@ export function AccountRow({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" title="ArchiveIcon">
-                  <ArchiveIcon className="h-4 w-4" />
+                  <ArchiveIcon className="size-4" />
                   <span className="sr-only">Archive</span>
                 </Button>
               </AlertDialogTrigger>
@@ -198,7 +198,7 @@ export function AccountRow({
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-destructive">
-                <Trash2Icon className="h-4 w-4" />
+                <Trash2Icon className="size-4" />
                 <span className="sr-only">Delete</span>
               </Button>
             </AlertDialogTrigger>

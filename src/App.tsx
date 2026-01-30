@@ -1,8 +1,8 @@
-import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { AnalyticsPage } from "@/pages/analytics-page";
 import { BalanceSheetPage } from "@/pages/balance-sheet-page";
 import { HomePage } from "@/pages/home-page";
+import { OnboardingPage } from "@/pages/onboarding-page";
 import { RetirementPage } from "@/pages/retirement-page";
 import { useMemo } from "react";
 import {
@@ -30,7 +30,7 @@ function App() {
   }
 
   if (!isOnboardingCompleted) {
-    return <OnboardingFeature />;
+    return <OnboardingPage />;
   }
 
   return (

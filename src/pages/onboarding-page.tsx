@@ -1,11 +1,11 @@
 import { PageContainer } from "@/components/page-container";
-import { AnalyticsFeature } from "@/features/analytics/analytics-feature";
+import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 
-export function AnalyticsPage() {
+export function OnboardingPage() {
   return (
     <PageContainer>
       <main>
-        <AnalyticsFeature />
+        <OnboardingFeature />
       </main>
     </PageContainer>
   );

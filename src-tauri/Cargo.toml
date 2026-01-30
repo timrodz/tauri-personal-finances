@@ -1,7 +1,7 @@
 [package]
-name = "personal-finances"
+name = "oink"
 version = "0.1.0"
-description = "A personal finance app built with Tauri"
+description = "A personal finances app"
 authors = ["Juan Rodriguez <juan@timrodz.dev>"]
 edition = "2021"
 
@@ -11,7 +11,7 @@ edition = "2021"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "personal_finances_lib"
+name = "oink_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -35,4 +35,4 @@ reqwest = { version = "0.12", features = ["json"] }
 
 [dev-dependencies]
 tokio = { version = "1.49.0", features = ["full"] }
-wiremock = {version="0.6.5"}
+wiremock = { version = "0.6.5" }

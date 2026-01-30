@@ -1,4 +1,4 @@
-# Personal Finances
+# Oink
 
 A personal finance application built with Tauri, React and Typescript in Vite.
 
@@ -38,7 +38,7 @@ cargo test
 
 ### 20/01/2026
 
-Dashboard 
+Dashboard
 
 Net worth section w/ privacy mode and time series charts
 

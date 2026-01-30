@@ -1,4 +1,4 @@
-# Gemini Project Context: Personal Finances
+# Gemini Project Context: Oink
 
 This file serves as the primary context for AI agents working on this project.
 

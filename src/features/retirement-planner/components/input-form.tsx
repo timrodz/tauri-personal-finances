@@ -6,12 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { InformationTooltip } from "@/components/ui/information-tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,46 +18,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useLatestNetWorth } from "@/hooks/use-net-worth";
+import { useRetirementPlans } from "@/hooks/use-retirement-plans";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
 } from "@/lib/retirement";
-import { useLatestNetWorth } from "@/hooks/use-net-worth";
-import { useRetirementPlans } from "@/hooks/use-retirement-plans";
-import type { RetirementPlan } from "@/lib/types/retirement";
+import {
+  retirementProjectionFormSchema,
+  type RetirementPlan,
+  type retirementProjectionFormValues,
+} from "@/lib/types/retirement";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod/v3";
-
-const formSchema = z.object({
-  planName: z
-    .string()
-    .min(1, "Plan name is required.")
-    .max(50, "Plan name must be at most 50 characters."),
-  targetRetirementYear: z.coerce.number().min(2026).optional(),
-  startingNetWorth: z.coerce
-    .number()
-    .positive("Starting net worth must be greater than 0."),
-  monthlyContribution: z.coerce
-    .number()
-    .positive("Monthly contribution must be greater than 0."),
-  expectedMonthlyExpenses: z.coerce
-    .number()
-    .positive("Expected monthly expenses must be greater than 0."),
-  inflationRate: z.coerce
-    .number()
-    .min(0)
-    .max(15, "Inflation rate must be 0-15%."),
-  returnScenario: z.enum(["conservative", "moderate", "aggressive"]),
-});
-
-export type RetirementInputFormValues = z.infer<typeof formSchema>;
 
 interface InputFormProps {
   homeCurrency: string;
-  onProjectionValuesChange: (values: RetirementInputFormValues | null) => void;
+  onProjectionValuesChange: (
+    values: retirementProjectionFormValues | null,
+  ) => void;
   loadPlan: RetirementPlan | null;
 }
 
@@ -89,8 +66,8 @@ export function InputForm({
   const scenarioLimitReached = isScenarioLimitReached(scenarioCount);
   const scenarioLimitMessage = getScenarioLimitMessage(scenarioCount);
 
-  const form = useForm<RetirementInputFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<retirementProjectionFormValues>({
+    resolver: zodResolver(retirementProjectionFormSchema),
     defaultValues: {
       planName: "",
       targetRetirementYear: 2026,
@@ -216,7 +193,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-plan-name">
-                    Plan name <span className="text-destructive">*</span>
+                    Plan name
                   </FieldLabel>
                   <Input
                     {...field}
@@ -284,8 +261,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-starting-net-worth">
-                    Starting net worth{" "}
-                    <span className="text-destructive">*</span>
+                    Starting net worth
                   </FieldLabel>
                   <Input
                     {...field}
@@ -308,8 +284,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-monthly-contributions">
-                    Monthly contributions ({homeCurrency}){" "}
-                    <span className="text-destructive">*</span>
+                    Monthly contributions ({homeCurrency})
                   </FieldLabel>
                   <Input
                     {...field}
@@ -333,8 +308,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-expected-monthly-expenses">
-                    Expected monthly expenses ({homeCurrency}){" "}
-                    <span className="text-destructive">*</span>
+                    Expected monthly expenses ({homeCurrency})
                   </FieldLabel>
                   <Input
                     {...field}
@@ -359,7 +333,12 @@ export function InputForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Monthly contribution returns</FieldLabel>
+                  <FieldLabel>
+                    Monthly contribution returns
+                    <InformationTooltip>
+                      {`Contributions are linked to investments, but in a real world scenario they also include savings.`}
+                    </InformationTooltip>
+                  </FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select scenario" />
@@ -377,9 +356,6 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
-                  <FieldDescription>
-                    {`Contributions are linked to investments, but in a real world scenario they also include savings.`}
-                  </FieldDescription>
                 </Field>
               )}
             />
@@ -390,6 +366,9 @@ export function InputForm({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-inflation-rate">
                     Inflation rate percentage (%)
+                    <InformationTooltip>
+                      0% effectively ignores inflation.
+                    </InformationTooltip>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -402,9 +381,6 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
-                  <FieldDescription>
-                    0% effectively ignores inflation.
-                  </FieldDescription>
                 </Field>
               )}
             />

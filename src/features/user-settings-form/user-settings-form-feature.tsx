@@ -1,14 +1,7 @@
 import { CurrencySelect } from "@/components/currency-select";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,16 +11,22 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import type { Theme } from "@/lib/types/theme";
+import {
+  getUserSettingsFormDefaults,
+  userSettingsFormSchema,
+  type UserSettingsFormValues,
+} from "@/lib/types/user-settings";
 import { useTheme } from "@/providers/theme-provider";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 interface UserSettingsFormProps {
   onComplete: () => void;
-  initialValues?: {
-    name: string;
-    currency: string;
-    theme: Theme;
-  };
+  initialValues?: Pick<
+    UserSettingsFormValues,
+    "name" | "homeCurrency" | "theme"
+  >;
 }
 
 export function UserSettingsFormFeature({
@@ -36,103 +35,129 @@ export function UserSettingsFormFeature({
 }: UserSettingsFormProps) {
   const { theme, setTheme } = useTheme();
 
-  const [name, setName] = useState(initialValues?.name || "");
-  const [currency, setCurrency] = useState(initialValues?.currency || "USD");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
+  const form = useForm<UserSettingsFormValues>({
+    resolver: zodResolver(userSettingsFormSchema),
+    defaultValues: getUserSettingsFormDefaults({
+      initialValues,
+      defaultCurrency: "USD",
+      defaultTheme: theme,
+    }),
+    mode: "onChange",
+  });
 
-    setLoading(true);
+  useEffect(() => {
+    form.reset(
+      getUserSettingsFormDefaults({
+        initialValues,
+        defaultCurrency: "USD",
+        defaultTheme: theme,
+      }),
+    );
+    setError(null);
+  }, [form, initialValues]);
+
+  const handleSubmit = async (values: UserSettingsFormValues) => {
     try {
-      await api.updateUserSettings(name, currency, theme);
+      await api.updateUserSettings(
+        values.name,
+        values.homeCurrency,
+        values.theme,
+      );
       onComplete();
     } catch (error) {
       console.error("Failed to save settings:", error);
-    } finally {
-      setLoading(false);
+      setError(error instanceof Error ? error.message : String(error));
     }
   };
 
   const isEditing = !!initialValues;
+  const isSubmitting = form.formState.isSubmitting;
 
-  const FormContent = (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="name">Your Name</Label>
-        <Input
-          id="name"
-          placeholder="e.g. Warren Buffet"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          autoFocus
-        />
-      </div>
+  return (
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      {error && (
+        <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-md border border-destructive/20">
+          {error}
+        </div>
+      )}
+
+      <Controller
+        name="name"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="name" aria-required>
+              Your name
+            </FieldLabel>
+            <Input
+              {...field}
+              id="name"
+              aria-invalid={fieldState.invalid}
+              placeholder="e.g. Warren Buffet"
+              autoFocus
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <CurrencySelect
-            label="Home Currency"
-            value={currency}
-            onValueChange={setCurrency}
-          />
-        </div>
+        <Controller
+          name="homeCurrency"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <CurrencySelect
+                label="Home Currency"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-        <div className="space-y-2">
-          <Label>Theme</Label>
-          <Select value={theme} onValueChange={(val: Theme) => setTheme(val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Controller
+          name="theme"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>Theme</FieldLabel>
+              <Select
+                value={field.value}
+                onValueChange={(val: Theme) => {
+                  field.onChange(val);
+                  setTheme(val);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
       </div>
-
-      <p className="text-xs text-muted-foreground mt-2">
-        This will be the base currency for your net worth calculations.
-      </p>
 
       <Button
         type="submit"
         className="w-full"
-        disabled={loading || !name.trim()}
+        disabled={isSubmitting || !form.formState.isValid}
       >
-        {isEditing
-          ? loading
-            ? "Saving..."
-            : "Save Changes"
-          : loading
-            ? "Saving..."
+        {isSubmitting
+          ? "Saving..."
+          : isEditing
+            ? "Save Changes"
             : "Get Started"}
       </Button>
     </form>
-  );
-
-  if (isEditing) {
-    return FormContent;
-  }
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
-      <Card className="w-full max-w-md shadow-lg border-none sm:border-solid">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Welcome
-          </CardTitle>
-          <CardDescription>
-            {`Let's get setup first. How should we address you and what's your
-            primary currency?`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>{FormContent}</CardContent>
-      </Card>
-    </div>
   );
 }

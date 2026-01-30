@@ -1,4 +1,5 @@
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/components/ui/field";
+import { InformationTooltip } from "@/components/ui/information-tooltip";
 import {
   Select,
   SelectContent,
@@ -6,40 +7,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const CURRENCIES = [
-  "USD",
-  "EUR",
-  "GBP",
-  "NZD",
-  "AUD",
-  "CAD",
-  "JPY",
-  "SGD",
-  "CHF",
-];
+import { CURRENCIES } from "@/lib/constants/currencies";
 
 interface CurrencySelectProps {
+  homeCurrency?: string;
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
-  placeholder?: string;
   disabled?: boolean;
 }
 
 export function CurrencySelect({
+  homeCurrency,
   value,
   onValueChange,
   label,
-  placeholder = "Select currency",
   disabled = false,
 }: CurrencySelectProps) {
   return (
-    <div className="space-y-2">
-      {label && <Label>{label}</Label>}
-      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+    <>
+      {label && (
+        <FieldLabel>
+          {label}
+          <InformationTooltip>
+            {`The home currency will serve the base for your net worth calculations. If your currency is not found, please get in touch with support@timrodz.dev so we can sort you out`}
+          </InformationTooltip>
+        </FieldLabel>
+      )}
+      <Select
+        defaultValue={homeCurrency}
+        value={value}
+        onValueChange={onValueChange}
+        disabled={disabled}
+      >
         <SelectTrigger>
-          <SelectValue placeholder={placeholder} />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {CURRENCIES.map((c) => (
@@ -49,6 +51,6 @@ export function CurrencySelect({
           ))}
         </SelectContent>
       </Select>
-    </div>
+    </>
   );
 }
