@@ -10,12 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/lib/api";
+import type { Theme } from "@/lib/types/theme";
 import {
   getUserSettingsFormDefaults,
   userSettingsFormSchema,
   type UserSettingsFormValues,
 } from "@/lib/types/user-settings";
-import type { Theme } from "@/lib/types/theme";
 import { useTheme } from "@/providers/theme-provider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -88,8 +88,8 @@ export function UserSettingsFormFeature({
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor="name">
-              Your name <span className="text-destructive">*</span>
+            <FieldLabel htmlFor="name" aria-required>
+              Your name
             </FieldLabel>
             <Input
               {...field}
@@ -146,12 +146,6 @@ export function UserSettingsFormFeature({
           )}
         />
       </div>
-
-      <p className="text-xs text-muted-foreground mt-2">
-        {`The home currency will serve the base for your net worth calculations. If your currency is not found, please get in touch with `}
-        <span className="font-mono text-foreground/80">{`support@timrodz.dev`}</span>
-        {` so we can sort you out`}
-      </p>
 
       <Button
         type="submit"

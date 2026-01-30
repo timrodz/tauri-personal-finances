@@ -1,4 +1,5 @@
 import { FieldLabel } from "@/components/ui/field";
+import { InformationTooltip } from "@/components/ui/information-tooltip";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,14 @@ export function CurrencySelect({
 }: CurrencySelectProps) {
   return (
     <>
-      {label && <FieldLabel>{label}</FieldLabel>}
+      {label && (
+        <FieldLabel>
+          {label}
+          <InformationTooltip>
+            {`The home currency will serve the base for your net worth calculations. If your currency is not found, please get in touch with support@timrodz.dev so we can sort you out`}
+          </InformationTooltip>
+        </FieldLabel>
+      )}
       <Select
         defaultValue={homeCurrency}
         value={value}

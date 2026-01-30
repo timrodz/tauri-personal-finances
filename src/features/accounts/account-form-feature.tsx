@@ -1,6 +1,7 @@
 import { CurrencySelect } from "@/components/currency-select";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { InformationTooltip } from "@/components/ui/information-tooltip";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -109,9 +110,7 @@ export function AccountFormFeature({
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor="account-name">
-              Account name <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel htmlFor="account-name">Account name</FieldLabel>
             <Input
               {...field}
               id="account-name"
@@ -163,7 +162,12 @@ export function AccountFormFeature({
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel>Sub-category (optional)</FieldLabel>
+            <FieldLabel>
+              Sub-category
+              <InformationTooltip>
+                Useful for generating reports based on account breakdown
+              </InformationTooltip>
+            </FieldLabel>
             <Select
               value={field.value ?? "none"}
               onValueChange={(val) =>

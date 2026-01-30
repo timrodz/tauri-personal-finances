@@ -6,12 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { InformationTooltip } from "@/components/ui/information-tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -197,7 +193,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-plan-name">
-                    Plan name <span className="text-destructive">*</span>
+                    Plan name
                   </FieldLabel>
                   <Input
                     {...field}
@@ -265,8 +261,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-starting-net-worth">
-                    Starting net worth{" "}
-                    <span className="text-destructive">*</span>
+                    Starting net worth
                   </FieldLabel>
                   <Input
                     {...field}
@@ -289,8 +284,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-monthly-contributions">
-                    Monthly contributions ({homeCurrency}){" "}
-                    <span className="text-destructive">*</span>
+                    Monthly contributions ({homeCurrency})
                   </FieldLabel>
                   <Input
                     {...field}
@@ -314,8 +308,7 @@ export function InputForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-expected-monthly-expenses">
-                    Expected monthly expenses ({homeCurrency}){" "}
-                    <span className="text-destructive">*</span>
+                    Expected monthly expenses ({homeCurrency})
                   </FieldLabel>
                   <Input
                     {...field}
@@ -340,7 +333,12 @@ export function InputForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Monthly contribution returns</FieldLabel>
+                  <FieldLabel>
+                    Monthly contribution returns
+                    <InformationTooltip>
+                      {`Contributions are linked to investments, but in a real world scenario they also include savings.`}
+                    </InformationTooltip>
+                  </FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select scenario" />
@@ -358,9 +356,6 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
-                  <FieldDescription>
-                    {`Contributions are linked to investments, but in a real world scenario they also include savings.`}
-                  </FieldDescription>
                 </Field>
               )}
             />
@@ -371,6 +366,9 @@ export function InputForm({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-inflation-rate">
                     Inflation rate percentage (%)
+                    <InformationTooltip>
+                      0% effectively ignores inflation.
+                    </InformationTooltip>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -383,9 +381,6 @@ export function InputForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
-                  <FieldDescription>
-                    0% effectively ignores inflation.
-                  </FieldDescription>
                 </Field>
               )}
             />
