@@ -34,7 +34,7 @@ export function StepBalanceSheet({ onComplete }: StepBalanceSheetProps) {
       </p>
 
       <Button className="w-full" onClick={handleCreate} disabled={loading}>
-        {loading && <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && <RefreshCwIcon className="mr-2 size-4 animate-spin" />}
         Create Balance Sheet & Finish
       </Button>
     </div>

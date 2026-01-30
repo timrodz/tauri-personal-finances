@@ -30,16 +30,19 @@ export function getUserSettingsFormDefaults({
   defaultCurrency,
   defaultTheme,
 }: UserSettingsFormDefaultsOptions): Partial<UserSettingsFormValues> {
-  if (!initialValues && !defaultCurrency) {
+  if (!initialValues && !defaultCurrency && !defaultTheme) {
     return {};
   }
   if (defaultCurrency && !initialValues) {
     return {
       homeCurrency: defaultCurrency,
+      theme: defaultTheme ?? "system",
     };
   }
   if (!initialValues) {
-    return {};
+    return {
+      theme: defaultTheme ?? "system",
+    };
   }
   return {
     name: initialValues.name,

@@ -23,12 +23,12 @@ export function BalanceSheetCard({
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+          <CalendarIcon className="size-5 text-muted-foreground" />
           {balanceSheet.year}
         </CardTitle>
         <div className="flex items-center gap-2">
           {badgeText && <StatusBadge level={badgeLevel} text={badgeText} />}
-          <ArrowRightIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+          <ArrowRightIcon className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
         </div>
       </CardHeader>
       <CardContent>

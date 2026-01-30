@@ -87,7 +87,7 @@ export function ProjectionResults({
       <CardContent>
         {projectionQuery.isLoading && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <RefreshCwIcon className="h-4 w-4 animate-spin" />
+            <RefreshCwIcon className="size-4 animate-spin" />
             Calculating your projection...
           </div>
         )}

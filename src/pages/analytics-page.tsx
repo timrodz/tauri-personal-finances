@@ -1,15 +1,14 @@
 import { Header } from "@/components/header";
-import { MainNav } from "@/components/main-nav";
+import { PageContainer } from "@/components/page-container";
 import { AnalyticsFeature } from "@/features/analytics/analytics-feature";
 
 export function AnalyticsPage() {
   return (
-    <main>
+    <PageContainer>
       <Header title="Analytics" />
-      <MainNav />
-      <section>
+      <main>
         <AnalyticsFeature />
-      </section>
-    </main>
+      </main>
+    </PageContainer>
   );
 }

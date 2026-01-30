@@ -1,11 +1,12 @@
+import { PageContainer } from "@/components/page-container";
 import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 
 export function OnboardingPage() {
   return (
-    <div className="page">
+    <PageContainer>
       <main>
         <OnboardingFeature />
       </main>
-    </div>
+    </PageContainer>
   );
 }

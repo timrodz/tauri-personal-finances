@@ -45,6 +45,8 @@ export function SectionBalanceSheets() {
     error: createError,
   } = useCreateBalanceSheet();
 
+  const isLoading = sheetsLoading || accountsLoading;
+
   const existingYears = balanceSheets?.map((bs) => bs.year) ?? [];
   const latestYear = useMemo(() => {
     if (!balanceSheets || balanceSheets.length === 0) return null;
@@ -67,6 +69,22 @@ export function SectionBalanceSheets() {
       window.removeEventListener(ACCOUNTS_CHANGED_EVENT, handleAccountsChanged);
   }, [refetchAccounts]);
 
+  const handleCreateSheet = async () => {
+    if (!selectedYear) return;
+    try {
+      await createSheet(selectedYear);
+      await refetchSheets();
+      setCreateYearOpen(false);
+      setSelectedYear(undefined);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (isLoading) {
+    return null;
+  }
+
   if (!accountsLoading && !hasAccounts) {
     return (
       <section>
@@ -88,18 +106,6 @@ export function SectionBalanceSheets() {
       </section>
     );
   }
-
-  const handleCreateSheet = async () => {
-    if (!selectedYear) return;
-    try {
-      await createSheet(selectedYear);
-      await refetchSheets();
-      setCreateYearOpen(false);
-      setSelectedYear(undefined);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   return (
     <section>
@@ -172,7 +178,7 @@ export function SectionBalanceSheets() {
                     disabled={!selectedYear || createLoading}
                   >
                     {createLoading && (
-                      <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCwIcon className="mr-2 size-4 animate-spin" />
                     )}
                     {createLoading ? "Creating..." : "Create Balance Sheet"}
                   </Button>

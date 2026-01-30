@@ -121,12 +121,8 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
     fetchAccounts();
   }, [fetchAccounts]);
 
-  if (loading && accounts.length === 0) {
-    return (
-      <div className="text-center p-8 text-muted-foreground">
-        Loading accounts...
-      </div>
-    );
+  if (loading) {
+    return null;
   }
 
   return (
@@ -158,7 +154,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
         >
           <DialogTrigger asChild>
             <Button size="sm">
-              <PlusIcon className="mr-2 h-4 w-4" />
+              <PlusIcon className="mr-2 size-4" />
               Add Account
             </Button>
           </DialogTrigger>

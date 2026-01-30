@@ -1,15 +1,14 @@
 import { Header } from "@/components/header";
-import { MainNav } from "@/components/main-nav";
+import { PageContainer } from "@/components/page-container";
 import { RetirementPlannerFeature } from "@/features/retirement-planner/retirement-planner-feature";
 
 export function RetirementPage() {
   return (
-    <main>
+    <PageContainer>
       <Header title="Retirement Planner" />
-      <MainNav />
-      <section>
+      <main>
         <RetirementPlannerFeature />
-      </section>
-    </main>
+      </main>
+    </PageContainer>
   );
 }

@@ -195,9 +195,7 @@ export function AccountFormFeature({
         className="w-full"
         disabled={isSubmitting || !form.formState.isValid}
       >
-        {isSubmitting && (
-          <RefreshCwIcon className="mr-2 h-4 w-4 animate-spin" />
-        )}
+        {isSubmitting && <RefreshCwIcon className="mr-2 size-4 animate-spin" />}
         {isEditing ? "Update Account" : "Create Account"}
       </Button>
     </form>

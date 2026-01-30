@@ -125,7 +125,7 @@ export function RetirementPlannerFeature() {
   }
 
   return (
-    <div className="feature-container">
+    <div className="space-y-4">
       <InputForm
         homeCurrency={homeCurrency}
         onProjectionValuesChange={setProjectionInputs}

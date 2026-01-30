@@ -1,26 +1,77 @@
 import { MonthlyGrowthChart } from "@/components/charts/monthly-growth-chart";
 import { NetWorthBreakdownChart } from "@/components/charts/net-worth-breakdown-chart";
 import { NetWorthTrendChart } from "@/components/charts/net-worth-trend-chart";
+import { SubCategoryBreakdownChart } from "@/components/charts/sub-category-breakdown-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAccounts } from "@/hooks/use-accounts";
+import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
 import { useUserSettings } from "@/hooks/use-user-settings";
+import { api } from "@/lib/api";
 import {
   getMonthlyGrowthChartData,
   getNetWorthBreakdownChartData,
   getNetWorthTrendChartData,
+  getSubCategoryBreakdownChartData,
 } from "@/lib/charts";
+import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
 import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
+import type { Entry } from "@/lib/types/balance-sheets";
 import { ChartColumnBigIcon, ChartLineIcon, ChartPieIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { NetWorthKPIs } from "./net-worth-kpis";
 
 export function SectionNetWorth() {
   const { data: settings } = useUserSettings();
   const { data: netWorthHistory, isLoading: historyLoading } =
     useNetWorthHistory();
+  const {
+    data: accounts,
+    loading: accountsLoading,
+    refetch: refetchAccounts,
+  } = useAccounts();
+  const { data: balanceSheets, loading: balanceSheetsLoading } =
+    useBalanceSheets();
 
   // State
   const [timeRange, setTimeRange] = useState("ALL");
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [entriesLoading, setEntriesLoading] = useState(true);
+
+  const fetchAllEntries = useCallback(async () => {
+    if (balanceSheets.length === 0) {
+      setEntriesLoading(false);
+      return;
+    }
+
+    setEntriesLoading(true);
+    try {
+      const allEntries: Entry[] = [];
+      for (const sheet of balanceSheets) {
+        const sheetEntries = await api.getEntries(sheet.id);
+        allEntries.push(...sheetEntries);
+      }
+      setEntries(allEntries);
+    } finally {
+      setEntriesLoading(false);
+    }
+  }, [balanceSheets]);
+
+  useEffect(() => {
+    if (!balanceSheetsLoading) {
+      fetchAllEntries();
+    }
+  }, [balanceSheetsLoading, fetchAllEntries]);
+
+  useEffect(() => {
+    const handleAccountsChanged = () => {
+      refetchAccounts();
+    };
+
+    window.addEventListener(ACCOUNTS_CHANGED_EVENT, handleAccountsChanged);
+    return () =>
+      window.removeEventListener(ACCOUNTS_CHANGED_EVENT, handleAccountsChanged);
+  }, [refetchAccounts]);
 
   // Logic: Chart Data & KPIs
   const filteredHistory = useMemo(
@@ -51,7 +102,31 @@ export function SectionNetWorth() {
     [filteredHistory],
   );
 
+  const subCategoryLoading =
+    accountsLoading || balanceSheetsLoading || entriesLoading;
+
+  const assetBreakdownData = useMemo(
+    () =>
+      getSubCategoryBreakdownChartData({
+        accounts,
+        entries,
+        accountType: "Asset",
+      }),
+    [accounts, entries],
+  );
+
+  const liabilityBreakdownData = useMemo(
+    () =>
+      getSubCategoryBreakdownChartData({
+        accounts,
+        entries,
+        accountType: "Liability",
+      }),
+    [accounts, entries],
+  );
+
   if (!settings) return null;
+  if (historyLoading) return null;
   if (!historyLoading && (!netWorthHistory || netWorthHistory.length === 0)) {
     return null;
   }
@@ -72,8 +147,13 @@ export function SectionNetWorth() {
   const startLiabilities = startPoint?.totalLiabilities || 0;
   const liabilityGrowth = calculateGrowth(totalLiabilities, startLiabilities);
 
+  const hasSubCategoryBreakdownData =
+    assetBreakdownData || liabilityBreakdownData;
+  const showSubCategoryBreakdown =
+    !subCategoryLoading && hasSubCategoryBreakdownData;
+
   return (
-    <section className="space-y-6">
+    <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Net Worth Overview</h2>
         <Tabs value={timeRange} onValueChange={setTimeRange} className="w-auto">
@@ -103,7 +183,7 @@ export function SectionNetWorth() {
 
       {/* Charts Area with Tabs */}
       <Tabs defaultValue="trend" className="w-full">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <TabsList>
             <TabsTrigger value="trend">
               <ChartLineIcon /> Trend
@@ -134,10 +214,26 @@ export function SectionNetWorth() {
             />
           </TabsContent>
           <TabsContent value="breakdown" className="mt-0">
-            <NetWorthBreakdownChart
-              isLoading={historyLoading}
-              chartData={breakdownChartData}
-            />
+            <div className="space-y-6">
+              <NetWorthBreakdownChart
+                isLoading={historyLoading}
+                chartData={breakdownChartData}
+              />
+              {showSubCategoryBreakdown && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SubCategoryBreakdownChart
+                    isLoading={subCategoryLoading}
+                    chartData={assetBreakdownData}
+                    title="Assets by Sub-Category"
+                  />
+                  <SubCategoryBreakdownChart
+                    isLoading={subCategoryLoading}
+                    chartData={liabilityBreakdownData}
+                    title="Liabilities by Sub-Category"
+                  />
+                </div>
+              )}
+            </div>
           </TabsContent>
         </div>
       </Tabs>

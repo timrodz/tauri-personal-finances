@@ -1,9 +1,10 @@
 import { Header } from "@/components/header";
+import { PageContainer } from "@/components/page-container";
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
-import { useUserSettings } from "@/hooks/use-user-settings";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
+import { useUserSettings } from "@/hooks/use-user-settings";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -52,14 +53,14 @@ export function BalanceSheetPage() {
       <div className="flex items-center justify-center min-h-screen flex-col gap-4">
         <h2 className="text-2xl font-bold">Balance Sheet Not Found</h2>
         <Button onClick={() => navigate("/")} variant="outline">
-          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Go Back
+          <ArrowLeftIcon className="mr-2 size-4" /> Go Back
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="page">
+    <PageContainer>
       <Header
         title={`${balanceSheet.year} Balance Sheet`}
         navigateBack="/balance-sheets"
@@ -72,6 +73,6 @@ export function BalanceSheetPage() {
           showOnboardingHint={showOnboardingHint}
         />
       </main>
-    </div>
+    </PageContainer>
   );
 }
