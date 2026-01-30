@@ -31,7 +31,7 @@ pub fn run() {
             }
 
             // Path for the SQLite database
-            let db_path = app_data_dir.join("personal_finances.db");
+            let db_path = app_data_dir.join("oink.db");
             let db_url = format!("sqlite://{}?mode=rwc", db_path.to_string_lossy());
 
             tauri::async_runtime::block_on(async move {

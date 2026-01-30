@@ -15,7 +15,8 @@ export function OnboardingFeature() {
   const { data: status, isLoading, refetch } = useOnboarding();
   const { data: settings, refetch: refetchSettings } = useUserSettings();
 
-  if (isLoading || !status) {
+  if (isLoading) return null;
+  if (!status) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="animate-pulse text-muted-foreground">
@@ -44,7 +45,7 @@ export function OnboardingFeature() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight text-center">
             {currentStep.stepKey === "CONFIGURE_SETTINGS" &&
-              "Welcome to <APP_NAME>"}
+              "Welcome to Oink! 🐽"}
             {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" &&
               "Let's add your first account"}
             {currentStep.stepKey === "CREATE_FIRST_BALANCE_SHEET" &&
@@ -52,7 +53,7 @@ export function OnboardingFeature() {
           </CardTitle>
           <CardDescription className="text-center text-md">
             {currentStep.stepKey === "CONFIGURE_SETTINGS" &&
-              "Get ready to level up your finances!"}
+              "Let's get you sorted, one piggy at a time."}
             {currentStep.stepKey === "CREATE_FIRST_ACCOUNT" &&
               "To track your net worth, we need at least one account."}
             {currentStep.stepKey === "CREATE_FIRST_BALANCE_SHEET" &&
