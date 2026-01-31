@@ -1,30 +1,19 @@
 import { BalanceSheetChart } from "@/components/charts/balance-sheet-chart";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { getBalanceSheetChartData } from "@/lib/charts";
-import { MONTHS } from "@/lib/constants/time";
-import type { BalanceSheet } from "@/lib/types/balance-sheets";
-import { useMemo } from "react";
-import { AccountSection } from "./components/account-section";
-import { DangerZone } from "./components/danger-zone";
-import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
-import { TotalsGrid } from "./components/totals-grid";
-import { calculateMonthlyTotals } from "@/lib/balance-sheets";
 import { useAccounts } from "@/hooks/use-accounts";
 import { useEntries, useUpsertEntry } from "@/hooks/use-balance-sheets";
 import {
   useCurrencyRates,
   useUpsertCurrencyRate,
 } from "@/hooks/use-currency-rates";
-
-const TOTAL_COLUMNS = 14;
+import { calculateMonthlyTotals } from "@/lib/balance-sheets";
+import { getBalanceSheetChartData } from "@/lib/charts";
+import type { BalanceSheet } from "@/lib/types/balance-sheets";
+import { useMemo } from "react";
+import { AccountsGrid } from "./components/accounts-grid";
+import { DangerZone } from "./components/danger-zone";
+import { ExchangeRatesGrid } from "./components/exchange-rates-grid";
+import { TotalsGrid } from "./components/totals-grid";
 
 interface BalanceSheetFeatureProps {
   balanceSheet: BalanceSheet;
@@ -154,19 +143,6 @@ export function BalanceSheetFeature({
     }
   };
 
-  const { assets, liabilities } = useMemo(() => {
-    const activeAccounts = accounts.filter((a) => !a.isArchived);
-    const assetsList = activeAccounts.filter((a) => a.accountType === "Asset");
-    const liabilitiesList = activeAccounts.filter(
-      (a) => a.accountType === "Liability",
-    );
-
-    return {
-      assets: assetsList,
-      liabilities: liabilitiesList,
-    };
-  }, [accounts]);
-
   const monthlyTotals = useMemo(
     () =>
       calculateMonthlyTotals(
@@ -229,72 +205,11 @@ export function BalanceSheetFeature({
       </Card>
 
       {/* ACCOUNTS GRID */}
-      <div>
-        <Table className="min-w-300">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-50 sticky left-0 z-10 bg-background border-r">
-                Account
-              </TableHead>
-              <TableHead className="w-25 text-center">Currency</TableHead>
-              {MONTHS.map((month) => (
-                <TableHead key={month} className="text-right min-w-25">
-                  {month}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow className="bg-muted/50 font-semibold hover:bg-muted/50">
-              <TableCell
-                colSpan={TOTAL_COLUMNS}
-                className="sticky left-0 bg-muted/50 border-r"
-              >
-                ASSETS
-              </TableCell>
-            </TableRow>
-            <AccountSection
-              accounts={assets}
-              entries={entries}
-              onEntryChange={handleEntryChange}
-            />
-            {assets.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={TOTAL_COLUMNS}
-                  className="text-center text-muted-foreground py-4"
-                >
-                  No asset accounts found.
-                </TableCell>
-              </TableRow>
-            )}
-
-            <TableRow className="bg-muted/50 font-semibold hover:bg-muted/50">
-              <TableCell
-                colSpan={TOTAL_COLUMNS}
-                className="sticky left-0 bg-muted/50 border-r"
-              >
-                LIABILITIES
-              </TableCell>
-            </TableRow>
-            <AccountSection
-              accounts={liabilities}
-              entries={entries}
-              onEntryChange={handleEntryChange}
-            />
-            {liabilities.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={TOTAL_COLUMNS}
-                  className="text-center text-muted-foreground py-4"
-                >
-                  No liability accounts found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AccountsGrid
+        accounts={accounts}
+        entries={entries}
+        onEntryChange={handleEntryChange}
+      />
 
       {/* EXCHANGE RATES GRID */}
       {foreignCurrencies.length > 0 && (
@@ -305,6 +220,7 @@ export function BalanceSheetFeature({
           onRateChange={handleRateChange}
         />
       )}
+
       <TotalsGrid monthlyTotals={monthlyTotals} homeCurrency={homeCurrency} />
       <DangerZone balanceSheetId={balanceSheet.id} year={balanceSheet.year} />
     </div>

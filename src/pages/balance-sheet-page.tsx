@@ -62,7 +62,6 @@ export function BalanceSheetPage() {
   return (
     <PageContainer>
       <Header />
-
       <main>
         <BalanceSheetFeature
           balanceSheet={balanceSheet}

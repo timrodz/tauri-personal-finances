@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -16,7 +17,7 @@ interface TotalsGridProps {
 
 export function TotalsGrid({ monthlyTotals, homeCurrency }: TotalsGridProps) {
   return (
-    <div className="border rounded-md overflow-x-auto">
+    <Card className="p-0 overflow-auto">
       <Table className="min-w-300">
         <TableHeader>
           <TableRow>
@@ -37,6 +38,6 @@ export function TotalsGrid({ monthlyTotals, homeCurrency }: TotalsGridProps) {
           />
         </TableBody>
       </Table>
-    </div>
+    </Card>
   );
 }

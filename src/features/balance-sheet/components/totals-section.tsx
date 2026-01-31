@@ -24,8 +24,6 @@ export function TotalsSection({
 
   return (
     <>
-      <TableRow className="h-4 border-b-2 border-t-2"></TableRow>
-
       <TableRow className="font-bold bg-muted/20">
         <TableCell className="sticky left-0 bg-background border-r">
           TOTAL ASSETS ({homeCurrency})
