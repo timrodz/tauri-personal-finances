@@ -21,7 +21,7 @@ export function Header() {
 
   return (
     <div className="header-container">
-      <header className="mx-auto p-2 flex items-center justify-between">
+      <header className="mx-auto px-2 pt-2 flex items-center justify-between">
         <div>{/* Empty div so the settings are on the left menu */}</div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground mr-2">
