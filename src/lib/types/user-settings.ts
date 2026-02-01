@@ -7,6 +7,7 @@ export interface UserSettings {
   name: string;
   homeCurrency: string;
   theme: Theme;
+  needsExchangeSync: boolean;
   createdAt: string;
   updatedAt: string;
 }

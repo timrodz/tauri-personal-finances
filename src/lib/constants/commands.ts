@@ -25,6 +25,7 @@ export const COMMANDS = {
 
   // Currency Rates
   GET_CURRENCY_RATES: "get_currency_rates",
+  SYNC_EXCHANGE_RATES: "sync_exchange_rates",
   UPSERT_CURRENCY_RATE: "upsert_currency_rate",
   DELETE_CURRENCY_RATE: "delete_currency_rate",
 

@@ -8,16 +8,30 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
+import { api } from "@/lib/api";
 import { usePrivacy } from "@/providers/privacy-provider";
 import { useUserSettingsContext } from "@/providers/user-settings-provider";
-import { EyeIcon, EyeOffIcon, SettingsIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, RefreshCwIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { MainNav } from "./main-nav";
 
 export function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
   const { settings, refresh } = useUserSettingsContext();
+
+  const handleSyncExchangeRates = async () => {
+    setIsSyncing(true);
+    try {
+      await api.syncExchangeRates();
+      await refresh();
+    } catch (error) {
+      console.error("Failed to sync exchange rates:", error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <header className="border-b mx-auto px-4 py-2.5 flex items-center justify-between">
@@ -26,6 +40,19 @@ export function Header() {
         <span className="text-sm text-muted-foreground mr-2">
           {settings.name ? `Hello, ${settings.name}` : "Hello"}
         </span>
+        {settings.needsExchangeSync && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleSyncExchangeRates}
+            disabled={isSyncing}
+          >
+            {isSyncing && (
+              <RefreshCwIcon className="mr-2 size-4 animate-spin" />
+            )}
+            {isSyncing ? "Syncing rates..." : "Sync exchange rates"}
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
