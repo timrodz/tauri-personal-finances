@@ -112,11 +112,13 @@ export function AnalyticsFeature() {
             <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <SubCategoryBreakdownChart
+                  homeCurrency={homeCurrency}
                   isLoading={isLoading}
                   chartData={assetBreakdownData}
                   title="Assets by Sub-Category"
                 />
                 <SubCategoryBreakdownChart
+                  homeCurrency={homeCurrency}
                   isLoading={isLoading}
                   chartData={liabilityBreakdownData}
                   title="Liabilities by Sub-Category"
