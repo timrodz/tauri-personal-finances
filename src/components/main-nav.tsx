@@ -19,7 +19,9 @@ export function MainNav() {
           className={({ isActive }) =>
             cn(
               "nav-link",
-              isActive ? "bg-accent text-foreground" : "nav-link-hover",
+              isActive
+                ? "bg-secondary text-secondary-foreground"
+                : "nav-link-hover",
             )
           }
         >
