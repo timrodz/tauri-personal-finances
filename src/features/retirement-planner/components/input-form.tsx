@@ -98,6 +98,8 @@ export function InputForm({
     const targetRetirementYear = loadPlan.targetRetirementDate
       ? new Date(loadPlan.targetRetirementDate).getFullYear()
       : undefined;
+    const shouldUseYear = Boolean(targetRetirementYear);
+    setUseYear(shouldUseYear);
     const values = {
       planName: loadPlan.name,
       targetRetirementYear,
@@ -108,9 +110,13 @@ export function InputForm({
       returnScenario: loadPlan.returnScenario,
     };
     form.reset(values);
-    onProjectionValuesChange(values);
+    onProjectionValuesChange({
+      ...values,
+      inflationRate: loadPlan.inflationRate,
+      targetRetirementYear: shouldUseYear ? targetRetirementYear : undefined,
+    });
     setSaveNotice(null);
-  }, [loadPlan, form]);
+  }, [loadPlan, form, onProjectionValuesChange]);
 
   const handleSubmit = () => {
     const values = form.getValues();
