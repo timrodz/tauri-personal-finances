@@ -1,96 +1,44 @@
-import {
-  CHART_GRID_LINE_COLOR,
-  NET_WORTH_TREND_COLORS,
-} from "@/lib/constants/charts";
-import { formatCurrencyCompact } from "@/lib/currency-formatting";
-import { toPrivateValue } from "@/lib/private-value";
 import type { NetWorthDataPoint } from "@/lib/types/net-worth";
-import type {
-  ChartData,
-  ChartOptions,
-  ChartType,
-  ScriptableContext,
-  TooltipItem,
-} from "chart.js";
+export type NetWorthTrendChartPoint = {
+  label: string;
+  netWorth: number;
+};
 
 export function getNetWorthTrendChartData(
   filteredHistory: NetWorthDataPoint[] | undefined,
-): ChartData<"line"> | null {
+): NetWorthTrendChartPoint[] | null {
   if (!filteredHistory || filteredHistory.length === 0) return null;
 
-  return {
-    labels: filteredHistory.map((p) => {
-      const date = new Date(p.year, p.month - 1);
-      return date.toLocaleString("default", {
-        month: "short",
-        year: "2-digit",
-      });
-    }),
-    datasets: [
-      {
-        label: "Net Worth",
-        data: filteredHistory.map((p) => p.netWorth),
-        fill: true,
-        backgroundColor: (context: ScriptableContext<"line">) => {
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-          gradient.addColorStop(0, NET_WORTH_TREND_COLORS.gradientStart);
-          gradient.addColorStop(1, NET_WORTH_TREND_COLORS.gradientEnd);
-          return gradient;
-        },
-        borderColor: NET_WORTH_TREND_COLORS.line,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-    ],
-  };
-}
+  const trimmedHistory = [...filteredHistory];
+  const lastPoint = trimmedHistory[trimmedHistory.length - 1];
+  const now = new Date();
+  const isCurrentMonth =
+    lastPoint &&
+    lastPoint.year === now.getFullYear() &&
+    lastPoint.month === now.getMonth() + 1;
+  const lastPointIsEmpty =
+    lastPoint &&
+    (lastPoint.totalAssets == null || lastPoint.totalAssets === 0) &&
+    (lastPoint.totalLiabilities == null || lastPoint.totalLiabilities === 0) &&
+    (lastPoint.netWorth == null || lastPoint.netWorth === 0);
 
-export function getNetWorthTrendChartOptions(
-  homeCurrency: string,
-  isPrivacyMode: boolean = false,
-): ChartOptions<"line"> {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        mode: "index",
-        intersect: false,
-        callbacks: {
-          label: (context: TooltipItem<ChartType>) => {
-            let label = context.dataset.label || "";
-            if (label) label += ": ";
-            if (context.parsed.y !== null) {
-              label += toPrivateValue(
-                formatCurrencyCompact(context.parsed.y, homeCurrency),
-                isPrivacyMode,
-              );
-            }
-            return label;
-          },
-        },
-      },
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: {
-        grid: { color: CHART_GRID_LINE_COLOR },
-        ticks: {
-          callback: (value: string | number) =>
-            toPrivateValue(
-              formatCurrencyCompact(+value, homeCurrency),
-              isPrivacyMode,
-            ),
-        },
-      },
-    },
-    interaction: {
-      mode: "nearest",
-      axis: "x",
-      intersect: false,
-    },
-  };
+  if (isCurrentMonth && lastPointIsEmpty) {
+    trimmedHistory.pop();
+  }
+
+  if (trimmedHistory.length === 0) {
+    return null;
+  }
+
+  return trimmedHistory.map((point) => {
+    const date = new Date(point.year, point.month - 1);
+    const label = date.toLocaleString("default", {
+      month: "short",
+      year: "2-digit",
+    });
+    return {
+      label,
+      netWorth: point.netWorth,
+    };
+  });
 }

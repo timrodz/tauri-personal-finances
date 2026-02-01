@@ -1,13 +1,19 @@
-import { getNetWorthTrendChartOptions } from "@/lib/charts/net-worth-trend";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { NET_WORTH_TREND_COLORS } from "@/lib/constants/charts";
+import { formatCurrencyCompact } from "@/lib/currency-formatting";
+import type { NetWorthTrendChartPoint } from "@/lib/charts/net-worth-trend";
+import { toPrivateValue } from "@/lib/private-value";
 import { cn } from "@/lib/utils";
 import { usePrivacy } from "@/providers/privacy-provider";
-import { ChartData } from "chart.js";
-import { useMemo } from "react";
-import { Line } from "react-chartjs-2";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 interface NetWorthTrendChartProps {
   isLoading: boolean;
-  chartData: ChartData<"line"> | null;
+  chartData: NetWorthTrendChartPoint[] | null;
   homeCurrency: string;
   className?: string;
 }
@@ -20,24 +26,75 @@ export function NetWorthTrendChart({
 }: NetWorthTrendChartProps) {
   const { isPrivacyMode } = usePrivacy();
 
-  const chartOptions = useMemo(
-    () => getNetWorthTrendChartOptions(homeCurrency, isPrivacyMode),
-    [homeCurrency, isPrivacyMode],
-  );
+  const chartConfig = {
+    netWorth: {
+      label: "Net Worth",
+      color: NET_WORTH_TREND_COLORS.line,
+    },
+  };
+
+  if (isLoading || !chartData) return null;
 
   return (
-    <div className={cn("h-75 w-full", className)}>
-      {isLoading ? (
-        <div className="h-full flex items-center justify-center text-muted-foreground">
-          Loading trend...
-        </div>
-      ) : chartData ? (
-        <Line data={chartData} options={chartOptions} />
-      ) : (
-        <div className="h-full flex items-center justify-center text-muted-foreground">
-          No data available
-        </div>
-      )}
+    <div className={cn("min-h-75 h-75 w-full", className)}>
+      <ChartContainer config={chartConfig} className="h-full w-full">
+        <AreaChart data={chartData} margin={{ left: 8, right: 16, top: 8 }}>
+          <defs>
+            <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor={NET_WORTH_TREND_COLORS.gradientStart}
+                stopOpacity={1}
+              />
+              <stop
+                offset="95%"
+                stopColor={NET_WORTH_TREND_COLORS.gradientEnd}
+                stopOpacity={1}
+              />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) =>
+              toPrivateValue(
+                formatCurrencyCompact(Number(value), homeCurrency),
+                isPrivacyMode,
+              )
+            }
+          />
+          <ChartTooltip
+            cursor={false}
+            content={
+              <ChartTooltipContent
+                indicator="line"
+                formatter={(value) => {
+                  const formattedValue =
+                    typeof value === "number"
+                      ? toPrivateValue(
+                          formatCurrencyCompact(value, homeCurrency),
+                          isPrivacyMode,
+                        )
+                      : value;
+                  return <div>{formattedValue}</div>;
+                }}
+              />
+            }
+          />
+          <Area
+            dataKey="netWorth"
+            name="Net Worth"
+            type="monotone"
+            stroke={NET_WORTH_TREND_COLORS.line}
+            fill="url(#netWorthGradient)"
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        </AreaChart>
+      </ChartContainer>
     </div>
   );
 }
