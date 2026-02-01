@@ -4,31 +4,29 @@ import { NavLink } from "react-router-dom";
 
 export function MainNav() {
   return (
-    <nav className="mx-auto px-2 pb-2">
-      <div className="flex flex-wrap gap-1">
-        {/* {navigateBack && (
+    <nav className="flex flex-wrap gap-1">
+      {/* {navigateBack && (
           <NavLink to={navigateBack} className="nav-link nav-link-hover">
             <ArrowLeftIcon className="size-4" />
             Back
           </NavLink>
         )} */}
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              cn(
-                "nav-link",
-                isActive ? "bg-accent text-foreground" : "nav-link-hover",
-              )
-            }
-          >
-            <item.icon className="size-4" />
-            {item.label}
-          </NavLink>
-        ))}
-      </div>
+      {NAV_ITEMS.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          end={item.end}
+          className={({ isActive }) =>
+            cn(
+              "nav-link",
+              isActive ? "bg-accent text-foreground" : "nav-link-hover",
+            )
+          }
+        >
+          <item.icon className="size-4" />
+          {item.label}
+        </NavLink>
+      ))}
     </nav>
   );
 }

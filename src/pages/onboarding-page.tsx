@@ -4,9 +4,7 @@ import { OnboardingFeature } from "@/features/onboarding/onboarding-feature";
 export function OnboardingPage() {
   return (
     <PageContainer>
-      <main>
-        <OnboardingFeature />
-      </main>
+      <OnboardingFeature />
     </PageContainer>
   );
 }

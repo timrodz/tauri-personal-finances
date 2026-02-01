@@ -1,4 +1,3 @@
-import { Header } from "@/components/header";
 import { PageContainer } from "@/components/page-container";
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
@@ -61,14 +60,11 @@ export function BalanceSheetPage() {
 
   return (
     <PageContainer>
-      <Header />
-      <main>
-        <BalanceSheetFeature
-          balanceSheet={balanceSheet}
-          homeCurrency={settings.homeCurrency}
-          showOnboardingHint={showOnboardingHint}
-        />
-      </main>
+      <BalanceSheetFeature
+        balanceSheet={balanceSheet}
+        homeCurrency={settings.homeCurrency}
+        showOnboardingHint={showOnboardingHint}
+      />
     </PageContainer>
   );
 }
