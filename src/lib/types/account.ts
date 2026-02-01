@@ -24,17 +24,10 @@ export function getAccountFormDefaults({
   initialValues,
   defaultCurrency,
 }: AccountFormDefaultsOptions): Partial<AccountFormValues> {
-  if (!initialValues && !defaultCurrency) return {};
-  if (defaultCurrency && !initialValues) {
-    return {
-      currency: defaultCurrency,
-    };
-  }
-  if (!initialValues) return {};
   return {
-    name: initialValues.name,
-    accountType: initialValues.accountType,
-    subCategory: initialValues.subCategory,
-    currency: initialValues.currency,
+    name: initialValues?.name ?? "",
+    accountType: initialValues?.accountType ?? "Asset",
+    subCategory: initialValues?.subCategory ?? null,
+    currency: initialValues?.currency ?? defaultCurrency ?? "",
   };
 }
