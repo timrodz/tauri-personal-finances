@@ -80,10 +80,13 @@ export function SectionNetWorth() {
   );
 
   // Time-aware KPI Logic
-  const latestPoint =
-    filteredHistory.length > 0
-      ? filteredHistory[filteredHistory.length - 1]
-      : undefined;
+  const latestPoint = useMemo(() => {
+    if (filteredHistory.length === 0) return undefined;
+    const lastWithData = [...filteredHistory]
+      .reverse()
+      .find((point) => point.totalAssets !== 0 || point.totalLiabilities !== 0);
+    return lastWithData ?? filteredHistory[filteredHistory.length - 1];
+  }, [filteredHistory]);
   const startPoint =
     filteredHistory.length > 0 ? filteredHistory[0] : undefined;
 
@@ -214,13 +217,25 @@ export function SectionNetWorth() {
             />
           </TabsContent>
           <TabsContent value="breakdown" className="mt-0">
-            <div className="space-y-6">
-              <NetWorthBreakdownChart
-                isLoading={historyLoading}
-                chartData={breakdownChartData}
-              />
+            <div
+              className={`grid gap-6 ${
+                showSubCategoryBreakdown
+                  ? "grid-cols-1 lg:grid-cols-3"
+                  : "grid-cols-1"
+              }`}
+            >
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground text-center">
+                  Assets vs Liabilities
+                </h4>
+                <NetWorthBreakdownChart
+                  isLoading={historyLoading}
+                  chartData={breakdownChartData}
+                  className="h-[280px]"
+                />
+              </div>
               {showSubCategoryBreakdown && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <>
                   <SubCategoryBreakdownChart
                     isLoading={subCategoryLoading}
                     chartData={assetBreakdownData}
@@ -231,7 +246,7 @@ export function SectionNetWorth() {
                     chartData={liabilityBreakdownData}
                     title="Liabilities by Sub-Category"
                   />
-                </div>
+                </>
               )}
             </div>
           </TabsContent>

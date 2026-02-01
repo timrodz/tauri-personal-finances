@@ -94,13 +94,7 @@ export function NetWorthKPIs({
                 <PrivateValue value={`${Math.abs(assetGrowth).toFixed(1)}%`} />
               </span>
             )}
-            <span className="ml-1">
-              {periodLabel} (vs{" "}
-              <PrivateValue
-                value={formatCurrency(totalLiabilities, homeCurrency)}
-              />{" "}
-              liabilities)
-            </span>
+            <span className="ml-1">{periodLabel}</span>
           </p>
         </CardContent>
       </Card>

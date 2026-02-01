@@ -276,11 +276,16 @@ export function getNetWorthBreakdownChartData(
 ): ChartData<"doughnut"> | null {
   if (!latestPoint) return null;
 
+  const assets = Math.abs(latestPoint.totalAssets);
+  const liabilities = Math.abs(latestPoint.totalLiabilities);
+
+  if (assets === 0 && liabilities === 0) return null;
+
   return {
     labels: ["Assets", "Liabilities"],
     datasets: [
       {
-        data: [latestPoint.totalAssets, latestPoint.totalLiabilities],
+        data: [assets, liabilities],
         backgroundColor: ["rgba(34, 197, 94, 0.6)", "rgba(239, 68, 68, 0.6)"],
         borderColor: ["rgb(34, 197, 94)", "rgb(239, 68, 68)"],
         borderWidth: 1,
@@ -448,7 +453,7 @@ export function getSubCategoryBreakdownChartData(
   let uncategorizedTotal = 0;
 
   for (const account of filteredAccounts) {
-    const balance = latestEntryByAccount.get(account.id) ?? 0;
+    const balance = Math.abs(latestEntryByAccount.get(account.id) ?? 0);
     if (balance === 0) continue;
 
     if (account.subCategory) {

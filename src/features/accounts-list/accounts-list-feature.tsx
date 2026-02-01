@@ -121,7 +121,7 @@ export function AccountsListFeature({ homeCurrency }: AccountsListProps) {
     fetchAccounts();
   }, [fetchAccounts]);
 
-  if (loading) {
+  if (loading && accounts.length === 0) {
     return null;
   }
 

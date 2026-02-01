@@ -81,7 +81,7 @@ export function SectionBalanceSheets() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && balanceSheets.length === 0 && accounts.length === 0) {
     return null;
   }
 
