@@ -2,15 +2,9 @@ import {
   ASSET_SUB_CATEGORIES,
   LIABILITY_SUB_CATEGORIES,
 } from "@/lib/constants/categories";
-import {
-  CHART_GRID_LINE_COLOR,
-  SUB_CATEGORY_COLORS,
-} from "@/lib/constants/charts";
-import { formatCurrencyCompact } from "@/lib/currency-formatting";
-import { toPrivateValue } from "@/lib/private-value";
+import { SUB_CATEGORY_COLORS } from "@/lib/constants/charts";
 import type { Account } from "@/lib/types/accounts";
 import type { BalanceSheet, Entry } from "@/lib/types/balance-sheets";
-import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 
 export interface SubCategoryTrendInput {
   accounts: Account[];
@@ -19,9 +13,21 @@ export interface SubCategoryTrendInput {
   accountType: "Asset" | "Liability";
 }
 
-export function getSubCategoryTrendChartData(
-  input: SubCategoryTrendInput,
-): ChartData<"bar"> | null {
+export type SubCategoryTrendChartPoint = {
+  period: string;
+  [key: string]: number | string;
+};
+
+export type SubCategoryTrendSeries = {
+  key: string;
+  label: string;
+  color: string;
+};
+
+export function getSubCategoryTrendChartData(input: SubCategoryTrendInput): {
+  data: SubCategoryTrendChartPoint[];
+  series: SubCategoryTrendSeries[];
+} | null {
   const { accounts, entries, balanceSheets, accountType } = input;
 
   const filteredAccounts = accounts.filter(
@@ -91,8 +97,8 @@ export function getSubCategoryTrendChartData(
   }
 
   const labels = sortedSheets.map((s) => String(s.year));
-
-  const datasets: ChartData<"bar">["datasets"] = [];
+  const series: SubCategoryTrendSeries[] = [];
+  const seriesKeys: string[] = [];
 
   for (const option of subCategoryOptions) {
     const data = labels.map((label) => {
@@ -102,13 +108,9 @@ export function getSubCategoryTrendChartData(
 
     if (data.some((d) => d > 0)) {
       const colors = SUB_CATEGORY_COLORS[option.key];
-      datasets.push({
-        label: option.label,
-        data,
-        backgroundColor: colors.bg,
-        borderColor: colors.border,
-        borderWidth: 1,
-      });
+      const key = option.key;
+      series.push({ key, label: option.label, color: colors.bg });
+      seriesKeys.push(key);
     }
   }
 
@@ -119,68 +121,25 @@ export function getSubCategoryTrendChartData(
     });
 
     if (data.some((d) => d > 0)) {
-      datasets.push({
+      series.push({
+        key: "uncategorized",
         label: "Uncategorized",
-        data,
-        backgroundColor: SUB_CATEGORY_COLORS.uncategorized.bg,
-        borderColor: SUB_CATEGORY_COLORS.uncategorized.border,
-        borderWidth: 1,
+        color: SUB_CATEGORY_COLORS.uncategorized.bg,
       });
+      seriesKeys.push("uncategorized");
     }
   }
 
-  if (datasets.length === 0) return null;
+  if (series.length === 0) return null;
 
-  return {
-    labels,
-    datasets,
-  };
-}
+  const data: SubCategoryTrendChartPoint[] = labels.map((label) => {
+    const row: SubCategoryTrendChartPoint = { period: label };
+    for (const key of seriesKeys) {
+      const periodMap = periodTotals.get(label);
+      row[key] = periodMap?.get(key) ?? 0;
+    }
+    return row;
+  });
 
-export function getSubCategoryTrendChartOptions(
-  homeCurrency: string,
-  isPrivacyMode: boolean = false,
-): ChartOptions<"bar"> {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-      },
-      tooltip: {
-        mode: "index",
-        callbacks: {
-          label: (context: TooltipItem<"bar">) => {
-            let label = context.dataset.label || "";
-            if (label) label += ": ";
-            if (context.parsed.y !== null) {
-              label += toPrivateValue(
-                formatCurrencyCompact(context.parsed.y, homeCurrency),
-                isPrivacyMode,
-              );
-            }
-            return label;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        stacked: true,
-        grid: { display: false },
-      },
-      y: {
-        stacked: true,
-        grid: { color: CHART_GRID_LINE_COLOR },
-        ticks: {
-          callback: (value: string | number) =>
-            toPrivateValue(
-              formatCurrencyCompact(+value, homeCurrency),
-              isPrivacyMode,
-            ),
-        },
-      },
-    },
-  };
+  return { data, series };
 }
