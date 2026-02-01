@@ -143,7 +143,7 @@ export function SectionBalanceSheets() {
               }}
             >
               <DialogTrigger asChild>
-                <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center min-h-[140px] cursor-pointer hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground">
+                <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center min-h-35 cursor-pointer hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground">
                   <PlusIcon className="h-8 w-8 mb-2" />
                   <span className="font-medium">New Balance Sheet</span>
                 </div>

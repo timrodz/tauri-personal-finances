@@ -231,7 +231,7 @@ export function SectionNetWorth() {
                 <NetWorthBreakdownChart
                   isLoading={historyLoading}
                   chartData={breakdownChartData}
-                  className="h-[280px]"
+                  className="h-70"
                 />
               </div>
               {showSubCategoryBreakdown && (
