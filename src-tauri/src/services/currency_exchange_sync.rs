@@ -35,7 +35,7 @@ impl SyncService {
         format!("{base_url}/{query_params}")
     }
 
-    pub async fn sync_exchange_rates(pool: &SqlitePool) -> Result<(), String> {
+    pub async fn sync_exchange_rates(pool: &SqlitePool) -> Result<bool, String> {
         Self::sync_exchange_rates_with_client_and_url(pool, None, None).await
     }
 
@@ -43,7 +43,7 @@ impl SyncService {
         pool: &SqlitePool,
         client: Option<Client>,
         base_url: Option<String>,
-    ) -> Result<(), String> {
+    ) -> Result<bool, String> {
         println!("[Sync] Starting exchange rate sync...");
 
         // 1. Get Home Currency
@@ -63,7 +63,7 @@ impl SyncService {
 
         if foreign_currencies.is_empty() {
             println!("[Sync] No foreign currencies found. Sync skipped.");
-            return Ok(());
+            return Ok(false);
         }
 
         // 3. Get Years from Balance Sheets
@@ -72,7 +72,7 @@ impl SyncService {
 
         if years.is_empty() {
             println!("[Sync] No balance sheets found. Sync skipped.");
-            return Ok(());
+            return Ok(false);
         }
 
         // 4. Existing Rates for Dedup and Finalization Check
@@ -104,7 +104,7 @@ impl SyncService {
             println!(
                        "[Sync] Earliest balance sheet year {earliest_year} is in the future. Sync skipped."
                    );
-            return Ok(());
+            return Ok(false);
         }
         let foreign_currency_symbols = foreign_currencies.join(",");
         let start_date = format!("{earliest_year}-01-01");
@@ -145,8 +145,9 @@ impl SyncService {
             Err(e) => return Err(format!("Failed to parse JSON: {e}")),
         }
 
+        UserSettingsService::set_exchange_sync_needed(pool, false).await?;
         println!("[Sync] Exchange rate sync complete.");
-        Ok(())
+        Ok(true)
     }
 
     async fn process_and_save_rates(
@@ -439,7 +440,11 @@ mod tests {
         )
         .await;
 
-        assert!(result.is_ok(), "Sync should succeed: {:?}", result);
+        assert!(
+            matches!(result, Ok(true)),
+            "Sync should succeed: {:?}",
+            result
+        );
 
         let all_rates = crate::services::currency_rate::CurrencyRateService::get_all(&pool)
             .await

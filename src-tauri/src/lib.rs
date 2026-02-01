@@ -82,6 +82,7 @@ pub fn run() {
             commands::get_entries,
             commands::upsert_entry,
             commands::get_currency_rates,
+            commands::sync_exchange_rates,
             commands::upsert_currency_rate,
             commands::delete_currency_rate,
             commands::get_net_worth_history,
