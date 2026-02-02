@@ -562,8 +562,20 @@ mod tests {
         )
         .expect("projection");
 
-        // 10% annual return, ~1 year: FV = 10000 * 1.10 + 1200 * ((1.10 - 1) / 0.10) ≈ 12_200
-        assert!(projection.final_net_worth > 12_000.0 && projection.final_net_worth < 12_500.0);
+        // Target date mode uses Jan 1 of the target year.
+        let target_date = NaiveDate::from_ymd_opt(target_date.year(), 1, 1).unwrap();
+        let days_diff = (target_date - today).num_days();
+        let years = if days_diff <= 0 {
+            0.0
+        } else {
+            days_diff as f64 / 365.25
+        };
+
+        let growth_factor = (1.0 + RETURN_RATE_AGGRESSIVE).powf(years);
+        let expected =
+            10_000.0 * growth_factor + 1_200.0 * ((growth_factor - 1.0) / RETURN_RATE_AGGRESSIVE);
+
+        assert!((projection.final_net_worth - expected).abs() < 1.0);
     }
 
     #[test]
