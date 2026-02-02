@@ -14,6 +14,7 @@ import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { EyeIcon, EyeOffIcon, RefreshCwIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { MainNav } from "./main-nav";
+import { toast } from "sonner";
 
 export function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -26,8 +27,8 @@ export function Header() {
     try {
       await api.syncExchangeRates();
       await refresh();
-    } catch (error) {
-      console.error("Failed to sync exchange rates:", error);
+    } catch {
+      toast("Failed to synchronize exchange rates. Please try again.");
     } finally {
       setIsSyncing(false);
     }

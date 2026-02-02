@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { UserSettingsProvider } from "@/providers/user-settings-provider";
 import { Outlet } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 
 export function AppLayout() {
   return (
@@ -11,6 +12,7 @@ export function AppLayout() {
         </div>
         <main className="flex-1 overflow-y-auto">
           <Outlet />
+          <Toaster />
         </main>
       </div>
     </UserSettingsProvider>
