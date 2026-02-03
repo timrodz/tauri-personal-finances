@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub struct RetirementPlanService;
 
 impl RetirementPlanService {
+    #[allow(dead_code)]
     pub async fn create(
         pool: &SqlitePool,
         name: String,

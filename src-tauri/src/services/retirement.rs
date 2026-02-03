@@ -127,6 +127,7 @@ impl RetirementService {
         Some(years)
     }
 
+    #[allow(dead_code)]
     pub fn years_to_retirement(
         starting_net_worth: f64,
         monthly_contribution: f64,
@@ -199,6 +200,7 @@ impl RetirementService {
         Self::monthly_income_from_withdrawal(net_worth, WITHDRAWAL_RATE_HIGH)
     }
 
+    #[allow(dead_code)]
     pub fn income_meets_expenses(
         monthly_income: f64,
         expected_monthly_expenses: f64,

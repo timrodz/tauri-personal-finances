@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub struct RetirementPlanProjectionService;
 
 impl RetirementPlanProjectionService {
+    #[allow(dead_code)]
     pub async fn delete_by_plan_id(pool: &SqlitePool, plan_id: &str) -> Result<(), String> {
         sqlx::query("DELETE FROM retirement_plan_projections WHERE plan_id = ?")
             .bind(plan_id)

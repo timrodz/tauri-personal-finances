@@ -26,6 +26,7 @@ impl EntryService {
     }
 
     // READ
+    #[allow(dead_code)]
     pub async fn get_by_id(pool: &SqlitePool, id: String) -> Result<Option<Entry>, String> {
         sqlx::query_as::<_, Entry>("SELECT * FROM entries WHERE id = ?")
             .bind(id)
@@ -82,6 +83,7 @@ impl EntryService {
     }
 
     // DELETE
+    #[allow(dead_code)]
     pub async fn delete(pool: &SqlitePool, id: String) -> Result<(), String> {
         sqlx::query("DELETE FROM entries WHERE id = ?")
             .bind(id)

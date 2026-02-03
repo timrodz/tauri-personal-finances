@@ -14,6 +14,7 @@ impl UserSettingsService {
     }
 
     // READ
+    #[allow(dead_code)]
     pub async fn get_by_id(pool: &SqlitePool, id: String) -> Result<Option<UserSettings>, String> {
         sqlx::query_as::<_, UserSettings>("SELECT * FROM user_settings WHERE id = ?")
             .bind(id)
@@ -85,6 +86,7 @@ impl UserSettingsService {
     }
 
     // DELETE
+    #[allow(dead_code)]
     pub async fn delete(pool: &SqlitePool, id: String) -> Result<(), String> {
         sqlx::query("DELETE FROM user_settings WHERE id = ?")
             .bind(id)
