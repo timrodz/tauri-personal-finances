@@ -4,3 +4,9 @@ bun lint-staged
 if git diff --cached --name-only | grep -E '\.(ts|tsx)$' > /dev/null; then
   bun typecheck || exit 1
 fi
+
+if git diff --cached --name-only | grep -E '\.(rs)$' > /dev/null; then
+  cargo fmt --manifest-path src-tauri/Cargo.toml || exit 1
+  cargo clippy --manifest-path src-tauri/Cargo.toml || exit 1
+  cargo test --manifest-path src-tauri/Cargo.toml || exit 1
+fi
