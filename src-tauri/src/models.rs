@@ -52,6 +52,7 @@ pub struct CurrencyRate {
     pub id: String,
     pub from_currency: String,
     pub to_currency: String,
+    pub provider: String,
     pub rate: f64,
     pub month: u32,
     pub year: i32,

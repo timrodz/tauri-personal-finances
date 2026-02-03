@@ -1,8 +1,11 @@
-use crate::models::{Account, BalanceSheet};
+use crate::{
+    models::{Account, BalanceSheet},
+    services::currency_rates::currency_rate::CurrencyRateService,
+};
 use chrono::Datelike;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, SqlitePool};
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 #[serde(rename_all = "camelCase")]
@@ -13,6 +16,10 @@ pub struct NetWorthDataPoint {
     pub total_liabilities: f64,
     pub net_worth: f64,
     pub currency: String,
+}
+struct MonthlyAgg {
+    assets: f64,
+    liabilities: f64,
 }
 
 pub struct NetWorthService;
@@ -32,7 +39,7 @@ impl NetWorthService {
         let entries = crate::services::entry::EntryService::get_all(pool).await?;
         let accounts = crate::services::account::AccountService::get_all(pool, true).await?;
         let sheets = crate::services::balance_sheet::BalanceSheetService::get_all(pool).await?;
-        let rates = crate::services::currency_rate::CurrencyRateService::get_all(pool).await?;
+        let rates = CurrencyRateService::get_all(pool).await?;
 
         // 3. Build fast lookups
         let account_map: HashMap<String, Account> =
@@ -57,10 +64,7 @@ impl NetWorthService {
 
         // 4. Aggregate data
         // specific struct to hold aggregated sums
-        struct MonthlyAgg {
-            assets: f64,
-            liabilities: f64,
-        }
+
         // Map (Year, Month) -> MonthlyAgg
         let mut agg_map: HashMap<(i32, u32), MonthlyAgg> = HashMap::new();
 
@@ -107,14 +111,10 @@ impl NetWorthService {
 
         let mut result: Vec<NetWorthDataPoint> = agg_map
             .into_iter()
-            .filter(|((year, month), _)| {
-                if *year < current_year {
-                    true
-                } else if *year == current_year {
-                    *month <= current_month
-                } else {
-                    false
-                }
+            .filter(|((year, month), _)| match year.cmp(&current_year) {
+                Ordering::Less => true,
+                Ordering::Equal => *month <= current_month,
+                Ordering::Greater => false,
             })
             .map(|((year, month), agg)| NetWorthDataPoint {
                 year,
@@ -149,7 +149,7 @@ mod tests {
     use super::*;
     use crate::services::{
         account::AccountService, balance_sheet::BalanceSheetService,
-        currency_rate::CurrencyRateService, entry::EntryService,
+        currency_rates::currency_rate::CurrencyRateService, entry::EntryService,
         user_settings::UserSettingsService,
     };
     use crate::test_utils::setup_test_db;
@@ -204,9 +204,18 @@ mod tests {
             .expect("sheet");
 
         // 4. Setup Rate (EUR -> USD = 1.1) for Jan 2025
-        CurrencyRateService::upsert(&pool, None, "EUR".into(), "USD".into(), 1.1, 1, 2025)
-            .await
-            .expect("rate");
+        CurrencyRateService::upsert(
+            &pool,
+            None,
+            "EUR".into(),
+            "USD".into(),
+            "manual".into(),
+            1.1,
+            1,
+            2025,
+        )
+        .await
+        .expect("rate");
 
         // 5. Add Entries (Month 1 - Jan)
         // Asset USD: 1000

@@ -2,6 +2,8 @@ use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 use std::fs;
 use tauri::Manager;
 
+use crate::services::currency_rates::sync::SyncService;
+
 mod commands;
 mod models;
 mod services;
@@ -51,12 +53,7 @@ pub fn run() {
                 // Sync exchange rates on boot (background)
                 let pool_clone = pool.clone();
                 tauri::async_runtime::spawn(async move {
-                    if let Err(e) =
-                        crate::services::currency_exchange_sync::SyncService::sync_exchange_rates(
-                            &pool_clone,
-                        )
-                        .await
-                    {
+                    if let Err(e) = SyncService::sync_exchange_rates(&pool_clone).await {
                         eprintln!("Failed to sync exchange rates on boot: {e}");
                     }
                 });

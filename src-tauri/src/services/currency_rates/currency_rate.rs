@@ -16,6 +16,7 @@ impl CurrencyRateService {
     }
 
     // LIST BY YEAR & MONTH
+    #[allow(dead_code)]
     pub async fn get_by_date(
         pool: &SqlitePool,
         year: i32,
@@ -49,6 +50,7 @@ impl CurrencyRateService {
         id: Option<String>,
         from_currency: String,
         to_currency: String,
+        provider: String,
         rate: f64,
         month: u32,
         year: i32,
@@ -59,10 +61,11 @@ impl CurrencyRateService {
             let exists: Option<CurrencyRate> = Self::get_by_id(pool, uid.clone()).await?;
             if exists.is_some() {
                 return sqlx::query_as::<_, CurrencyRate>(
-                    "UPDATE currency_rates SET from_currency = ?, to_currency = ?, rate = ?, month = ?, year = ?, timestamp = ? WHERE id = ? RETURNING *"
+                    "UPDATE currency_rates SET from_currency = ?, to_currency = ?, provider = ?, rate = ?, month = ?, year = ?, timestamp = ? WHERE id = ? RETURNING *"
                 )
                 .bind(from_currency)
                 .bind(to_currency)
+                .bind(provider)
                 .bind(rate)
                 .bind(month)
                 .bind(year)
@@ -76,11 +79,12 @@ impl CurrencyRateService {
 
         let new_id = Uuid::new_v4().to_string();
         sqlx::query_as::<_, CurrencyRate>(
-            "INSERT INTO currency_rates (id, from_currency, to_currency, rate, month, year, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *"
+            "INSERT INTO currency_rates (id, from_currency, to_currency, provider, rate, month, year, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *"
         )
         .bind(new_id)
         .bind(from_currency)
         .bind(to_currency)
+        .bind(provider)
         .bind(rate)
         .bind(month)
         .bind(year)
@@ -111,13 +115,22 @@ mod tests {
         let pool = setup_test_db().await;
 
         // 1. Create
-        let rate =
-            CurrencyRateService::upsert(&pool, None, "USD".into(), "NZD".into(), 1.5, 1, 2025)
-                .await
-                .expect("Failed to create rate");
+        let rate = CurrencyRateService::upsert(
+            &pool,
+            None,
+            "USD".into(),
+            "NZD".into(),
+            "manual".into(),
+            1.5,
+            1,
+            2025,
+        )
+        .await
+        .expect("Failed to create rate");
 
         assert_eq!(rate.rate, 1.5);
         assert_eq!(rate.from_currency, "USD");
+        assert_eq!(rate.provider, "manual");
 
         // 2. Get All
         let rates = CurrencyRateService::get_all(&pool)
@@ -131,6 +144,7 @@ mod tests {
             Some(rate.id.clone()),
             "USD".into(),
             "NZD".into(),
+            "manual".into(),
             1.6,
             1,
             2025,

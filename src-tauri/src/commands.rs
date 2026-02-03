@@ -4,7 +4,8 @@ use crate::models::{
 };
 use crate::services::account::AccountService;
 use crate::services::balance_sheet::BalanceSheetService;
-use crate::services::currency_exchange_sync::SyncService;
+use crate::services::currency_rates::currency_rate::CurrencyRateService;
+use crate::services::currency_rates::sync::SyncService;
 use crate::services::entry::EntryService;
 use crate::services::net_worth::{NetWorthDataPoint, NetWorthService};
 use crate::services::onboarding::OnboardingService;
@@ -97,9 +98,15 @@ pub async fn create_account(
     currency: String,
     sub_category: Option<String>,
 ) -> Result<Account, String> {
-    let account =
-        AccountService::upsert(&state.db, None, name, account_type, currency.clone(), sub_category)
-            .await?;
+    let account = AccountService::upsert(
+        &state.db,
+        None,
+        name,
+        account_type,
+        currency.clone(),
+        sub_category,
+    )
+    .await?;
     mark_exchange_sync_needed_if_foreign(&state.db, &currency).await?;
     Ok(account)
 }
@@ -194,7 +201,7 @@ pub async fn upsert_entry(
 
 #[tauri::command]
 pub async fn get_currency_rates(state: State<'_, AppState>) -> Result<Vec<CurrencyRate>, String> {
-    crate::services::currency_rate::CurrencyRateService::get_all(&state.db).await
+    CurrencyRateService::get_all(&state.db).await
 }
 
 #[tauri::command]
@@ -213,15 +220,18 @@ pub async fn upsert_currency_rate(
     id: Option<String>,
     from_currency: String,
     to_currency: String,
+    provider: Option<String>,
     rate: f64,
     month: u32,
     year: i32,
 ) -> Result<CurrencyRate, String> {
-    crate::services::currency_rate::CurrencyRateService::upsert(
+    let provider = provider.unwrap_or_else(|| "manual".to_string());
+    CurrencyRateService::upsert(
         &state.db,
         id,
         from_currency,
         to_currency,
+        provider,
         rate,
         month,
         year,
@@ -231,7 +241,7 @@ pub async fn upsert_currency_rate(
 
 #[tauri::command]
 pub async fn delete_currency_rate(state: State<'_, AppState>, id: String) -> Result<(), String> {
-    crate::services::currency_rate::CurrencyRateService::delete(&state.db, id).await
+    CurrencyRateService::delete(&state.db, id).await
 }
 
 // --- Onboarding ---
