@@ -169,7 +169,6 @@ impl SyncService {
             let year = rate.year;
             let month = rate.month;
 
-            //
             let last_day = if month == DECEMBER {
                 NaiveDate::from_ymd_opt(year + 1, 1, 1)
                     .unwrap()
@@ -201,7 +200,7 @@ impl SyncService {
             };
 
             println!(
-                "[Sync] Upserting rate for {month:02}/{year} ({foreign}->{home_currency}): {inverted_rate}",
+                "[Sync] Upserting rate for {year}-{month:02} ({foreign}->{home_currency}): {inverted_rate}",
             );
 
             let existing_id = existing_rates.get(&key).map(|r| r.id.clone());
@@ -221,7 +220,7 @@ impl SyncService {
                 Err(e) => {
                     fail_count += 1;
                     eprintln!(
-                        "[Sync] Failed to upsert rate for {month:02}/{year} ({foreign}->{home_currency}): {e}",
+                        "[Sync] Failed to upsert rate for {year}-{month:02} ({foreign}->{home_currency}): {e}",
                     );
                 }
             }
