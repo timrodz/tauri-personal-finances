@@ -1,5 +1,5 @@
+import { MONTHS, MONTHS_PER_YEAR } from "@/lib/constants/time";
 import type { MonthlyTotal } from "@/lib/types/balance-sheets";
-import { MONTHS } from "@/lib/constants/time";
 
 export type BalanceSheetChartPoint = {
   label: string;
@@ -8,8 +8,14 @@ export type BalanceSheetChartPoint = {
 
 export function getBalanceSheetChartData(
   monthlyTotals: MonthlyTotal[],
+  maxMonth: number = MONTHS_PER_YEAR,
 ): BalanceSheetChartPoint[] {
-  return monthlyTotals.map((total, index) => ({
+  const cappedTotals =
+    maxMonth >= MONTHS_PER_YEAR
+      ? monthlyTotals
+      : monthlyTotals.filter((total) => total.month <= maxMonth);
+
+  return cappedTotals.map((total, index) => ({
     label: MONTHS[index] ?? "",
     netWorth: total.netWorth,
   }));

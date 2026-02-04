@@ -1,126 +1,77 @@
 import { api } from "@/lib/api";
-import type { BalanceSheet, Entry } from "@/lib/types/balance-sheets";
-import { useState, useCallback, useEffect } from "react";
+import { queryClient } from "@/lib/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+export const BALANCE_SHEET_KEYS = {
+  all: ["balanceSheets"] as const,
+};
+
+export const BALANCE_SHEET_ENTRY_KEYS = {
+  all: ["balanceSheetEntries"] as const,
+  bySheet: (balanceSheetId: string) =>
+    [...BALANCE_SHEET_ENTRY_KEYS.all, balanceSheetId] as const,
+};
 
 export function useBalanceSheets() {
-  const [data, setData] = useState<BalanceSheet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return useQuery({
+    queryKey: BALANCE_SHEET_KEYS.all,
+    queryFn: () => api.getBalanceSheets(),
+  });
+}
 
-  const fetchBalanceSheets = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const sheets = await api.getBalanceSheets();
-      setData(sheets);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchBalanceSheets();
-  }, [fetchBalanceSheets]);
-
-  return { data, loading, error, refetch: fetchBalanceSheets };
+export function useBalanceSheet(year: number | null | undefined) {
+  const isValidYear = typeof year === "number" && Number.isFinite(year);
+  return useQuery({
+    queryKey: BALANCE_SHEET_KEYS.all,
+    queryFn: () => api.getBalanceSheets(),
+    select: (sheets) =>
+      isValidYear ? sheets.find((sheet) => sheet.year === year) : undefined,
+  });
 }
 
 export function useCreateBalanceSheet() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const createBalanceSheet = async (year: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await api.createBalanceSheet(year);
-      return result;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { mutate: createBalanceSheet, loading, error };
+  return useMutation({
+    mutationFn: (year: number) => api.createBalanceSheet(year),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BALANCE_SHEET_KEYS.all });
+    },
+  });
 }
 
 export function useDeleteBalanceSheet() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const deleteBalanceSheet = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await api.deleteBalanceSheet(id);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { mutate: deleteBalanceSheet, loading, error };
+  return useMutation({
+    mutationFn: (id: string) => api.deleteBalanceSheet(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BALANCE_SHEET_KEYS.all });
+    },
+  });
 }
 
-export function useEntries(balanceSheetId: string | undefined) {
-  const [data, setData] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchEntries = useCallback(async () => {
-    if (!balanceSheetId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const entries = await api.getEntries(balanceSheetId);
-      setData(entries);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, [balanceSheetId]);
-
-  useEffect(() => {
-    fetchEntries();
-  }, [fetchEntries]);
-
-  return { data, loading, error, refetch: fetchEntries, setData };
+export function useEntries(balanceSheetId: string) {
+  return useQuery({
+    queryKey: BALANCE_SHEET_ENTRY_KEYS.bySheet(balanceSheetId),
+    queryFn: () => api.getEntries(balanceSheetId),
+    enabled: Boolean(balanceSheetId),
+  });
 }
 
 export function useUpsertEntry() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const upsertEntry = async (
-    balanceSheetId: string,
-    accountId: string,
-    month: number,
-    amount: number,
-  ) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await api.upsertEntry(
-        balanceSheetId,
-        accountId,
-        month,
-        amount,
-      );
-      return result;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { mutate: upsertEntry, loading, error };
+  return useMutation({
+    mutationFn: ({
+      balanceSheetId,
+      accountId,
+      month,
+      amount,
+    }: {
+      balanceSheetId: string;
+      accountId: string;
+      month: number;
+      amount: number;
+    }) => api.upsertEntry(balanceSheetId, accountId, month, amount),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: BALANCE_SHEET_ENTRY_KEYS.bySheet(variables.balanceSheetId),
+      });
+    },
+  });
 }

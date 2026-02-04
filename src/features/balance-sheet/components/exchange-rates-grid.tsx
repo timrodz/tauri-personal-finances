@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/table";
 import { MONTHS } from "@/lib/constants/time";
 import type { CurrencyRate } from "@/lib/types/currency-rates";
+import { cn } from "@/lib/utils";
 import { RateRow } from "./rate-row";
 
 interface ExchangeRatesGridProps {
@@ -18,6 +19,7 @@ interface ExchangeRatesGridProps {
     month: number,
     rate: number,
   ) => Promise<void>;
+  maxEditableMonth: number;
   containerRef?: React.RefObject<HTMLDivElement | null>;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
 }
@@ -27,6 +29,7 @@ export function ExchangeRatesGrid({
   homeCurrency,
   rates,
   onRateChange,
+  maxEditableMonth,
   containerRef,
   onScroll,
 }: ExchangeRatesGridProps) {
@@ -44,8 +47,14 @@ export function ExchangeRatesGrid({
             <TableHead className="w-75 sticky left-0 z-10 bg-background border-r font-bold">
               Exchange Rates
             </TableHead>
-            {MONTHS.map((month) => (
-              <TableHead key={month} className="text-right min-w-25">
+            {MONTHS.map((month, index) => (
+              <TableHead
+                key={month}
+                className={cn(
+                  "text-right min-w-25",
+                  index + 1 > maxEditableMonth && "text-muted-foreground/60",
+                )}
+              >
                 {month}
               </TableHead>
             ))}
@@ -64,6 +73,7 @@ export function ExchangeRatesGrid({
               onRateChange={(month, rate) =>
                 onRateChange(currency, month, rate)
               }
+              maxEditableMonth={maxEditableMonth}
             />
           ))}
         </TableBody>

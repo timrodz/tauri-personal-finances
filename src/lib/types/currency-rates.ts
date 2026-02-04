@@ -4,7 +4,7 @@ export interface CurrencyRate {
   toCurrency: string;
   provider: string;
   rate: number;
-  month: number; // 1-12
+  month: number;
   year: number;
   timestamp: string;
 }

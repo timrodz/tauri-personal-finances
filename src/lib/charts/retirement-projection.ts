@@ -1,4 +1,5 @@
 import { RETIREMENT_PROJECTION_POINT_COLORS } from "@/lib/constants/charts";
+import { MONTHS_PER_YEAR } from "@/lib/constants/time";
 import { getRetirementYearFromDateString } from "@/lib/dates";
 import type { RetirementPlanProjection } from "@/lib/types/retirement";
 
@@ -25,7 +26,7 @@ export function getRetirementProjectionChartData(
     : null;
 
   for (const p of projections) {
-    if (!yearlyMap.has(p.year) || p.month === 12) {
+    if (!yearlyMap.has(p.year) || p.month === MONTHS_PER_YEAR) {
       yearlyMap.set(p.year, p.projectedNetWorth);
     }
   }

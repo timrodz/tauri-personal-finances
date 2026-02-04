@@ -2,6 +2,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { MONTHS } from "@/lib/constants/time";
 import type { Account } from "@/lib/types/accounts";
 import type { Entry } from "@/lib/types/balance-sheets";
+import { cn } from "@/lib/utils";
 import { memo, useCallback, useMemo } from "react";
 import { EditableCell } from "./editable-cell";
 
@@ -13,6 +14,7 @@ interface AccountSectionProps {
     month: number,
     amount: number,
   ) => Promise<void>;
+  maxEditableMonth: number;
 }
 
 interface AccountCellProps {
@@ -25,12 +27,14 @@ interface AccountCellProps {
     month: number,
     amount: number,
   ) => Promise<void>;
+  disabled?: boolean;
 }
 
 export function AccountSection({
   accounts,
   entries,
   onEntryChange,
+  maxEditableMonth,
 }: AccountSectionProps) {
   const entryMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -53,8 +57,12 @@ export function AccountSection({
           {MONTHS.map((_, index) => {
             const month = index + 1;
             const amount = entryMap.get(`${account.id}-${month}`);
+            const isDisabled = month > maxEditableMonth;
             return (
-              <TableCell key={month} className="text-right p-0">
+              <TableCell
+                key={month}
+                className={cn("text-right p-0", isDisabled && "bg-muted/10")}
+              >
                 <div className="h-full w-full">
                   <AccountCell
                     accountId={account.id}
@@ -62,6 +70,7 @@ export function AccountSection({
                     amount={amount}
                     currency={account.currency}
                     onEntryChange={onEntryChange}
+                    disabled={isDisabled}
                   />
                 </div>
               </TableCell>
@@ -74,7 +83,14 @@ export function AccountSection({
 }
 
 const AccountCell = memo(
-  ({ accountId, month, amount, currency, onEntryChange }: AccountCellProps) => {
+  ({
+    accountId,
+    month,
+    amount,
+    currency,
+    onEntryChange,
+    disabled = false,
+  }: AccountCellProps) => {
     const handleChange = useCallback(
       (value: number) => {
         return onEntryChange(accountId, month, value);
@@ -87,6 +103,7 @@ const AccountCell = memo(
         value={amount}
         currency={currency}
         onChange={handleChange}
+        disabled={disabled}
       />
     );
   },

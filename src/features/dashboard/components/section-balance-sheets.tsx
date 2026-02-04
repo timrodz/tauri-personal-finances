@@ -28,32 +28,32 @@ export function SectionBalanceSheets() {
   const [selectedYear, setSelectedYear] = useState<number | undefined>();
 
   const {
-    data: balanceSheets,
-    loading: sheetsLoading,
+    data: balanceSheets = [],
+    isLoading: sheetsLoading,
     refetch: refetchSheets,
   } = useBalanceSheets();
   const {
-    data: accounts,
-    loading: accountsLoading,
+    data: accounts = [],
+    isLoading: accountsLoading,
     refetch: refetchAccounts,
   } = useAccounts();
   const { data: netWorthHistory } = useNetWorthHistory();
 
   const {
-    mutate: createSheet,
-    loading: createLoading,
+    mutateAsync: createSheet,
+    isPending: createLoading,
     error: createError,
   } = useCreateBalanceSheet();
 
   const isLoading = sheetsLoading || accountsLoading;
 
-  const existingYears = balanceSheets?.map((bs) => bs.year) ?? [];
+  const existingYears = balanceSheets.map((bs) => bs.year);
   const latestYear = useMemo(() => {
-    if (!balanceSheets || balanceSheets.length === 0) return null;
+    if (balanceSheets.length === 0) return null;
     return Math.max(...balanceSheets.map((sheet) => sheet.year));
   }, [balanceSheets]);
   const hasNetWorthData = (netWorthHistory?.length ?? 0) > 0;
-  const hasAccounts = (accounts?.length ?? 0) > 0;
+  const hasAccounts = accounts.length > 0;
 
   useEffect(() => {
     refetchAccounts();
@@ -159,7 +159,9 @@ export function SectionBalanceSheets() {
                 <div className="space-y-4 pt-4">
                   {createError && (
                     <div className="p-3 text-sm bg-destructive/10 text-destructive rounded-md border border-destructive/20">
-                      {createError}
+                      {createError instanceof Error
+                        ? createError.message
+                        : String(createError)}
                     </div>
                   )}
 

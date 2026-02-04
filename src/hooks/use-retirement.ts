@@ -1,11 +1,12 @@
 import { api } from "@/lib/api";
 import { getRetirementYearFromDateString } from "@/lib/dates";
+import { queryClient } from "@/lib/react-query";
 import type {
   RetirementPlan,
   RetirementPlanProjection,
   ReturnScenario,
 } from "@/lib/types/retirement";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 
 export const RETIREMENT_KEYS = {
   all: ["retirement"] as const,
@@ -52,6 +53,21 @@ export const RETIREMENT_KEYS = {
   planProjections: (planId: string) =>
     [...RETIREMENT_KEYS.all, "plan-projections", planId] as const,
 };
+
+export const RETIREMENT_PLAN_KEYS = {
+  all: ["retirementPlans"] as const,
+  list: () => [...RETIREMENT_PLAN_KEYS.all, "list"] as const,
+};
+
+export interface RetirementPlanInput {
+  name: string;
+  targetRetirementYear: number | null;
+  startingNetWorth: number;
+  monthlyContribution: number;
+  expectedMonthlyExpenses: number;
+  returnScenario: ReturnScenario;
+  inflationRate: number;
+}
 
 export function useRetirementProjection(
   inputs: {
@@ -139,4 +155,30 @@ export function useRetirementPlanProjections(
     isError: query.isError,
     error: query.error,
   };
+}
+
+export function useRetirementPlans() {
+  return useQuery({
+    queryKey: RETIREMENT_PLAN_KEYS.list(),
+    queryFn: () => api.getRetirementPlans(),
+  });
+}
+
+export function useCreateRetirementPlan() {
+  return useMutation({
+    mutationFn: (input: RetirementPlanInput): Promise<RetirementPlan> =>
+      api.createRetirementPlan(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RETIREMENT_PLAN_KEYS.list() });
+    },
+  });
+}
+
+export function useDeleteRetirementPlan() {
+  return useMutation({
+    mutationFn: (id: string): Promise<void> => api.deleteRetirementPlan(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RETIREMENT_PLAN_KEYS.list() });
+    },
+  });
 }

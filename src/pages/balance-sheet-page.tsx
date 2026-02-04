@@ -1,48 +1,34 @@
 import { PageContainer } from "@/components/page-container";
+import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { BalanceSheetFeature } from "@/features/balance-sheet/balance-sheet-feature";
-import { useBalanceSheets } from "@/hooks/use-balance-sheets";
-import { useNetWorthHistory } from "@/hooks/use-net-worth";
-import { useUserSettingsContext } from "@/providers/user-settings-provider";
+import { useBalanceSheet } from "@/hooks/use-balance-sheets";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function BalanceSheetPage() {
   const { year } = useParams<{ year: string }>();
   const navigate = useNavigate();
-  const {
-    data: sheets,
-    loading: sheetsLoading,
-    error: sheetsError,
-  } = useBalanceSheets();
-  const { data: netWorthHistory, isLoading: netWorthLoading } =
-    useNetWorthHistory();
-  const { settings } = useUserSettingsContext();
-
   const selectedYear = year ? parseInt(year, 10) : null;
-  const balanceSheet = sheets?.find((s) => s.year === selectedYear);
-  const latestYear =
-    sheets && sheets.length > 0
-      ? Math.max(...sheets.map((sheet) => sheet.year))
-      : null;
-  const hasNetWorthData = (netWorthHistory?.length ?? 0) > 0;
-  const isMostRecentSheet =
-    selectedYear !== null && selectedYear === latestYear;
-  const showOnboardingHint =
-    !netWorthLoading && !hasNetWorthData && isMostRecentSheet;
+  const {
+    data: balanceSheet,
+    isLoading: sheetLoading,
+    error: sheetError,
+  } = useBalanceSheet(selectedYear);
 
-  if (sheetsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+  if (sheetLoading) {
+    return null;
   }
 
-  if (sheetsError) {
+  if (sheetError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-destructive">Error: {sheetsError}</div>
+        <div className="text-destructive">
+          Error:{" "}
+          {sheetError instanceof Error
+            ? sheetError.message
+            : String(sheetError)}
+        </div>
       </div>
     );
   }
@@ -60,11 +46,8 @@ export function BalanceSheetPage() {
 
   return (
     <PageContainer>
-      <BalanceSheetFeature
-        balanceSheet={balanceSheet}
-        homeCurrency={settings.homeCurrency}
-        showOnboardingHint={showOnboardingHint}
-      />
+      <PageTitle>Balance sheet - {year}</PageTitle>
+      <BalanceSheetFeature balanceSheet={balanceSheet} />
     </PageContainer>
   );
 }

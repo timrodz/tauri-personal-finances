@@ -11,6 +11,7 @@ import { TOTAL_COLUMNS } from "@/lib/constants/balance-sheets";
 import { MONTHS } from "@/lib/constants/time";
 import { Account } from "@/lib/types/accounts";
 import { Entry } from "@/lib/types/balance-sheets";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { AccountSection } from "./account-section";
 
@@ -22,11 +23,13 @@ type AccountGridProps = {
     month: number,
     amount: number,
   ) => Promise<void>;
+  maxEditableMonth: number;
 };
 export function AccountsGrid({
   accounts,
   entries,
   onEntryChange,
+  maxEditableMonth,
 }: AccountGridProps) {
   const { assets, liabilities } = useMemo(() => {
     const activeAccounts = accounts.filter((a) => !a.isArchived);
@@ -50,8 +53,14 @@ export function AccountsGrid({
               Account
             </TableHead>
             <TableHead className="w-25 text-center">Currency</TableHead>
-            {MONTHS.map((month) => (
-              <TableHead key={month} className="text-right min-w-25">
+            {MONTHS.map((month, index) => (
+              <TableHead
+                key={month}
+                className={cn(
+                  "text-right min-w-25",
+                  index + 1 > maxEditableMonth && "text-muted-foreground/60",
+                )}
+              >
                 {month}
               </TableHead>
             ))}
@@ -70,6 +79,7 @@ export function AccountsGrid({
             accounts={assets}
             entries={entries}
             onEntryChange={onEntryChange}
+            maxEditableMonth={maxEditableMonth}
           />
           {assets.length === 0 && (
             <TableRow>
@@ -94,6 +104,7 @@ export function AccountsGrid({
             accounts={liabilities}
             entries={entries}
             onEntryChange={onEntryChange}
+            maxEditableMonth={maxEditableMonth}
           />
           {liabilities.length === 0 && (
             <TableRow>

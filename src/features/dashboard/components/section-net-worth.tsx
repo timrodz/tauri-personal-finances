@@ -6,33 +6,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccounts } from "@/hooks/use-accounts";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
 import { useNetWorthHistory } from "@/hooks/use-net-worth";
-import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { api } from "@/lib/api";
-import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
-import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
-import type { Entry } from "@/lib/types/balance-sheets";
-import { ChartColumnBigIcon, ChartLineIcon, ChartPieIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { NetWorthKPIs } from "./net-worth-kpis";
 import { getMonthlyGrowthChartData } from "@/lib/charts/monthly-growth";
 import { getNetWorthBreakdownChartData } from "@/lib/charts/net-worth-breakdown";
 import { getNetWorthTrendChartData } from "@/lib/charts/net-worth-trend";
 import { getSubCategoryBreakdownChartData } from "@/lib/charts/sub-category-breakdown";
+import { ACCOUNTS_CHANGED_EVENT } from "@/lib/constants/events";
+import { DEFAULT_TIME_RANGE } from "@/lib/constants/time";
+import { calculateGrowth, getFilteredHistory } from "@/lib/net-worth";
+import type { Entry } from "@/lib/types/balance-sheets";
+import { TimeRange } from "@/lib/types/time";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
+import { ChartColumnBigIcon, ChartLineIcon, ChartPieIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { NetWorthKPIs } from "./net-worth-kpis";
 
 export function SectionNetWorth() {
   const { settings } = useUserSettingsContext();
   const { data: netWorthHistory, isLoading: historyLoading } =
     useNetWorthHistory();
   const {
-    data: accounts,
-    loading: accountsLoading,
+    data: accounts = [],
+    isLoading: accountsLoading,
     refetch: refetchAccounts,
   } = useAccounts();
-  const { data: balanceSheets, loading: balanceSheetsLoading } =
+  const { data: balanceSheets = [], isLoading: balanceSheetsLoading } =
     useBalanceSheets();
 
   // State
-  const [timeRange, setTimeRange] = useState("ALL");
+  const [timeRange, setTimeRange] = useState<TimeRange>(DEFAULT_TIME_RANGE);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [entriesLoading, setEntriesLoading] = useState(true);
 
@@ -156,7 +158,11 @@ export function SectionNetWorth() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Net Worth Overview</h2>
-        <Tabs value={timeRange} onValueChange={setTimeRange} className="w-auto">
+        <Tabs
+          value={timeRange}
+          onValueChange={(value) => setTimeRange(value as TimeRange)}
+          className="w-auto"
+        >
           <TabsList>
             <TabsTrigger value="ALL">All</TabsTrigger>
             <TabsTrigger value="5Y">5Y</TabsTrigger>

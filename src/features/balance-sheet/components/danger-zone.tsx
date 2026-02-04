@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeleteBalanceSheet } from "@/hooks/use-balance-sheets";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +24,7 @@ interface DangerZoneProps {
 export function DangerZone({ balanceSheetId, year }: DangerZoneProps) {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { mutate: deleteBalanceSheet } = useDeleteBalanceSheet();
+  const { mutateAsync: deleteBalanceSheet } = useDeleteBalanceSheet();
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -52,6 +53,7 @@ export function DangerZone({ balanceSheetId, year }: DangerZoneProps) {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={isDeleting}>
+                <Trash2Icon />
                 {isDeleting ? "Deleting..." : "Delete Balance Sheet"}
               </Button>
             </AlertDialogTrigger>
@@ -69,6 +71,7 @@ export function DangerZone({ balanceSheetId, year }: DangerZoneProps) {
                   onClick={handleDelete}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
+                  <Trash2Icon />
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>

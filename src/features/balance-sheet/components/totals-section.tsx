@@ -7,11 +7,13 @@ import type { MonthlyTotal } from "@/lib/types/balance-sheets";
 interface TotalsSectionProps {
   monthlyTotals: MonthlyTotal[];
   homeCurrency: string;
+  maxVisibleMonth: number;
 }
 
 export function TotalsSection({
   monthlyTotals,
   homeCurrency,
+  maxVisibleMonth,
 }: TotalsSectionProps) {
   const Warning = () => (
     <span
@@ -30,8 +32,14 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            <PrivateValue value={formatDecimal2Digits(t.totalAssets)} />
-            {t.hasMissingRates && <Warning />}
+            {t.month > maxVisibleMonth ? (
+              <span className="text-muted-foreground/70">—</span>
+            ) : (
+              <>
+                <PrivateValue value={formatDecimal2Digits(t.totalAssets)} />
+                {t.hasMissingRates && <Warning />}
+              </>
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -42,8 +50,16 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4 text-sm">
-            <PrivateValue value={formatDecimal2Digits(t.totalLiabilities)} />
-            {t.hasMissingRates && <Warning />}
+            {t.month > maxVisibleMonth ? (
+              <span className="text-muted-foreground/70">—</span>
+            ) : (
+              <>
+                <PrivateValue
+                  value={formatDecimal2Digits(t.totalLiabilities)}
+                />
+                {t.hasMissingRates && <Warning />}
+              </>
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -54,8 +70,14 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t) => (
           <TableCell key={t.month} className="text-right px-4">
-            <PrivateValue value={formatDecimal2Digits(t.netWorth)} />
-            {t.hasMissingRates && <Warning />}
+            {t.month > maxVisibleMonth ? (
+              <span className="text-muted-foreground/70">—</span>
+            ) : (
+              <>
+                <PrivateValue value={formatDecimal2Digits(t.netWorth)} />
+                {t.hasMissingRates && <Warning />}
+              </>
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -66,7 +88,11 @@ export function TotalsSection({
         </TableCell>
         {monthlyTotals.map((t, i) => (
           <TableCell key={t.month} className="text-right px-4">
-            <PrivateValue value={getGrowth(i, monthlyTotals)} />
+            {t.month > maxVisibleMonth ? (
+              <span className="text-muted-foreground/70">—</span>
+            ) : (
+              <PrivateValue value={getGrowth(i, monthlyTotals)} />
+            )}
           </TableCell>
         ))}
       </TableRow>

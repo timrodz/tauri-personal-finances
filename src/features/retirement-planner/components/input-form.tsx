@@ -19,7 +19,10 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useLatestNetWorth } from "@/hooks/use-net-worth";
-import { useRetirementPlans } from "@/hooks/use-retirement-plans";
+import {
+  useCreateRetirementPlan,
+  useRetirementPlans,
+} from "@/hooks/use-retirement";
 import {
   getScenarioLimitMessage,
   isScenarioLimitReached,
@@ -49,11 +52,11 @@ export function InputForm({
 }: InputFormProps) {
   const { data: latestNetWorth } = useLatestNetWorth();
 
-  const {
-    data: savedPlans,
-    isLoading: savedPlansLoading,
-    createPlan,
-  } = useRetirementPlans();
+  const { data: savedPlans, isLoading: savedPlansLoading } =
+    useRetirementPlans();
+
+  const { mutateAsync: createPlan, isPending: isCreatePlanPending } =
+    useCreateRetirementPlan();
 
   const [saveNotice, setSaveNotice] = useState<{
     type: "success" | "error" | "limit";
@@ -148,7 +151,7 @@ export function InputForm({
     const values = form.getValues();
 
     try {
-      await createPlan.mutateAsync({
+      await createPlan({
         name: values.planName.trim(),
         targetRetirementYear:
           useYear && values.targetRetirementYear
@@ -177,7 +180,7 @@ export function InputForm({
 
   const saveDisabled =
     !form.formState.isValid ||
-    createPlan.isPending ||
+    isCreatePlanPending ||
     savedPlansLoading ||
     scenarioLimitReached;
 
@@ -402,7 +405,7 @@ export function InputForm({
               onClick={handleSavePlan}
               disabled={saveDisabled}
             >
-              {createPlan.isPending
+              {isCreatePlanPending
                 ? "Saving plan..."
                 : "Save plan from projections"}
             </Button>

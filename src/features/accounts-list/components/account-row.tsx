@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { AccountFormFeature } from "@/features/accounts/account-form-feature";
-import { getSubCategoryLabel } from "@/lib/categories";
 import type { Account } from "@/lib/types/accounts";
 import { cn } from "@/lib/utils";
 import { useUserSettingsContext } from "@/providers/user-settings-provider";
@@ -33,6 +32,7 @@ import {
   GripVerticalIcon,
   Trash2Icon,
 } from "lucide-react";
+import { AccountSubcategory } from "./account-subcategory";
 
 interface AccountRowProps {
   account: Account;
@@ -93,20 +93,14 @@ export function AccountRow({
       </TableCell>
       <TableCell className="font-medium">{account.name}</TableCell>
       <TableCell>
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-            account.accountType === "Asset"
-              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-          }`}
-        >
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium font-mono">
           {account.accountType}
         </span>
       </TableCell>
       <TableCell>
         {account.subCategory && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-            {getSubCategoryLabel(account.subCategory)}
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium font-mono">
+            <AccountSubcategory value={account.subCategory} />
           </span>
         )}
       </TableCell>

@@ -2,19 +2,18 @@ import { SubCategoryBreakdownChart } from "@/components/charts/sub-category-brea
 import { SubCategoryTrendChart } from "@/components/charts/sub-category-trend-chart";
 import { useAccounts } from "@/hooks/use-accounts";
 import { useBalanceSheets } from "@/hooks/use-balance-sheets";
-import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { api } from "@/lib/api";
 import { getSubCategoryBreakdownChartData } from "@/lib/charts/sub-category-breakdown";
 import { getSubCategoryTrendChartData } from "@/lib/charts/sub-category-trend";
 import type { Entry } from "@/lib/types/balance-sheets";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function AnalyticsFeature() {
   const { settings } = useUserSettingsContext();
-  const { data: accounts, loading: accountsLoading } = useAccounts();
-  const { data: balanceSheets, loading: balanceSheetsLoading } =
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts();
+  const { data: balanceSheets = [], isLoading: balanceSheetsLoading } =
     useBalanceSheets();
-
   const [entries, setEntries] = useState<Entry[]>([]);
   const [entriesLoading, setEntriesLoading] = useState(true);
 

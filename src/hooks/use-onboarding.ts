@@ -1,13 +1,12 @@
 import { api } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryClient } from "@/lib/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const ONBOARDING_KEYS = {
   all: ["onboardingStatus"] as const,
 };
 
 export function useOnboarding() {
-  const queryClient = useQueryClient();
-
   const query = useQuery({
     queryKey: ONBOARDING_KEYS.all,
     queryFn: () => api.getOnboardingStatus(),

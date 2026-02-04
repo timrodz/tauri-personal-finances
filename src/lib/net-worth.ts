@@ -1,9 +1,10 @@
+import { MONTHS_PER_YEAR } from "@/lib/constants/time";
 import type { NetWorthDataPoint } from "@/lib/types/net-worth";
-import { ONE_YEAR_IN_MONTHS } from "@/lib/constants/time";
+import { TimeRange } from "@/lib/types/time";
 
 export function getFilteredHistory(
   history: NetWorthDataPoint[] | undefined,
-  timeRange: string,
+  timeRange: TimeRange,
 ): NetWorthDataPoint[] {
   if (!history) return [];
 
@@ -12,9 +13,9 @@ export function getFilteredHistory(
 
   switch (timeRange) {
     case "5Y":
-      return history.slice(-(ONE_YEAR_IN_MONTHS * 5 + 1));
+      return history.slice(-(MONTHS_PER_YEAR * 5 + 1));
     case "1Y":
-      return history.slice(-(ONE_YEAR_IN_MONTHS + 1));
+      return history.slice(-(MONTHS_PER_YEAR + 1));
     case "6M":
       return history.slice(-7);
     case "3M":
@@ -24,12 +25,15 @@ export function getFilteredHistory(
       return history.slice(-2);
     case "YTD": {
       const yearPoints = history.filter((p) => p.year === currentYear);
-      // To show growth since the start of the year, we need the last point of the previous year
-      const lastYearPoint = history
-        .filter((p) => p.year === currentYear - 1)
-        .slice(-1)[0];
-      if (lastYearPoint) {
-        return [lastYearPoint, ...yearPoints];
+      const isJanuary = now.getMonth() === 0;
+      if (isJanuary) {
+        // In January, include the last point of the prior year for context.
+        const lastYearPoint = history
+          .filter((p) => p.year === currentYear - 1)
+          .slice(-1)[0];
+        if (lastYearPoint) {
+          return [lastYearPoint, ...yearPoints];
+        }
       }
       return yearPoints;
     }

@@ -90,8 +90,8 @@ export function NetWorthTrendChart({
             stroke={NET_WORTH_TREND_COLORS.line}
             fill="url(#netWorthGradient)"
             strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
+            dot={{ r: 2 }}
+            activeDot={{ r: 4 }}
           />
         </AreaChart>
       </ChartContainer>

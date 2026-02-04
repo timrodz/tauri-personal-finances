@@ -1,3 +1,5 @@
+import { TimeRange } from "@/lib/types/time";
+
 export const MONTHS = [
   "Jan",
   "Feb",
@@ -13,4 +15,6 @@ export const MONTHS = [
   "Dec",
 ] as const;
 
-export const ONE_YEAR_IN_MONTHS = 12;
+export const MONTHS_PER_YEAR = 12;
+
+export const DEFAULT_TIME_RANGE: TimeRange = "YTD";

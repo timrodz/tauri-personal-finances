@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/card";
 import { UserSettingsFormFeature } from "@/features/user-settings-form/user-settings-form-feature";
 import { USER_SETTINGS_KEYS, useUserSettings } from "@/hooks/use-user-settings";
+import { queryClient } from "@/lib/react-query";
 import type { UserSettings } from "@/lib/types/user-settings";
-import { useQueryClient } from "@tanstack/react-query";
 import { createContext, ReactNode, useContext } from "react";
 
 type UserSettingsContextValue = {
@@ -70,7 +70,6 @@ function SettingsRequired({ onComplete }: { onComplete: () => void }) {
 }
 
 export function UserSettingsProvider({ children }: { children: ReactNode }) {
-  const queryClient = useQueryClient();
   const { data: settings, isLoading, error, refetch } = useUserSettings();
 
   const refresh = async () => {

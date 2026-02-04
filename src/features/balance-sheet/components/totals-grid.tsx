@@ -8,14 +8,20 @@ import {
 } from "@/components/ui/table";
 import { MONTHS } from "@/lib/constants/time";
 import type { MonthlyTotal } from "@/lib/types/balance-sheets";
+import { cn } from "@/lib/utils";
 import { TotalsSection } from "./totals-section";
 
 interface TotalsGridProps {
   monthlyTotals: MonthlyTotal[];
   homeCurrency: string;
+  maxVisibleMonth: number;
 }
 
-export function TotalsGrid({ monthlyTotals, homeCurrency }: TotalsGridProps) {
+export function TotalsGrid({
+  monthlyTotals,
+  homeCurrency,
+  maxVisibleMonth,
+}: TotalsGridProps) {
   return (
     <Card className="p-0 overflow-auto">
       <Table className="min-w-300">
@@ -24,8 +30,14 @@ export function TotalsGrid({ monthlyTotals, homeCurrency }: TotalsGridProps) {
             <TableHead className="w-75 sticky left-0 z-10 bg-background border-r font-bold">
               Totals
             </TableHead>
-            {MONTHS.map((month) => (
-              <TableHead key={month} className="text-right min-w-25">
+            {MONTHS.map((month, index) => (
+              <TableHead
+                key={month}
+                className={cn(
+                  "text-right min-w-25",
+                  index + 1 > maxVisibleMonth && "text-muted-foreground/60",
+                )}
+              >
                 {month}
               </TableHead>
             ))}
@@ -35,6 +47,7 @@ export function TotalsGrid({ monthlyTotals, homeCurrency }: TotalsGridProps) {
           <TotalsSection
             monthlyTotals={monthlyTotals}
             homeCurrency={homeCurrency}
+            maxVisibleMonth={maxVisibleMonth}
           />
         </TableBody>
       </Table>

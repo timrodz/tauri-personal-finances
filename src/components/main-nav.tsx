@@ -5,12 +5,6 @@ import { NavLink } from "react-router-dom";
 export function MainNav() {
   return (
     <nav className="flex flex-wrap gap-1">
-      {/* {navigateBack && (
-          <NavLink to={navigateBack} className="nav-link nav-link-hover">
-            <ArrowLeftIcon className="size-4" />
-            Back
-          </NavLink>
-        )} */}
       {NAV_ITEMS.map((item) => (
         <NavLink
           key={item.to}

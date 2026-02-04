@@ -12,15 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRetirementScenarioProjections } from "@/hooks/use-retirement";
-import type { RetirementPlan } from "@/lib/types/retirement";
-import { RefreshCwIcon } from "lucide-react";
-import { ScenarioTableRow } from "./scenario-table-row";
+import {
+  useDeleteRetirementPlan,
+  useRetirementScenarioProjections,
+} from "@/hooks/use-retirement";
 import { SCENARIO_LIMIT } from "@/lib/constants/retirement";
 import {
   getEarliestScenarioIds,
   getHighestIncomeScenarioIds,
 } from "@/lib/retirement";
+import type { RetirementPlan } from "@/lib/types/retirement";
+import { RefreshCwIcon } from "lucide-react";
+import { ScenarioTableRow } from "./scenario-table-row";
 
 interface SavedScenariosProps {
   savedPlansLoading: boolean;
@@ -30,12 +33,6 @@ interface SavedScenariosProps {
   loadedPlanId: string | null;
   homeCurrency: string;
   onLoadPlan: (plan: RetirementPlan) => void;
-  deletePlan: {
-    mutate: (id: string) => void;
-    isPending: boolean;
-    isError: boolean;
-    variables?: string;
-  };
 }
 
 export function SavedScenarios({
@@ -46,8 +43,13 @@ export function SavedScenarios({
   loadedPlanId,
   homeCurrency,
   onLoadPlan,
-  deletePlan,
 }: SavedScenariosProps) {
+  const {
+    mutateAsync: deletePlan,
+    isError,
+    isPending,
+    variables,
+  } = useDeleteRetirementPlan();
   const scenarioProjectionQueries =
     useRetirementScenarioProjections(savedPlans);
 
@@ -105,7 +107,7 @@ export function SavedScenarios({
                 One or more scenarios could not be calculated.
               </div>
             )}
-            {deletePlan.isError && (
+            {isError && (
               <div className="text-xs text-destructive">
                 Unable to delete the scenario right now.
               </div>
@@ -123,9 +125,7 @@ export function SavedScenarios({
               </TableHeader>
               <TableBody>
                 {scenarioRows.map((row) => {
-                  const isDeleting =
-                    deletePlan.isPending &&
-                    deletePlan.variables === row.plan.id;
+                  const isDeleting = isPending && variables === row.plan.id;
                   const isLoaded = loadedPlanId === row.plan.id;
                   const isEarliest = earliestScenarioIds.has(row.plan.id);
                   const isHighestIncome = highestIncomeScenarioIds.has(
@@ -141,7 +141,7 @@ export function SavedScenarios({
                       isHighestIncome={isHighestIncome}
                       homeCurrency={homeCurrency}
                       onLoad={onLoadPlan}
-                      onDelete={deletePlan.mutate}
+                      onDelete={deletePlan}
                       isDeleting={isDeleting}
                     />
                   );

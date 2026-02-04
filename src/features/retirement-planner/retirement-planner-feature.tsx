@@ -1,11 +1,13 @@
-import { useRetirementProjection } from "@/hooks/use-retirement";
-import { useRetirementPlans } from "@/hooks/use-retirement-plans";
-import { useUserSettingsContext } from "@/providers/user-settings-provider";
+import {
+  useRetirementPlans,
+  useRetirementProjection,
+} from "@/hooks/use-retirement";
 import { getProjectionErrorKind } from "@/lib/retirement";
 import type {
   RetirementPlan,
   retirementProjectionFormValues,
 } from "@/lib/types/retirement";
+import { useUserSettingsContext } from "@/providers/user-settings-provider";
 import { useEffect, useMemo, useState } from "react";
 import { InputForm } from "./components/input-form";
 import { NetWorthGrowthProjection } from "./components/net-worth-growth-projection";
@@ -39,7 +41,6 @@ export function RetirementPlannerFeature() {
     isLoading: savedPlansLoading,
     isError: savedPlansError,
     error: savedPlansErrorData,
-    deletePlan,
   } = useRetirementPlans();
 
   // Effects for Plan Loading / Chart Selection
@@ -156,7 +157,6 @@ export function RetirementPlannerFeature() {
         loadedPlanId={loadedPlanId}
         homeCurrency={homeCurrency}
         onLoadPlan={handleLoadPlan}
-        deletePlan={deletePlan}
       />
     </div>
   );
